@@ -8,7 +8,7 @@ blueprint! {
 
     impl Hello {
         // Implement the functions and methods which will manage those resources and data
-        
+
         // This is a function, and can be called directly on the blueprint once deployed
         pub fn instantiate_hello() -> ComponentAddress {
             // Create a new token called "HelloToken," with a fixed supply of 1000, and put that supply into a bucket
@@ -32,5 +32,38 @@ blueprint! {
             // In this case, a bucket containing 1 HelloToken is returned
             self.sample_vault.take(1)
         }
+
+        // deposit stable coin funds into the vault
+        // recieve LP token
+        pub fn deposit(&mut self, Bucket funds) -> Bucket {
+          self.sample_vault.take(1)
+        }
+
+        // withdraw stable coin funds from the vault.
+        // LP token is burned
+        pub fn withdraw(&mut self, Bucket lp) -> Bucket {
+          self.sample_vault.take(1)
+        }
+
+        // swap a specific amount from a tocken to another
+        // take token from the input token vault and swap it into the output token
+        // store the output token in a vault
+        pub fn swap(
+          &mut self,
+          input_token_address: ResourceAddress,
+          output_token_address: ResourceAddress,
+          input_amount: Decimal
+        ) {
+          // interact with a DEX here
+        }
+
+        // buy a call option for a specific token from an options protocol
+        pub fn buy_call_option(&mut self) {
+        }
+
+        // buy a put option for a specific token from an options protocol
+        pub fn buy_put_option(&mut self) {
+        }
+
     }
 }
