@@ -1,48 +1,71 @@
 use scrypto::prelude::*;
 
 blueprint! {
-    struct Hello {
-        // Define what resources and data will be managed by Hello components
-        sample_vault: Vault
+    struct TradeVault {
+        stable_asset_pool: Vault,
+        investment_asset_pool: Vault,
+        manager: ComponentAddress,
+        share_mint_badge: Vault,
+        share_address: ResourceAddress,
     }
 
-    impl Hello {
-        // Implement the functions and methods which will manage those resources and data
+    impl TradeVault {
 
-        // This is a function, and can be called directly on the blueprint once deployed
-        pub fn instantiate_hello() -> ComponentAddress {
-            // Create a new token called "HelloToken," with a fixed supply of 1000, and put that supply into a bucket
-            let my_bucket: Bucket = ResourceBuilder::new_fungible()
-                .metadata("name", "HelloToken")
-                .metadata("symbol", "HT")
-                .initial_supply(1000);
+        pub fn init_trade_vault(
+          stable_asset_address: ResourceAddress,
+          investment_asset_address: ResourceAddress,
+          manager_wallet_address: ComponentAddress
+        ) -> ComponentAddress {
+          // This is kept in a bucket in self, for automatic minting
+          // and burning of vote tokens.
+          let share_mint_badge = ResourceBuilder::new_fungible()
+              .divisibility(DIVISIBILITY_NONE)
+              .metadata("name", "Shares mint badge".to_string())
+              .initial_supply(1);
 
-            // Instantiate a Hello component, populating its vault with our supply of 1000 HelloToken
-            Self {
-                sample_vault: Vault::with_bucket(my_bucket)
-            }
-            .instantiate()
-            .globalize()
+          // These token represent one's right to vote into the DAO
+          let shares = ResourceBuilder::new_fungible()
+            .mintable(rule!(require(share_mint_badge.resource_address())), LOCKED)
+            .burnable(rule!(require(share_mint_badge.resource_address())), LOCKED)
+            .metadata("name", "Trading fund share tokens".to_string())
+            .initial_supply(0);
+
+          Self {
+            stable_asset_pool: Vault::new(stable_asset_address),
+            investment_asset_pool: Vault::new(investment_asset_address),
+            manager: manager_wallet_address,
+            share_mint_badge: Vault::with_bucket(share_mint_badge),
+            share_address: shares.resource_address(),
+          }
+          .instantiate()
+          .globalize()
         }
 
-        // This is a method, because it needs a reference to self.  Methods can only be called on components
-        pub fn free_token(&mut self) -> Bucket {
-            info!("My balance is: {} HelloToken. Now giving away a token!", self.sample_vault.amount());
-            // If the semi-colon is omitted on the last line, the last value seen is automatically returned
-            // In this case, a bucket containing 1 HelloToken is returned
-            self.sample_vault.take(1)
-        }
+        pub fn deposit(&mut self, funds: Bucket) -> Bucket {
+          let address: ResourceAddress = funds.resource_address();
+          assert!(address == self.stable_asset_pool.resource_address(), "Wrong token type sent");
 
-        // deposit stable coin funds into the vault
-        // recieve LP token
-        pub fn deposit(&mut self, Bucket funds) -> Bucket {
-          self.sample_vault.take(1)
+          let cmgr: &ResourceManager = borrow_resource_manager!(self.share_address);
+
+          // We mint a number of new votes equal to the value of
+          // the deposit.
+          let total = self.calc_total_funds();
+          let mint_q = if total.is_zero() { funds.amount() } else { (cmgr.total_supply() / total ) * funds.amount()};
+
+          let shares = self.share_mint_badge.authorize(|| {
+              borrow_resource_manager!(self.share_address).mint(mint_q)
+          });
+
+          self.stable_asset_pool.put(funds);
+
+          shares
+
         }
 
         // withdraw stable coin funds from the vault.
         // LP token is burned
-        pub fn withdraw(&mut self, Bucket lp) -> Bucket {
-          self.sample_vault.take(1)
+        pub fn withdraw(&mut self, lp_token: Bucket) -> Bucket {
+          self.stable_asset_pool.take(1)
         }
 
         // swap a specific amount from a tocken to another
@@ -57,13 +80,10 @@ blueprint! {
           // interact with a DEX here
         }
 
-        // buy a call option for a specific token from an options protocol
-        pub fn buy_call_option(&mut self) {
+        /// Calculates the total funds in the
+        fn calc_total_funds(&self) -> Decimal {
+          let total: Decimal = self.stable_asset_pool.amount();
+          total
         }
-
-        // buy a put option for a specific token from an options protocol
-        pub fn buy_put_option(&mut self) {
-        }
-
     }
 }
