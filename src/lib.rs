@@ -64,8 +64,24 @@ blueprint! {
 
         // withdraw stable coin funds from the vault.
         // LP token is burned
-        pub fn withdraw(&mut self, lp_token: Bucket) -> Bucket {
-          self.stable_asset_pool.take(1)
+        pub fn withdraw(&mut self, share_tokens: Bucket) -> Bucket {
+          assert!(share_tokens.resource_address() == self.share_address,
+          "Wrong share token type");
+
+          let cmgr: &ResourceManager = borrow_resource_manager!(self.share_address);
+          // We receive a number of tokens proportional to our
+          // ownership in the share tokens.
+          //
+          // Note that if free_funds does not have sufficient tokens
+          // then this call fails and the user needs to wait for
+          // free_funds to refill, possibly making a smaller
+          // withdrawal in the meantime.
+          let bucket_out = self.stable_asset_pool.take(self.value_of(share_tokens.amount(), cmgr));
+          self.share_mint_badge.authorize(||  {
+            share_tokens.burn();
+          });
+
+          bucket_out
         }
 
         // swap a specific amount from a tocken to another
@@ -80,10 +96,17 @@ blueprint! {
           // interact with a DEX here
         }
 
-        /// Calculates the total funds in the
+        /// Calculates the total funds in the stable asset pool
         fn calc_total_funds(&self) -> Decimal {
           let total: Decimal = self.stable_asset_pool.amount();
           total
+        }
+
+        /// Calculates the value of a given number of share tokens.
+        fn value_of(&self, amount: Decimal, manager: &ResourceManager) -> Decimal {
+          let total = manager.total_supply();
+          if total.is_zero() { return amount; }
+          else { return amount * (self.calc_total_funds() / total); }
         }
     }
 }
