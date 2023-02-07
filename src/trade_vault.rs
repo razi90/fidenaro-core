@@ -1,3 +1,4 @@
+use crate::radswap::*;
 use scrypto::prelude::*;
 
 blueprint! {
@@ -7,6 +8,7 @@ blueprint! {
     manager: ComponentAddress,
     share_mint_badge: Vault,
     share_address: ResourceAddress,
+    radswap: RadSwapComponent,
   }
 
   impl TradeVault {
@@ -36,6 +38,7 @@ blueprint! {
         manager: manager_wallet_address,
         share_mint_badge: Vault::with_bucket(share_mint_badge),
         share_address: shares.resource_address(),
+        radswap: RadSwapComponent::new(),
       }
       .instantiate()
       .globalize()
