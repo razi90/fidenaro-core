@@ -132,7 +132,10 @@ blueprint! {
       bucket_out
     }
 
-    /// Swaps tokens from one pool to another by interacting with an external swap module.
+    /// This function performs a swap of a specific token between two pools: the stable coin pool and the investment pool.
+    /// It first checks if the input and output token addresses match either of the pool addresses and ensures that they are not the same.
+    /// Then it takes the specified amount of the input token from the corresponding pool and calls the external swap module to perform the swap.
+    /// Finally, it adds the swapped tokens to the output pool.
     ///
     /// # Arguments
     /// * `input_token_address` - the address of the token to be swapped out of the pool
@@ -153,7 +156,7 @@ blueprint! {
       output_token_address: ResourceAddress,
       swap_amount: Decimal
     ) {
-      assert!(&input_token_address != &output_token_address, "Input and output ressource addresses are same.");
+      assert!(&input_token_address != &output_token_address, "Input and output token addresses must be different.");
 
       let pool_addresses = [
         self.stable_asset_pool.resource_address(),
@@ -161,7 +164,7 @@ blueprint! {
       ];
 
       assert!(pool_addresses.contains(&input_token_address) && pool_addresses.contains(&output_token_address),
-              "Ressource addresses are not supported. Could not find appropriate pools." );
+              "Input and output token addresses do not match any of the pool addresses." );
 
       let funds: Bucket;
 
@@ -171,9 +174,10 @@ blueprint! {
         funds = self.investment_asset_pool.take(swap_amount);
       }
 
-      // interact with the external swap module here
+      // Interact with the external swap module to perform the actual swap.
       let output_funds = self.radswap.swap(funds, output_token_address);
 
+      // Add the swapped tokens to the appropriate output pool.
       if output_token_address == self.stable_asset_pool.resource_address() {
         self.stable_asset_pool.put(output_funds);
       } else {
