@@ -44,46 +44,91 @@ blueprint! {
       .globalize()
     }
 
-    pub fn deposit(&mut self, funds: Bucket) -> Bucket {
-      let address: ResourceAddress = funds.resource_address();
+
+    /// Deposits a specified amount of stable coins into the vault.
+    ///
+    /// # Arguments
+    ///
+    /// * `deposit` - The stable coins to be deposited.
+    ///
+    /// # Returns
+    ///
+    /// A `Bucket` of newly minted share tokens, proportional in value to the amount of stable coins deposited.
+    ///
+    /// # Errors
+    ///
+    /// If the wrong type of stable coin is passed in, the function will fail with an error message.
+    pub fn deposit(&mut self, deposit: Bucket) -> Bucket {
+      let address: ResourceAddress = deposit.resource_address();
+      // Ensure that the type of stable coin passed in matches the type stored in the stable asset pool.
       assert!(address == self.stable_asset_pool.resource_address(), "Wrong token type sent");
 
-      let cmgr: &ResourceManager = borrow_resource_manager!(self.share_address);
+      // Borrow the resource manager for the share tokens.
+      let share_cmgr: &ResourceManager = borrow_resource_manager!(self.share_address);
 
-      // We mint a number of new votes equal to the value of
-      // the deposit.
-      let total = self.calc_total_funds();
-      let mint_q = if total.is_zero() { funds.amount() } else { (cmgr.total_supply() / total ) * funds.amount()};
+      // Calculate the current total number of share tokens.
+      let total_tokens = share_cmgr.total_supply();
 
+      // Calculate the total value of the stable asset pool.
+      let total_funds = self.calc_total_funds();
+
+      // Calculate the number of new share tokens to mint, proportional to the total number of existing share tokens.
+      let mint_quantity = deposit.amount() * total_tokens / (total_funds + deposit.amount());
+
+      // Mint the new share tokens.
       let shares = self.share_mint_badge.authorize(|| {
-          borrow_resource_manager!(self.share_address).mint(mint_q)
+          borrow_resource_manager!(self.share_address).mint(mint_quantity)
       });
 
-      self.stable_asset_pool.put(funds);
+      // Store the deposited stable coins in the stable asset pool.
+      self.stable_asset_pool.put(deposit);
 
       shares
 
     }
 
-    // withdraw stable coin funds from the vault.
-    // LP token is burned
+    /// Withdraws a specified number of share tokens and returns an equivalent value of stable coins.
+    ///
+    /// # Arguments
+    ///
+    /// * `share_tokens` - The share tokens to be withdrawn.
+    ///
+    /// # Returns
+    ///
+    /// A `Bucket` of stable coins, equivalent in value to the number of share tokens withdrawn.
+    ///
+    /// # Errors
+    ///
+    /// If the wrong type of share token is passed in, the function will fail with an error message.
     pub fn withdraw(&mut self, share_tokens: Bucket) -> Bucket {
-      assert!(share_tokens.resource_address() == self.share_address,
-      "Wrong share token type");
+      // Ensure that the correct type of share token is being withdrawn
+      assert!(share_tokens.resource_address() == self.share_address, "Wrong share token type");
 
-      let cmgr: &ResourceManager = borrow_resource_manager!(self.share_address);
-      // We receive a number of tokens proportional to our
-      // ownership in the share tokens.
-      //
-      // Note that if free_funds does not have sufficient tokens
-      // then this call fails and the user needs to wait for
-      // free_funds to refill, possibly making a smaller
-      // withdrawal in the meantime.
-      let bucket_out = self.stable_asset_pool.take(self.value_of(share_tokens.amount(), cmgr));
+      // Get a reference to the share token's resource manager
+      let share_cmgr: &ResourceManager = borrow_resource_manager!(self.share_address);
+
+      // Get the number of share tokens being withdrawn
+      let share_token_amount = share_tokens.amount();
+
+      // Get the total number of share tokens in circulation
+      let total_tokens = share_cmgr.total_supply();
+
+      // Get the current total value of the stable asset pool
+      let total_funds = self.calc_total_funds();
+
+      // Calculate the amount of stable coins that should be withdrawn,
+      // proportional to the number of share tokens being withdrawn
+      let withdraw_amount = share_token_amount * total_funds / total_tokens;
+
+      // Take the calculated amount of stable coins from the pool
+      let bucket_out = self.stable_asset_pool.take(withdraw_amount);
+
+      // Burn the share tokens being withdrawn
       self.share_mint_badge.authorize(||  {
-        share_tokens.burn();
+          share_tokens.burn();
       });
 
+      // Return the withdrawn stable coins
       bucket_out
     }
 
@@ -103,13 +148,6 @@ blueprint! {
     fn calc_total_funds(&self) -> Decimal {
       let total: Decimal = self.stable_asset_pool.amount();
       total
-    }
-
-    /// Calculates the value of a given number of share tokens.
-    fn value_of(&self, amount: Decimal, manager: &ResourceManager) -> Decimal {
-      let total = manager.total_supply();
-      if total.is_zero() { return amount; }
-      else { return amount * (self.calc_total_funds() / total); }
     }
   }
 }
