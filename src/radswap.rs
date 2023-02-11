@@ -8,8 +8,13 @@ blueprint! {
             Self{}.instantiate()
         }
 
-        pub fn swap(&self) {
+        pub fn swap(
+            &mut self,
+            tokens: Bucket,
+            output_resource_address: ResourceAddress
+        ) -> Bucket {
             info!("Swaping tokens!");
+            tokens
         }
     }
 }

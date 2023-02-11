@@ -132,17 +132,54 @@ blueprint! {
       bucket_out
     }
 
-    // swap a specific amount from a tocken to another
-    // take token from the input token vault and swap it into the output token
-    // store the output token in a vault
-    // pub fn swap(
-    //   &mut self,
-    //   input_token_address: ResourceAddress,
-    //   output_token_address: ResourceAddress,
-    //   input_amount: Decimal
-    // ) {
-    //   // interact with a DEX here
-    // }
+    /// Swaps tokens from one pool to another by interacting with an external swap module.
+    ///
+    /// # Arguments
+    /// * `input_token_address` - the address of the token to be swapped out of the pool
+    /// * `output_token_address` - the address of the token to be swapped into the pool
+    /// * `swap_amount` - the amount of tokens to be swapped
+    ///
+    /// # Example
+    /// ```
+    /// let input_token_address = "0x123...";
+    /// let output_token_address = "0x456...";
+    /// let swap_amount = Decimal::new(100, 0);
+    ///
+    /// vault.swap(input_token_address, output_token_address, swap_amount);
+    ///
+    pub fn swap(
+      &mut self,
+      input_token_address: ResourceAddress,
+      output_token_address: ResourceAddress,
+      swap_amount: Decimal
+    ) {
+      assert!(&input_token_address != &output_token_address, "Input and output ressource addresses are same.");
+
+      let pool_addresses = [
+        self.stable_asset_pool.resource_address(),
+        self.investment_asset_pool.resource_address()
+      ];
+
+      assert!(pool_addresses.contains(&input_token_address) && pool_addresses.contains(&output_token_address),
+              "Ressource addresses are not supported. Could not find appropriate pools." );
+
+      let funds: Bucket;
+
+      if input_token_address == self.stable_asset_pool.resource_address() {
+        funds = self.stable_asset_pool.take(swap_amount);
+      } else {
+        funds = self.investment_asset_pool.take(swap_amount);
+      }
+
+      // interact with the external swap module here
+      let output_funds = self.radswap.swap(funds, output_token_address);
+
+      if output_token_address == self.stable_asset_pool.resource_address() {
+        self.stable_asset_pool.put(output_funds);
+      } else {
+        self.investment_asset_pool.put(output_funds);
+      }
+    }
 
     /// Calculates the total funds in the stable asset pool
     fn calc_total_funds(&self) -> Decimal {
