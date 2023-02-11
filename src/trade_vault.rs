@@ -19,13 +19,13 @@ blueprint! {
       manager_wallet_address: ComponentAddress
     ) -> ComponentAddress {
       // This is kept in a bucket in self, for automatic minting
-      // and burning of vote tokens.
+      // and burning of share tokens.
       let share_mint_badge = ResourceBuilder::new_fungible()
         .divisibility(DIVISIBILITY_NONE)
         .metadata("name", "Shares mint badge".to_string())
         .initial_supply(1);
 
-      // These token represent one's right to vote into the DAO
+      // These token represent one's share on the capital locked into the vault
       let shares = ResourceBuilder::new_fungible()
         .mintable(rule!(require(share_mint_badge.resource_address())), LOCKED)
         .burnable(rule!(require(share_mint_badge.resource_address())), LOCKED)
