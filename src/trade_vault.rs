@@ -9,6 +9,7 @@ blueprint! {
     share_mint_badge: Vault,
     share_address: ResourceAddress,
     radswap: RadSwapComponent,
+    performance_fee: Decimal,
   }
 
   impl TradeVault {
@@ -39,6 +40,8 @@ blueprint! {
         share_mint_badge: Vault::with_bucket(share_mint_badge),
         share_address: shares.resource_address(),
         radswap: RadSwapComponent::new(),
+        // TODO: Make performance fee configurable
+        performance_fee: Decimal::from("0.1"),
       }
       .instantiate()
       .globalize()
