@@ -48,19 +48,21 @@ blueprint! {
     }
 
 
-    /// Deposits a specified amount of stable coins into the vault.
-    ///
-    /// # Arguments
-    ///
-    /// * `deposit` - The stable coins to be deposited.
-    ///
-    /// # Returns
-    ///
-    /// A `Bucket` of newly minted share tokens, proportional in value to the amount of stable coins deposited.
-    ///
-    /// # Errors
-    ///
-    /// If the wrong type of stable coin is passed in, the function will fail with an error message.
+    /**
+    Deposits a specified amount of stable coins into the vault.
+
+    # Arguments
+
+    * `deposit` - The stable coins to be deposited.
+
+    # Returns
+
+    A `Bucket` of newly minted share tokens, proportional in value to the amount of stable coins deposited.
+
+    # Errors
+
+    If the wrong type of stable coin is passed in, the function will fail with an error message.
+    */
     pub fn deposit(&mut self, deposit: Bucket) -> Bucket {
       let address: ResourceAddress = deposit.resource_address();
       // Ensure that the type of stable coin passed in matches the type stored in the stable asset pool.
@@ -90,19 +92,21 @@ blueprint! {
 
     }
 
-    /// Withdraws a specified number of share tokens and returns an equivalent value of stable coins.
-    ///
-    /// # Arguments
-    ///
-    /// * `share_tokens` - The share tokens to be withdrawn.
-    ///
-    /// # Returns
-    ///
-    /// A `Bucket` of stable coins, equivalent in value to the number of share tokens withdrawn.
-    ///
-    /// # Errors
-    ///
-    /// If the wrong type of share token is passed in, the function will fail with an error message.
+    /**
+    Withdraws a specified number of share tokens and returns an equivalent value of stable coins.
+
+    # Arguments
+
+    * `share_tokens` - The share tokens to be withdrawn.
+
+    # Returns
+
+    A `Bucket` of stable coins, equivalent in value to the number of share tokens withdrawn.
+
+    # Errors
+
+    If the wrong type of share token is passed in, the function will fail with an error message.
+    */
     pub fn withdraw(&mut self, share_tokens: Bucket) -> Bucket {
       // Ensure that the correct type of share token is being withdrawn
       assert!(share_tokens.resource_address() == self.share_address, "Wrong share token type");
@@ -135,24 +139,25 @@ blueprint! {
       bucket_out
     }
 
-    /// This function performs a swap of a specific token between two pools: the stable coin pool and the investment pool.
-    /// It first checks if the input and output token addresses match either of the pool addresses and ensures that they are not the same.
-    /// Then it takes the specified amount of the input token from the corresponding pool and calls the external swap module to perform the swap.
-    /// Finally, it adds the swapped tokens to the output pool.
-    ///
-    /// # Arguments
-    /// * `input_token_address` - the address of the token to be swapped out of the pool
-    /// * `output_token_address` - the address of the token to be swapped into the pool
-    /// * `swap_amount` - the amount of tokens to be swapped
-    ///
-    /// # Example
-    /// ```
-    /// let input_token_address = "0x123...";
-    /// let output_token_address = "0x456...";
-    /// let swap_amount = Decimal::new(100, 0);
-    ///
-    /// vault.swap(input_token_address, output_token_address, swap_amount);
-    ///
+    /**
+    This function performs a swap of a specific token between two pools: the stable coin pool and the investment pool.
+    It first checks if the input and output token addresses match either of the pool addresses and ensures that they are not the same.
+    Then it takes the specified amount of the input token from the corresponding pool and calls the external swap module to perform the swap.
+    Finally, it adds the swapped tokens to the output pool.
+
+    # Arguments
+    * `input_token_address` - the address of the token to be swapped out of the pool
+    * `output_token_address` - the address of the token to be swapped into the pool
+    * `swap_amount` - the amount of tokens to be swapped
+
+    # Example
+    ```
+    let input_token_address = "0x123...";
+    let output_token_address = "0x456...";
+    let swap_amount = Decimal::from("1000");
+
+    vault.swap(input_token_address, output_token_address, swap_amount);
+    */
     pub fn swap(
       &mut self,
       input_token_address: ResourceAddress,
