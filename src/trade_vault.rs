@@ -8,7 +8,6 @@ struct Trade {
     input_amount: Decimal,
     output_amount: Decimal,
     opening_price: Decimal,
-    #[scrypto(mutable)]
     closing_price: Decimal,
 }
 
@@ -33,6 +32,7 @@ blueprint! {
         share_address: ResourceAddress,
         radswap: RadSwapComponent,
         performance_fee: Decimal,
+        fidenaro_fee: Decimal,
         trades: Vec<Trade>,
     }
 
@@ -57,7 +57,9 @@ blueprint! {
                 .metadata("name", "Trading fund share tokens".to_string())
                 .initial_supply(0);
 
-            let mut trade_vec: Vec<Trade> = Vec::new();
+            let fidenaro_fee = Decimal::from("0.05");
+
+            let trade_vec: Vec<Trade> = Vec::new();
 
             Self {
                 stable_asset_pool: Vault::new(stable_asset_address),
@@ -67,6 +69,7 @@ blueprint! {
                 share_address: shares.resource_address(),
                 radswap: RadSwapComponent::new(),
                 performance_fee: performance_fee,
+                fidenaro_fee: fidenaro_fee,
                 trades: trade_vec,
             }
             .instantiate()
@@ -195,15 +198,32 @@ blueprint! {
         pub fn close_trade(
             &mut self,
             trade_index: usize,
-        ) {
+        ) -> Bucket {
             let trade = &mut self.trades[trade_index];
             let output_funds = self.investment_asset_pool.take(trade.output_amount);
-            let input_funds = self.radswap.swap(output_funds, trade.input_token_address);
+            let mut input_funds = self.radswap.swap(output_funds, trade.input_token_address);
 
             let closing_price = input_funds.amount() / trade.output_amount;
 
             trade.closing_price = closing_price;
+
+            let absolut_performance_fee = trade.calculate_performance_fee(self.performance_fee);
+            let absolut_fidenaro_fee = self.calc_fidenaro_fee(absolut_performance_fee);
+
+            let absolut_trader_performance_fee = absolut_performance_fee - absolut_fidenaro_fee;
+
+            let trader_share_bucket = input_funds.take(absolut_trader_performance_fee);
+
+            // TODO: send fidenaro fee to treasury
+            //let fidenaro_share_bucket = input_funds.take(absolut_fidenaro_fee);
+
             self.stable_asset_pool.put(input_funds);
+            trader_share_bucket
+        }
+
+        fn calc_fidenaro_fee(&self, profit: Decimal) -> Decimal {
+            let absolut_fidenaro_fee = profit * self.fidenaro_fee;
+            absolut_fidenaro_fee
         }
 
         /// Calculates the total funds in the stable asset pool
