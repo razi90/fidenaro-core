@@ -1,10 +1,11 @@
+use crate::fidenaro_treasury::*;
 use crate::radswap::*;
 use scrypto::prelude::*;
 
 #[scrypto(TypeId, Encode, Decode, NonFungibleData, Describe)]
 struct Trade {
     input_token_address: ResourceAddress,
-    output_token_address: ResourceAddress,
+    // output_token_address: ResourceAddress,
     input_amount: Decimal,
     output_amount: Decimal,
     opening_price: Decimal,
@@ -31,6 +32,7 @@ blueprint! {
         share_mint_badge: Vault,
         share_address: ResourceAddress,
         radswap: RadSwapComponent,
+        fidenaro_treasury: FidenaroTreasuryComponent,
         performance_fee: Decimal,
         fidenaro_fee: Decimal,
         trades: Vec<Trade>,
@@ -68,6 +70,7 @@ blueprint! {
                 share_mint_badge: Vault::with_bucket(share_mint_badge),
                 share_address: shares.resource_address(),
                 radswap: RadSwapComponent::new(),
+                fidenaro_treasury: FidenaroTreasuryComponent::new(),
                 performance_fee: performance_fee,
                 fidenaro_fee: fidenaro_fee,
                 trades: trade_vec,
@@ -187,7 +190,7 @@ blueprint! {
             self.investment_asset_pool.put(output_funds);
             self.trades.push(Trade {
               input_token_address,
-              output_token_address,
+            //   output_token_address,
               input_amount,
               output_amount,
               opening_price,
@@ -214,8 +217,10 @@ blueprint! {
 
             let trader_share_bucket = input_funds.take(absolut_trader_performance_fee);
 
-            // TODO: send fidenaro fee to treasury
-            //let fidenaro_share_bucket = input_funds.take(absolut_fidenaro_fee);
+            let fidenaro_share_bucket = input_funds.take(absolut_fidenaro_fee);
+
+            // send fidenaro fee to the treasury
+            self.fidenaro_treasury.deposit(fidenaro_share_bucket);
 
             self.stable_asset_pool.put(input_funds);
             trader_share_bucket
