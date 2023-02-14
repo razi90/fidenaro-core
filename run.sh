@@ -4,7 +4,6 @@ resim reset
 
 OP=$(resim new-account)
 
-
 # resim new-account (wallet)
 export account=$(echo "$OP" | sed -nr "s/Account component address: ([[:alnum:]_]+)/\1/p")
 export privkey=$(echo "$OP" | sed -nr "s/Private key: ([[:alnum:]_]+)/\1/p")
@@ -36,7 +35,6 @@ resim show $account
 # resim publish .
 export package=$(resim publish . --owner-badge $badge_nfaddress | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 
-
 # Instantiate a component
 export performance_fee=10
 OP=$(resim call-function $package TradeVault init_trade_vault $usdc_resource_address $btc_resource_address $account $performance_fee)
@@ -46,8 +44,16 @@ export shares_mint_badge=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\
 export shares_token_vault=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\1/p" | sed '2!d')
 
 resim show $trading_vault_component
+resim call-method $account withdraw_by_amount 1000 $usdc_resource_address
 
-# resim call-method $component create_image "Lion" "https://s2.sum.io/image/xyzdcasdf"
+echo "TAKE_FROM_WORKTOP ResourceAddress(\"$usdc_resource_address\") Bucket(\"usdc\");" > out.rtm
+echo "CALL_METHOD ComponentAddress(\"$trading_vault_component\") \"deposit\" Bucket(\"usdc\");" >> out.rtm
+
+
+resim run ./out.rtm
+
+# resim call-method $trading_vault_component deposit Bucket\(1025u32\)
+# resim call-method $trading_vault_component deposit "Lion" "https://s2.sum.io/image/xyzdcasdf"
 # resim call-method $component create_image "Tiger" "https://s2.sum.io/image/asferawvye"
 # resim call-method $component create_image "Butterfly" "https://s2.sum.io/image/nernjdses"
 
