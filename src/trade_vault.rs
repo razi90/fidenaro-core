@@ -26,16 +26,17 @@ impl Trade {
 
 blueprint! {
     struct TradeVault {
-        stable_asset_pool: Vault,
-        investment_asset_pool: Vault,
-        manager: ComponentAddress,
-        share_mint_badge: Vault,
-        share_address: ResourceAddress,
-        radswap: RadSwapComponent,
-        fidenaro_treasury: FidenaroTreasuryComponent,
-        performance_fee: Decimal,
-        fidenaro_fee: Decimal,
-        trades: Vec<Trade>,
+      stable_asset_pool: Vault,
+      investment_asset_pool: Vault,
+      manager: ComponentAddress,
+      share_mint_badge: Vault,
+      share_address: ResourceAddress,
+      shares: Vault,
+      radswap: RadSwapComponent,
+      fidenaro_treasury: FidenaroTreasuryComponent,
+      performance_fee: Decimal,
+      fidenaro_fee: Decimal,
+      trades: Vec<Trade>,
     }
 
     impl TradeVault {
@@ -69,6 +70,7 @@ blueprint! {
                 manager: manager_wallet_address,
                 share_mint_badge: Vault::with_bucket(share_mint_badge),
                 share_address: shares.resource_address(),
+                shares: Vault::with_bucket(shares),
                 radswap: RadSwapComponent::new(),
                 fidenaro_treasury: FidenaroTreasuryComponent::new(),
                 performance_fee: performance_fee,

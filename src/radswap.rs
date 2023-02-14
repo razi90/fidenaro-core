@@ -11,7 +11,7 @@ blueprint! {
         pub fn swap(
             &mut self,
             tokens: Bucket,
-            output_resource_address: ResourceAddress
+            _output_resource_address: ResourceAddress
         ) -> Bucket {
             info!("Swaping tokens!");
             tokens
