@@ -137,24 +137,11 @@ blueprint! {
                 "Wrong share token type"
             );
 
-            // Get a reference to the share token's resource manager
-            let share_cmgr: &ResourceManager = borrow_resource_manager!(self.share_address);
-
             // Get the number of share tokens being withdrawn
             let share_token_amount = share_tokens.amount();
 
-            // Get the total number of share tokens in circulation
-            let total_tokens = share_cmgr.total_supply();
-
-            // Get the current total value of the stable asset pool
-            let total_funds = self.calc_total_funds();
-
-            // Calculate the amount of stable coins that should be withdrawn,
-            // proportional to the number of share tokens being withdrawn
-            let withdraw_amount = share_token_amount * total_funds / total_tokens;
-
             // Take the calculated amount of stable coins from the pool
-            let bucket_out = self.stable_asset_pool.take(withdraw_amount);
+            let bucket_out = self.stable_asset_pool.take(share_token_amount);
 
             // Burn the share tokens being withdrawn
             self.share_mint_badge.authorize(|| {
