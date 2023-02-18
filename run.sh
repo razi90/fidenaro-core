@@ -41,11 +41,13 @@ OP=$(resim call-function $package TradeVault init_trade_vault $usdc_resource_add
 
 export trading_vault_component=$(echo "$OP" | sed -nr "s/.*Component: ([[:alnum:]_]+)/\1/p")
 export shares_mint_badge=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\1/p" | sed '1!d')
-export shares_token_vault=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\1/p" | sed '2!d')
+export shares_token_address=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\1/p" | sed '2!d')
+
 
 # resim show $trading_vault_component
 
-cat << EOF > out.rtm
+# deposit 1000 usdc into the vault
+cat << EOF > ./tmp/deposit.rtm
 CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
 CALL_METHOD ComponentAddress("$account") "withdraw_by_amount" Decimal("1000") ResourceAddress("$usdc_resource_address");
 TAKE_FROM_WORKTOP ResourceAddress("$usdc_resource_address") Bucket("usdc");
@@ -53,6 +55,17 @@ CALL_METHOD ComponentAddress("$trading_vault_component") "deposit" Bucket("usdc"
 CALL_METHOD ComponentAddress("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
 EOF
 
-resim run ./out.rtm
+resim run ./tmp/deposit.rtm
+
+# withdraw 500 usdc from the vault
+cat << EOF > ./tmp/withdraw.rtm
+CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
+CALL_METHOD ComponentAddress("$account") "withdraw_by_amount" Decimal("500") ResourceAddress("$shares_token_address");
+TAKE_FROM_WORKTOP ResourceAddress("$shares_token_address") Bucket("shares");
+CALL_METHOD ComponentAddress("$trading_vault_component") "withdraw" Bucket("shares");
+CALL_METHOD ComponentAddress("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
+EOF
+
+resim run ./tmp/withdraw.rtm
 
 resim show $account
