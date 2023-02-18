@@ -209,7 +209,7 @@ blueprint! {
         }
 
         /// Calculates the total funds in the stable asset pool
-        fn calc_total_funds(&self) -> Decimal {
+        fn _calc_total_funds(&self) -> Decimal {
             let total: Decimal = self.stable_asset_pool.amount();
             total
         }
