@@ -28,9 +28,9 @@ export badge_nfaddress=$(echo "$OP" | sed -nr "s/NFAddress: ([[:alnum:]_]+)/\1/p
 export badge_resource=$(echo "$OP" | sed -nr "s/Resource: ([[:alnum:]_]+)/\1/p")
 
 # # transfer badge to the default account
-resim transfer 1 $badge_resource $account
+resim transfer 1 $badge_resource $account > /dev/null
 
-resim show $account
+# resim show $account
 
 # resim publish .
 export package=$(resim publish . --owner-badge $badge_nfaddress | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
@@ -43,30 +43,16 @@ export trading_vault_component=$(echo "$OP" | sed -nr "s/.*Component: ([[:alnum:
 export shares_mint_badge=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\1/p" | sed '1!d')
 export shares_token_vault=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\1/p" | sed '2!d')
 
-resim show $trading_vault_component
-resim call-method $account withdraw_by_amount 1000 $usdc_resource_address
+# resim show $trading_vault_component
 
-echo "TAKE_FROM_WORKTOP ResourceAddress(\"$usdc_resource_address\") Bucket(\"usdc\");" > out.rtm
-echo "CALL_METHOD ComponentAddress(\"$trading_vault_component\") \"deposit\" Bucket(\"usdc\");" >> out.rtm
-
+cat << EOF > out.rtm
+CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
+CALL_METHOD ComponentAddress("$account") "withdraw_by_amount" Decimal("1000") ResourceAddress("$usdc_resource_address");
+TAKE_FROM_WORKTOP ResourceAddress("$usdc_resource_address") Bucket("usdc");
+CALL_METHOD ComponentAddress("$trading_vault_component") "deposit" Bucket("usdc");
+CALL_METHOD ComponentAddress("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
+EOF
 
 resim run ./out.rtm
 
-# resim call-method $trading_vault_component deposit Bucket\(1025u32\)
-# resim call-method $trading_vault_component deposit "Lion" "https://s2.sum.io/image/xyzdcasdf"
-# resim call-method $component create_image "Tiger" "https://s2.sum.io/image/asferawvye"
-# resim call-method $component create_image "Butterfly" "https://s2.sum.io/image/nernjdses"
-
-# # resim show $image_art
-
-# # Create new USDC token for payment
-# D_OP=$(resim new-token-fixed 1000 --name "US Dollar" --symbol USDC)
-# export usdc_token=$(echo "$D_OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\1/p" | sed '1!d')
-
-# # Get ressource address from the Lion NFT
-# resim show $account
-
-# # Instantiate an auction with the Lion NFT and USDC as payment token with a fixed price of 100 USDC
-# resim call-function $package FixedPriceSale instantiate_fixed_price_sale "#0a0000000000000000,$image_art" $usdc_token 100
-
-# resim show $account
+resim show $account

@@ -104,22 +104,10 @@ blueprint! {
                 "Wrong token type sent"
             );
 
-            // Borrow the resource manager for the share tokens.
-            let share_cmgr: &ResourceManager = borrow_resource_manager!(self.share_address);
-
-            // Calculate the current total number of share tokens.
-            let total_tokens = share_cmgr.total_supply();
-
-            // Calculate the total value of the stable asset pool.
-            let total_funds = self.calc_total_funds();
-
-            // Calculate the number of new share tokens to mint, proportional to the total number of existing share tokens.
-            let mint_quantity = deposit.amount() * total_tokens / (total_funds + deposit.amount());
-
             // Mint the new share tokens.
             let shares = self
                 .share_mint_badge
-                .authorize(|| borrow_resource_manager!(self.share_address).mint(mint_quantity));
+                .authorize(|| borrow_resource_manager!(self.share_address).mint(deposit.amount()));
 
             // Store the deposited stable coins in the stable asset pool.
             self.stable_asset_pool.put(deposit);
