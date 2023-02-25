@@ -27,17 +27,17 @@ impl Trade {
 #[blueprint]
 mod trade_vault {
     struct TradeVault {
-      stable_asset_pool: Vault,
-      investment_asset_pool: Vault,
-      manager: ComponentAddress,
-      share_mint_badge: Vault,
-      share_address: ResourceAddress,
-      shares: Vault,
-    //   radswap: RadSwapComponent,
-      fidenaro_treasury: FidenaroTreasuryComponent,
-      performance_fee: Decimal,
-      fidenaro_fee: Decimal,
-      trades: Vec<Trade>,
+        stable_asset_pool: Vault,
+        investment_asset_pool: Vault,
+        manager: ComponentAddress,
+        share_mint_badge: Vault,
+        share_address: ResourceAddress,
+        shares: Vault,
+        //   radswap: RadSwapComponent,
+        fidenaro_treasury: FidenaroTreasuryComponent,
+        performance_fee: Decimal,
+        fidenaro_fee: Decimal,
+        trades: Vec<Trade>,
     }
 
     impl TradeVault {
@@ -168,19 +168,16 @@ mod trade_vault {
 
             self.investment_asset_pool.put(output_funds);
             self.trades.push(Trade {
-              input_token_address,
-            //   output_token_address,
-              input_amount,
-              output_amount,
-              opening_price,
-              closing_price: Decimal::from("0.0"),
+                input_token_address,
+                //   output_token_address,
+                input_amount,
+                output_amount,
+                opening_price,
+                closing_price: Decimal::from("0.0"),
             });
         }
 
-        pub fn close_trade(
-            &mut self,
-            trade_index: usize,
-        ) -> Bucket {
+        pub fn close_trade(&mut self, trade_index: usize) -> Bucket {
             let trade = &mut self.trades[trade_index];
             let output_funds = self.investment_asset_pool.take(trade.output_amount);
             // let mut input_funds = self.radswap.swap(output_funds, trade.input_token_address);

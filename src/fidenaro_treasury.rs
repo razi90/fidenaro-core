@@ -5,15 +5,13 @@ mod fidenaro_treasury {
     use scrypto::blueprint;
 
     struct FidenaroTreasury {
-      treasury: HashMap<ResourceAddress, Vault>,
+        treasury: HashMap<ResourceAddress, Vault>,
     }
 
     impl FidenaroTreasury {
-        pub fn new() -> FidenaroTreasuryComponent{
+        pub fn new() -> FidenaroTreasuryComponent {
             let treasury: HashMap<ResourceAddress, Vault> = HashMap::new();
-            Self{
-              treasury: treasury,
-            }.instantiate()
+            Self { treasury: treasury }.instantiate()
         }
 
         pub fn deposit(&mut self, tokens: Bucket) {
@@ -21,7 +19,7 @@ mod fidenaro_treasury {
             let token_address: ResourceAddress = tokens.resource_address();
             let optional_vault: Option<&mut Vault> = self.treasury.get_mut(&token_address);
             match optional_vault {
-                Some (vault) => {
+                Some(vault) => {
                     // If it matches it means that the vault with this resource addreas already exists.
                     vault.put(tokens);
                 }
