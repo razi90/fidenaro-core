@@ -1,8 +1,8 @@
 use crate::fidenaro_treasury::*;
-use crate::radswap::*;
+// use crate::radswap::*;
 use scrypto::prelude::*;
 
-#[scrypto(TypeId, Encode, Decode, NonFungibleData, Describe)]
+#[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, NonFungibleData, LegacyDescribe)]
 struct Trade {
     input_token_address: ResourceAddress,
     // output_token_address: ResourceAddress,
@@ -24,7 +24,8 @@ impl Trade {
     }
 }
 
-blueprint! {
+#[blueprint]
+mod trade_vault {
     struct TradeVault {
       stable_asset_pool: Vault,
       investment_asset_pool: Vault,
@@ -32,7 +33,7 @@ blueprint! {
       share_mint_badge: Vault,
       share_address: ResourceAddress,
       shares: Vault,
-      radswap: RadSwapComponent,
+    //   radswap: RadSwapComponent,
       fidenaro_treasury: FidenaroTreasuryComponent,
       performance_fee: Decimal,
       fidenaro_fee: Decimal,
@@ -51,14 +52,14 @@ blueprint! {
             let share_mint_badge = ResourceBuilder::new_fungible()
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata("name", "Shares mint badge".to_string())
-                .initial_supply(1);
+                .mint_initial_supply(1);
 
             // These token represent one's share on the capital locked into the vault
-            let shares = ResourceBuilder::new_fungible()
+            let share_address = ResourceBuilder::new_fungible()
                 .mintable(rule!(require(share_mint_badge.resource_address())), LOCKED)
                 .burnable(rule!(require(share_mint_badge.resource_address())), LOCKED)
                 .metadata("name", "Trading fund share tokens".to_string())
-                .initial_supply(0);
+                .create_with_no_initial_supply();
 
             let fidenaro_fee = Decimal::from("0.05");
 
@@ -69,9 +70,9 @@ blueprint! {
                 investment_asset_pool: Vault::new(investment_asset_address),
                 manager: manager_wallet_address,
                 share_mint_badge: Vault::with_bucket(share_mint_badge),
-                share_address: shares.resource_address(),
-                shares: Vault::with_bucket(shares),
-                radswap: RadSwapComponent::new(stable_asset_address),
+                share_address: share_address,
+                shares: Vault::new(share_address),
+                // radswap: RadSwapComponent::new(stable_asset_address),
                 fidenaro_treasury: FidenaroTreasuryComponent::new(),
                 performance_fee: performance_fee,
                 fidenaro_fee: fidenaro_fee,
@@ -159,7 +160,8 @@ blueprint! {
             input_amount: Decimal,
         ) {
             let funds = self.stable_asset_pool.take(input_amount);
-            let output_funds = self.radswap.swap(funds, output_token_address);
+            // let output_funds = self.radswap.swap(funds, output_token_address);
+            let output_funds = funds;
 
             let output_amount = output_funds.amount();
             let opening_price = input_amount / output_amount;
@@ -181,7 +183,8 @@ blueprint! {
         ) -> Bucket {
             let trade = &mut self.trades[trade_index];
             let output_funds = self.investment_asset_pool.take(trade.output_amount);
-            let mut input_funds = self.radswap.swap(output_funds, trade.input_token_address);
+            // let mut input_funds = self.radswap.swap(output_funds, trade.input_token_address);
+            let mut input_funds = output_funds;
 
             let closing_price = input_funds.amount() / trade.output_amount;
 
