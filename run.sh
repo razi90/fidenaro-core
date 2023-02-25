@@ -68,4 +68,13 @@ EOF
 
 resim run ./tmp/withdraw.rtm
 
-resim show $account
+# open trade
+cat << EOF > ./tmp/open_trade.rtm
+CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
+CALL_METHOD ComponentAddress("$trading_vault_component") "open_trade" ResourceAddress("$usdc_resource_address") ResourceAddress("$btc_resource_address") Decimal("300");
+EOF
+
+resim run ./tmp/open_trade.rtm
+
+# resim show $account
+# resim show $trading_vault_component

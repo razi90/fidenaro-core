@@ -71,7 +71,7 @@ blueprint! {
                 share_mint_badge: Vault::with_bucket(share_mint_badge),
                 share_address: shares.resource_address(),
                 shares: Vault::with_bucket(shares),
-                radswap: RadSwapComponent::new(),
+                radswap: RadSwapComponent::new(stable_asset_address),
                 fidenaro_treasury: FidenaroTreasuryComponent::new(),
                 performance_fee: performance_fee,
                 fidenaro_fee: fidenaro_fee,
