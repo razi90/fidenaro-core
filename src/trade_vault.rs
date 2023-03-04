@@ -1,6 +1,15 @@
 use crate::fidenaro_treasury::*;
-// use crate::radswap::*;
 use scrypto::prelude::*;
+
+// Define the methods on instantiated components
+external_component! {
+    RadiswapComponentTarget {
+        fn add_liquidity(&mut self, a_tokens: Bucket, b_tokens: Bucket) -> (Bucket, Bucket);
+        fn remove_liquidity(&mut self, lp_tokens: Bucket) -> (Bucket, Bucket);
+        fn swap(&mut self, input_tokens: Bucket) -> Bucket;
+        fn get_pair(&self) -> (ResourceAddress, ResourceAddress);
+    }
+}
 
 #[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, NonFungibleData, LegacyDescribe)]
 struct Trade {
