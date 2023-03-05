@@ -32,10 +32,10 @@ pushd "../scrypto-examples/defi/radiswap"
 export radiswap_package=$(resim publish . | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 popd
 
-# Instantiate Radiswap component
+# instantiate Radiswap component
 OP=$(resim call-function $radiswap_package Radiswap instantiate_pool $usdc_resource_address $btc_resource_address $account $performance_fee)
 
-# 
+# add liquidity to USDC / BTC pool
 cat << EOF > ./tmp/init_lp_pool.rtm
 CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
 CALL_METHOD ComponentAddress("$account") "withdraw_by_amount" Decimal("210000") ResourceAddress("$usdc_resource_address");
@@ -48,14 +48,10 @@ EOF
 
 resim run ./tmp/init_lp_pool.rtm
 
-# CALL_METHOD ComponentAddress("$trading_vault_component") "deposit" Bucket("usdc");
-# CALL_METHOD ComponentAddress("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
-exit
-
 # publish Fidenaro trading vault
 export fidenaro_package=$(resim publish . | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 
-# Instantiate a component
+# instantiate a component
 export performance_fee=10
 OP=$(resim call-function $fidenaro_package TradeVault init_trade_vault $usdc_resource_address $btc_resource_address $account $performance_fee)
 
