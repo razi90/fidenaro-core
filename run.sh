@@ -3,6 +3,9 @@
 
 resim reset
 
+
+############################################################## SETUP USER ACCOUNT AND TOKEN ###############################################################
+
 OP=$(resim new-account)
 
 # resim new-account (wallet)
@@ -27,14 +30,15 @@ export usdc_resource_address=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]
 OP=$(resim new-token-fixed --name Bitcoin --symbol BTC 21000000)
 export btc_resource_address=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\1/p" | sed '1!d')
 
+
+############################################################## SETUP RADISWAP ###############################################################################
+
 pushd "../scrypto-examples/defi/radiswap"
 # publish Radiswap
 export radiswap_package=$(resim publish . | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 popd
 
 # instantiate Radiswap component
-OP=$(resim call-function $radiswap_package Radiswap instantiate_pool $usdc_resource_address $btc_resource_address $account $performance_fee)
-
 # add liquidity to USDC / BTC pool
 cat << EOF > ./tmp/init_lp_pool.rtm
 CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
@@ -46,18 +50,24 @@ CALL_FUNCTION PackageAddress("$radiswap_package") "Radiswap" "instantiate_pool" 
 CALL_METHOD ComponentAddress("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
 EOF
 
-resim run ./tmp/init_lp_pool.rtm
+OP=$(resim run ./tmp/init_lp_pool.rtm)
+export radiswap_component=$(echo "$OP" | sed -nr "s/.*Component: ([[:alnum:]_]+)/\1/p")
 
-# publish Fidenaro trading vault
+
+############################################################## SETUP FIDENARO VAULT ###############################################################################
+
 export fidenaro_package=$(resim publish . | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 
 # instantiate a component
 export performance_fee=10
-OP=$(resim call-function $fidenaro_package TradeVault init_trade_vault $usdc_resource_address $btc_resource_address $account $performance_fee)
+OP=$(resim call-function $fidenaro_package TradeVault init_trade_vault $usdc_resource_address $btc_resource_address $account $performance_fee $radiswap_component)
 
 export trading_vault_component=$(echo "$OP" | sed -nr "s/.*Component: ([[:alnum:]_]+)/\1/p")
 export shares_mint_badge=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\1/p" | sed '1!d')
 export shares_token_address=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\1/p" | sed '2!d')
+
+
+############################################################## DEPOSIT AND TRADE ##################################################################################
 
 # deposit 1000 usdc into the vault
 cat << EOF > ./tmp/deposit.rtm
@@ -84,10 +94,10 @@ resim run ./tmp/withdraw.rtm
 # open trade
 cat << EOF > ./tmp/open_trade.rtm
 CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
-CALL_METHOD ComponentAddress("$trading_vault_component") "open_trade" ResourceAddress("$usdc_resource_address") ResourceAddress("$btc_resource_address") Decimal("300");
+CALL_METHOD ComponentAddress("$trading_vault_component") "open_trade" Decimal("300");
 EOF
 
 resim run ./tmp/open_trade.rtm
 
 # resim show $account
-# resim show $trading_vault_component
+resim show $trading_vault_component

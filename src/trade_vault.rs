@@ -14,7 +14,7 @@ external_component! {
 #[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, NonFungibleData, LegacyDescribe)]
 struct Trade {
     input_token_address: ResourceAddress,
-    // output_token_address: ResourceAddress,
+    output_token_address: ResourceAddress,
     input_amount: Decimal,
     output_amount: Decimal,
     opening_price: Decimal,
@@ -41,8 +41,7 @@ mod trade_vault {
         manager: ComponentAddress,
         share_mint_badge: Vault,
         share_address: ResourceAddress,
-        shares: Vault,
-        //   radswap: RadSwapComponent,
+        radswap: RadiswapComponentTarget,
         fidenaro_treasury: FidenaroTreasuryComponent,
         performance_fee: Decimal,
         fidenaro_fee: Decimal,
@@ -55,6 +54,7 @@ mod trade_vault {
             investment_asset_address: ResourceAddress,
             manager_wallet_address: ComponentAddress,
             performance_fee: Decimal,
+            swap_pool_component_address: ComponentAddress,
         ) -> ComponentAddress {
             // This is kept in a bucket in self, for automatic minting
             // and burning of share tokens.
@@ -80,8 +80,7 @@ mod trade_vault {
                 manager: manager_wallet_address,
                 share_mint_badge: Vault::with_bucket(share_mint_badge),
                 share_address: share_address,
-                shares: Vault::new(share_address),
-                // radswap: RadSwapComponent::new(stable_asset_address),
+                radswap: RadiswapComponentTarget::at(swap_pool_component_address),
                 fidenaro_treasury: FidenaroTreasuryComponent::new(),
                 performance_fee: performance_fee,
                 fidenaro_fee: fidenaro_fee,
@@ -162,23 +161,27 @@ mod trade_vault {
             bucket_out
         }
 
-        pub fn open_trade(
-            &mut self,
-            input_token_address: ResourceAddress,
-            _output_token_address: ResourceAddress,
-            input_amount: Decimal,
-        ) {
-            let funds = self.stable_asset_pool.take(input_amount);
-            // let output_funds = self.radswap.swap(funds, output_token_address);
-            let output_funds = funds;
+        pub fn open_trade(&mut self, input_amount: Decimal) {
+            // get funds from the stable asset pool in the specified amount
+            let input_funds = self.stable_asset_pool.take(input_amount);
 
+            // perform swap from stable coin to the target asset
+            let output_funds = self.radswap.swap(input_funds);
+
+            // calculate the price at which the trade was performed
             let output_amount = output_funds.amount();
             let opening_price = input_amount / output_amount;
 
+            // put bought assets into the investment pool
             self.investment_asset_pool.put(output_funds);
+
+            // get resource addresses from the swap pool
+            let (input_token_address, output_token_address) = self.radswap.get_pair();
+
+            // safe the trade meta data
             self.trades.push(Trade {
                 input_token_address,
-                //   output_token_address,
+                output_token_address,
                 input_amount,
                 output_amount,
                 opening_price,
