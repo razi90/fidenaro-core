@@ -165,7 +165,7 @@ mod trade_vault {
         pub fn open_trade(
             &mut self,
             input_token_address: ResourceAddress,
-            output_token_address: ResourceAddress,
+            _output_token_address: ResourceAddress,
             input_amount: Decimal,
         ) {
             let funds = self.stable_asset_pool.take(input_amount);
