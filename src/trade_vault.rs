@@ -194,7 +194,7 @@ mod trade_vault {
             // calculate profit
             let profit = absolut_output_amount - trade.input_amount;
 
-            // calculate absolute performance fee
+            // calculate absolute performance fees
             let absolute_performance_fee = if profit > Decimal::zero() {
                 profit * self.performance_fee
             } else {
@@ -205,7 +205,7 @@ mod trade_vault {
 
             let absolute_trader_fee = absolute_performance_fee - absolut_fidenaro_fee;
 
-            // if the trade made profit, take fees
+            // take fees
             let trader_share_bucket = output_stable_coins.take(absolute_trader_fee);
 
             let fidenaro_share_bucket = output_stable_coins.take(absolut_fidenaro_fee);
