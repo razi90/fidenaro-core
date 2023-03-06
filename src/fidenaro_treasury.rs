@@ -2,7 +2,6 @@ use scrypto::prelude::*;
 
 #[blueprint]
 mod fidenaro_treasury {
-    use scrypto::blueprint;
 
     struct FidenaroTreasury {
         treasury: HashMap<ResourceAddress, Vault>,

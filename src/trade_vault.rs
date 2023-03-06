@@ -19,9 +19,10 @@ enum TradeStatus {
 
 #[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, NonFungibleData, LegacyDescribe)]
 struct Trade {
-    input_amount: Decimal,
-    output_amount: Decimal,
+    stable_coin_amount: Decimal,
+    bought_asset_amount: Decimal,
     status: TradeStatus,
+    profit: Decimal,
 }
 
 impl Trade {}
@@ -176,23 +177,35 @@ mod trade_vault {
 
             // safe the trade meta data
             self.trades.push(Trade {
-                input_amount,
-                output_amount,
+                stable_coin_amount: input_amount,
+                bought_asset_amount: output_amount,
                 status: TradeStatus::Open,
+                profit: Decimal::zero(),
             });
+
+            let price = input_amount / output_amount;
+
+            info!("Bought BTC for the avg price of {} USD", price);
         }
 
         pub fn close_trade(&mut self, trade_index: u32) -> Bucket {
             // get trade with the specified index
             let trade = &mut self.trades[trade_index.to_usize().unwrap()];
-            let asset = self.investment_asset_pool.take(trade.output_amount);
+            let asset = self.investment_asset_pool.take(trade.bought_asset_amount);
 
             // swap assets from the trade back to stable coins
             let mut output_stable_coins = self.radswap.swap(asset);
-            let absolut_output_amount = output_stable_coins.amount();
+            let absolute_output_amount = output_stable_coins.amount();
+
+            info!(
+                "Sold BTC for the avg price of {} USD",
+                absolute_output_amount / trade.bought_asset_amount
+            );
 
             // calculate profit
-            let profit = absolut_output_amount - trade.input_amount;
+            let profit = absolute_output_amount - trade.stable_coin_amount;
+
+            info!("Make {} of profit.", profit);
 
             // calculate absolute performance fees
             let absolute_performance_fee = if profit > Decimal::zero() {
@@ -201,22 +214,25 @@ mod trade_vault {
                 Decimal::zero()
             };
 
-            let absolut_fidenaro_fee = absolute_performance_fee * self.fidenaro_fee;
+            // take fidenaro fees
+            let absolute_fidenaro_fee = absolute_performance_fee * self.fidenaro_fee;
+            let fidenaro_share_bucket = output_stable_coins.take(absolute_fidenaro_fee);
+            info!("{} of profit goes to fidenaro.", absolute_fidenaro_fee);
 
-            let absolute_trader_fee = absolute_performance_fee - absolut_fidenaro_fee;
-
-            // take fees
-            let trader_share_bucket = output_stable_coins.take(absolute_trader_fee);
-
-            let fidenaro_share_bucket = output_stable_coins.take(absolut_fidenaro_fee);
             // send fidenaro fee to the treasury
             self.fidenaro_treasury.deposit(fidenaro_share_bucket);
 
-            // send stable coins back to the vault
+            // take trader fees
+            let absolute_trader_fee = absolute_performance_fee - absolute_fidenaro_fee;
+            let trader_share_bucket = output_stable_coins.take(absolute_trader_fee);
+            info!("{} of profit goes to the trader.", absolute_trader_fee);
+
+            // send rest of stable coins back to the vault
             self.stable_coin_pool.put(output_stable_coins);
 
             // close the trade
             trade.status = TradeStatus::Closed;
+            trade.profit = profit;
 
             // give trader the bucket with his performance fee
             trader_share_bucket

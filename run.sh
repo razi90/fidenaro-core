@@ -60,7 +60,7 @@ export fidenaro_package=$(resim publish . | sed -nr "s/Success! New Package: ([[
 
 # instantiate a component
 export performance_fee=10
-OP=$(resim call-function $fidenaro_package TradeVault init_trade_vault $usdc_resource_address $btc_resource_address $account $performance_fee $radiswap_component)
+OP=$(resim call-function $fidenaro_package TradeVault init_trade_vault $account $performance_fee $radiswap_component)
 
 export trading_vault_component=$(echo "$OP" | sed -nr "s/.*Component: ([[:alnum:]_]+)/\1/p")
 export shares_mint_badge=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+)/\1/p" | sed '1!d')
@@ -99,16 +99,16 @@ EOF
 
 resim run ./tmp/open_trade.rtm
 
-
 # close trade
 cat << EOF > ./tmp/close_trade.rtm
 CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
 CALL_METHOD ComponentAddress("$trading_vault_component") "close_trade" 0u32;
+CALL_METHOD ComponentAddress("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
 EOF
 
 resim run ./tmp/close_trade.rtm
 
 
 
-# resim show $account
-# resim show $trading_vault_component
+resim show $account
+resim show $trading_vault_component
