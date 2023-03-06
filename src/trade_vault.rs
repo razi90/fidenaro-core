@@ -74,16 +74,16 @@ mod trade_vault {
 
             Self {
                 manager: manager_wallet_address,
-                radswap: radswap,
-                stable_coin_address: stable_coin_address,
-                investment_asset_address: investment_asset_address,
+                radswap,
+                stable_coin_address,
+                investment_asset_address,
                 stable_coin_pool: Vault::new(stable_coin_address),
                 investment_asset_pool: Vault::new(investment_asset_address),
                 share_mint_badge: Vault::with_bucket(share_mint_badge),
-                share_address: share_address,
-                performance_fee: performance_fee,
+                share_address,
+                performance_fee,
                 fidenaro_treasury: FidenaroTreasuryComponent::new(),
-                fidenaro_fee: fidenaro_fee,
+                fidenaro_fee,
                 trades: trade_vec,
             }
             .instantiate()
