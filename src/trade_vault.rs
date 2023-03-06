@@ -11,47 +11,40 @@ external_component! {
     }
 }
 
-#[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, NonFungibleData, LegacyDescribe)]
-struct Trade {
-    input_token_address: ResourceAddress,
-    output_token_address: ResourceAddress,
-    input_amount: Decimal,
-    output_amount: Decimal,
-    opening_price: Decimal,
-    closing_price: Decimal,
+#[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, LegacyDescribe)]
+enum TradeStatus {
+    Open,
+    Closed,
 }
 
-impl Trade {
-    pub fn calculate_performance_fee(&self, performance_fee: Decimal) -> Decimal {
-        let profit =
-            (self.output_amount * self.closing_price) - (self.input_amount * self.opening_price);
-        if profit > Decimal::zero() {
-            return profit * performance_fee;
-        } else {
-            return Decimal::zero();
-        }
-    }
+#[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, NonFungibleData, LegacyDescribe)]
+struct Trade {
+    input_amount: Decimal,
+    output_amount: Decimal,
+    status: TradeStatus,
 }
+
+impl Trade {}
 
 #[blueprint]
 mod trade_vault {
     struct TradeVault {
-        stable_asset_pool: Vault,
-        investment_asset_pool: Vault,
         manager: ComponentAddress,
+        radswap: RadiswapComponentTarget,
+        stable_coin_address: ResourceAddress,
+        investment_asset_address: ResourceAddress,
+        stable_coin_pool: Vault,
+        investment_asset_pool: Vault,
         share_mint_badge: Vault,
         share_address: ResourceAddress,
-        radswap: RadiswapComponentTarget,
-        fidenaro_treasury: FidenaroTreasuryComponent,
         performance_fee: Decimal,
+        fidenaro_treasury: FidenaroTreasuryComponent,
         fidenaro_fee: Decimal,
         trades: Vec<Trade>,
     }
 
     impl TradeVault {
         pub fn init_trade_vault(
-            stable_asset_address: ResourceAddress,
-            investment_asset_address: ResourceAddress,
             manager_wallet_address: ComponentAddress,
             performance_fee: Decimal,
             swap_pool_component_address: ComponentAddress,
@@ -74,15 +67,21 @@ mod trade_vault {
 
             let trade_vec: Vec<Trade> = Vec::new();
 
+            let radswap = RadiswapComponentTarget::at(swap_pool_component_address);
+            // get resource addresses from the swap pool
+            let (stable_coin_address, investment_asset_address) = radswap.get_pair();
+
             Self {
-                stable_asset_pool: Vault::new(stable_asset_address),
-                investment_asset_pool: Vault::new(investment_asset_address),
                 manager: manager_wallet_address,
+                radswap: radswap,
+                stable_coin_address: stable_coin_address,
+                investment_asset_address: investment_asset_address,
+                stable_coin_pool: Vault::new(stable_coin_address),
+                investment_asset_pool: Vault::new(investment_asset_address),
                 share_mint_badge: Vault::with_bucket(share_mint_badge),
                 share_address: share_address,
-                radswap: RadiswapComponentTarget::at(swap_pool_component_address),
-                fidenaro_treasury: FidenaroTreasuryComponent::new(),
                 performance_fee: performance_fee,
+                fidenaro_treasury: FidenaroTreasuryComponent::new(),
                 fidenaro_fee: fidenaro_fee,
                 trades: trade_vec,
             }
@@ -109,7 +108,7 @@ mod trade_vault {
             let address: ResourceAddress = deposit.resource_address();
             // Ensure that the type of stable coin passed in matches the type stored in the stable asset pool.
             assert!(
-                address == self.stable_asset_pool.resource_address(),
+                address == self.stable_coin_pool.resource_address(),
                 "Wrong token type sent"
             );
 
@@ -119,7 +118,7 @@ mod trade_vault {
                 .authorize(|| borrow_resource_manager!(self.share_address).mint(deposit.amount()));
 
             // Store the deposited stable coins in the stable asset pool.
-            self.stable_asset_pool.put(deposit);
+            self.stable_coin_pool.put(deposit);
 
             shares
         }
@@ -150,7 +149,7 @@ mod trade_vault {
             let share_token_amount = share_tokens.amount();
 
             // Take the calculated amount of stable coins from the pool
-            let bucket_out = self.stable_asset_pool.take(share_token_amount);
+            let bucket_out = self.stable_coin_pool.take(share_token_amount);
 
             // Burn the share tokens being withdrawn
             self.share_mint_badge.authorize(|| {
@@ -163,67 +162,64 @@ mod trade_vault {
 
         pub fn open_trade(&mut self, input_amount: Decimal) {
             // get funds from the stable asset pool in the specified amount
-            let input_funds = self.stable_asset_pool.take(input_amount);
+            let input_funds = self.stable_coin_pool.take(input_amount);
 
             // perform swap from stable coin to the target asset
             let output_funds = self.radswap.swap(input_funds);
 
             // calculate the price at which the trade was performed
             let output_amount = output_funds.amount();
-            let opening_price = input_amount / output_amount;
+            // let opening_price = input_amount / output_amount;
 
             // put bought assets into the investment pool
             self.investment_asset_pool.put(output_funds);
 
-            // get resource addresses from the swap pool
-            let (input_token_address, output_token_address) = self.radswap.get_pair();
-
             // safe the trade meta data
             self.trades.push(Trade {
-                input_token_address,
-                output_token_address,
                 input_amount,
                 output_amount,
-                opening_price,
-                closing_price: Decimal::from("0.0"),
+                status: TradeStatus::Open,
             });
         }
 
-        pub fn close_trade(&mut self, trade_index: usize) -> Bucket {
-            let trade = &mut self.trades[trade_index];
-            let output_funds = self.investment_asset_pool.take(trade.output_amount);
-            // let mut input_funds = self.radswap.swap(output_funds, trade.input_token_address);
-            let mut input_funds = output_funds;
+        pub fn close_trade(&mut self, trade_index: u32) -> Bucket {
+            // get trade with the specified index
+            let trade = &mut self.trades[trade_index.to_usize().unwrap()];
+            let asset = self.investment_asset_pool.take(trade.output_amount);
 
-            let closing_price = input_funds.amount() / trade.output_amount;
+            // swap assets from the trade back to stable coins
+            let mut output_stable_coins = self.radswap.swap(asset);
+            let absolut_output_amount = output_stable_coins.amount();
 
-            trade.closing_price = closing_price;
+            // calculate profit
+            let profit = absolut_output_amount - trade.input_amount;
 
-            let absolut_performance_fee = trade.calculate_performance_fee(self.performance_fee);
-            let absolut_fidenaro_fee = self.calc_fidenaro_fee(absolut_performance_fee);
+            // calculate absolute performance fee
+            let absolute_performance_fee = if profit > Decimal::zero() {
+                profit * self.performance_fee
+            } else {
+                Decimal::zero()
+            };
 
-            let absolut_trader_performance_fee = absolut_performance_fee - absolut_fidenaro_fee;
+            let absolut_fidenaro_fee = absolute_performance_fee * self.fidenaro_fee;
 
-            let trader_share_bucket = input_funds.take(absolut_trader_performance_fee);
+            let absolute_trader_fee = absolute_performance_fee - absolut_fidenaro_fee;
 
-            let fidenaro_share_bucket = input_funds.take(absolut_fidenaro_fee);
+            // if the trade made profit, take fees
+            let trader_share_bucket = output_stable_coins.take(absolute_trader_fee);
 
+            let fidenaro_share_bucket = output_stable_coins.take(absolut_fidenaro_fee);
             // send fidenaro fee to the treasury
             self.fidenaro_treasury.deposit(fidenaro_share_bucket);
 
-            self.stable_asset_pool.put(input_funds);
+            // send stable coins back to the vault
+            self.stable_coin_pool.put(output_stable_coins);
+
+            // close the trade
+            trade.status = TradeStatus::Closed;
+
+            // give trader the bucket with his performance fee
             trader_share_bucket
-        }
-
-        fn calc_fidenaro_fee(&self, profit: Decimal) -> Decimal {
-            let absolut_fidenaro_fee = profit * self.fidenaro_fee;
-            absolut_fidenaro_fee
-        }
-
-        /// Calculates the total funds in the stable asset pool
-        fn _calc_total_funds(&self) -> Decimal {
-            let total: Decimal = self.stable_asset_pool.amount();
-            total
         }
     }
 }

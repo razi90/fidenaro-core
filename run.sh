@@ -99,5 +99,16 @@ EOF
 
 resim run ./tmp/open_trade.rtm
 
+
+# close trade
+cat << EOF > ./tmp/close_trade.rtm
+CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
+CALL_METHOD ComponentAddress("$trading_vault_component") "close_trade" 0u32;
+EOF
+
+resim run ./tmp/close_trade.rtm
+
+
+
 # resim show $account
-resim show $trading_vault_component
+# resim show $trading_vault_component
