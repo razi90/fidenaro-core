@@ -1,38 +1,32 @@
-import * as React from "react"
 import {
   ChakraProvider,
   Box,
-  Text,
-  Link,
-  VStack,
-  Code,
-  Grid,
   theme,
 } from "@chakra-ui/react"
-import { ColorModeSwitcher } from "./ColorModeSwitcher"
-import { Logo } from "./Logo"
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import NavBarTop from './navigation/nav_bar_top'
+import NavBarBottom from './navigation/nav_bar_bottom'
+import Home from './routes/home'
 
 export const App = () => (
   <ChakraProvider theme={theme}>
-    <Box textAlign="center" fontSize="xl">
-      <Grid minH="100vh" p={3}>
-        <ColorModeSwitcher justifySelf="flex-end" />
-        <VStack spacing={8}>
-          <Logo h="40vmin" pointerEvents="none" />
-          <Text>
-            Edit <Code fontSize="xl">src/App.tsx</Code> and save to reload.
-          </Text>
-          <Link
-            color="teal.500"
-            href="https://chakra-ui.com"
-            fontSize="2xl"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn Chakra
-          </Link>
-        </VStack>
-      </Grid>
-    </Box>
+    <BrowserRouter>
+      <NavBarTop />
+      <Routes>
+        const Links = ['Own', 'Explore', 'Collections', 'Mint', 'Rewards'];
+
+        <Route path="/" element={<Home />} />
+        <Route
+          path="*"
+          element={
+            <main style={{ padding: "1rem" }}>
+              <p>There's nothing here!</p>
+            </main>
+          }
+        />
+      </Routes>
+      <Box p={4}>Copyright 2023 Fidenaro | Trade smarter</Box>
+      <NavBarBottom />
+    </BrowserRouter>
   </ChakraProvider>
 )
