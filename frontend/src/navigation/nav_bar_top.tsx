@@ -10,7 +10,7 @@ import {
   HStack,
   Image,
 } from '@chakra-ui/react';
-import { HamburgerIcon, CloseIcon } from '@chakra-ui/icons';
+import ConnectButton from "../etc/wallet_connect";
 
 const Links = ['Fidenaro', 'Explore', 'Create', 'Dashboard', 'Docs'];
 
@@ -29,7 +29,7 @@ const NavLink = ({ children }: { children: string }) => (
 );
 
 export default function TopNav() {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen } = useDisclosure();
   let navigate = useNavigate();
   const routeChange = () => {
     let path = `/`;
@@ -39,14 +39,6 @@ export default function TopNav() {
     <>
       <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4}>
         <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
-          <IconButton
-            size={'md'}
-            icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
-            aria-label={'Open Menu'}
-            display={{ md: 'none' }}
-            onClick={isOpen ? onClose : onOpen}
-          />
-
           <HStack spacing={8} alignItems={'center'}>
             <IconButton
               bg='green.300'
@@ -62,9 +54,8 @@ export default function TopNav() {
                 <NavLink key={link}>{link}</NavLink>
               ))}
             </HStack>
-
           </HStack>
-
+          <ConnectButton />
         </Flex>
 
         {isOpen ? (

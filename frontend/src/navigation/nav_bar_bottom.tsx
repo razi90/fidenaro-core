@@ -16,7 +16,6 @@ const Links = ['About', 'API', 'Contact', 'Help', 'Jobs', 'Bug Bounty', 'Brand',
 
 const NavLink = ({ children }: { children: ReactNode }) => (
   <Link
-    style={{ color: '#33FF9C' }}
     px={2}
     py={1}
     rounded={'md'}
