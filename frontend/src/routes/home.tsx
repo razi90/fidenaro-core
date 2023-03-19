@@ -7,14 +7,13 @@ import {
   Text,
   VStack,
   useColorModeValue,
-  List,
-  ListItem,
-  ListIcon,
   Button,
+  Flex,
+  Spacer,
 } from '@chakra-ui/react';
-import { FaCheckCircle } from 'react-icons/fa';
+import AvatarWithRipple from '../etc/avatar';
 
-function PriceWrapper({ children }: { children: ReactNode }) {
+function VaultWrapper({ children }: { children: ReactNode }) {
   return (
     <Box
       mb={4}
@@ -28,22 +27,45 @@ function PriceWrapper({ children }: { children: ReactNode }) {
   );
 }
 
+interface InfoBoxProps {
+  name: string;
+  count: number;
+}
+
+function InfoBox({ name, count }: InfoBoxProps) {
+  return (
+    <Box borderWidth="1px" p="4" borderRadius="md">
+      <Flex alignItems="center">
+        <Text fontWeight="bold" mr="2">
+          {name}
+        </Text>
+        <Spacer />
+        <Text>{count}</Text>
+      </Flex>
+    </Box>
+  );
+}
+
 export default function Home() {
   return (
+
     <Box py={12}>
-      <VStack spacing={2} textAlign="left">
-        <Heading as="h1" fontSize="4xl">
-          Trade smarter with {globalThis.dAppName}
-        </Heading>
-        <Text fontSize="lg" color={'gray.500'}>
-          Copy Trading on Radix
-        </Text>
-      </VStack>
+      <Box mb={8}>
+        <Stack spacing={2} textAlign="left">
+          <Heading as="h1" fontSize="4xl">
+            Trade smarter with {globalThis.dAppName}
+          </Heading>
+          <Text fontSize="lg" color={'gray.500'}>
+            Copy Trading on Radix
+          </Text>
+        </Stack>
+      </Box>
       <VStack>
-        <Heading as="h1" fontSize="3xl">
+        <Heading as="h2" fontSize="3xl">
           Top Performers
         </Heading>
       </VStack>
+
       <Stack
         direction={{ base: 'column', md: 'row' }}
         textAlign="center"
@@ -51,58 +73,35 @@ export default function Home() {
         spacing={{ base: 4, lg: 10 }}
         py={10}>
 
-        <PriceWrapper>
-          <Box position="relative">
+
+        <VaultWrapper>
+
+          <HStack>
+            <AvatarWithRipple></AvatarWithRipple>
             <Box py={4} px={12}>
-              <Text fontWeight="500" fontSize="2xl">
+              <Text fontWeight="00" fontSize="2xl">
                 Market Wizard
               </Text>
-              <HStack justifyContent="center">
-                <Text fontSize="3xl" fontWeight="600">
-                  $
-                </Text>
-                <Text fontSize="5xl" fontWeight="900">
-                  149
-                </Text>
-                <Text fontSize="3xl" color="gray.500">
-                  /month
-                </Text>
-              </HStack>
             </Box>
-            <VStack
-              bg={useColorModeValue('gray.50', 'gray.700')}
-              py={4}
-              borderBottomRadius={'xl'}>
-              <List spacing={3} textAlign="start" px={12}>
-                <ListItem>
-                  <ListIcon as={FaCheckCircle} color="green.500" />
-                  unlimited build minutes
-                </ListItem>
-                <ListItem>
-                  <ListIcon as={FaCheckCircle} color="green.500" />
-                  Lorem, ipsum dolor.
-                </ListItem>
-                <ListItem>
-                  <ListIcon as={FaCheckCircle} color="green.500" />
-                  5TB Lorem, ipsum dolor.
-                </ListItem>
-                <ListItem>
-                  <ListIcon as={FaCheckCircle} color="green.500" />
-                  5TB Lorem, ipsum dolor.
-                </ListItem>
-                <ListItem>
-                  <ListIcon as={FaCheckCircle} color="green.500" />
-                  5TB Lorem, ipsum dolor.
-                </ListItem>
-              </List>
-              <Box w="80%" pt={7}>
-                <Button w="full" colorScheme="red">
-                  Jump in
-                </Button>
-              </Box>
-            </VStack>
-          </Box>
-        </PriceWrapper>
+          </HStack>
+
+          <Stack align='stretch'>
+            <InfoBox name="TVL" count={100} />
+            <InfoBox name="Followers" count={1000} />
+          </Stack>
+
+          <VStack
+            bg={useColorModeValue('gray.50', 'gray.700')}
+            py={4}
+            borderBottomRadius={'xl'}>
+            <Box w="80%" pt={7}>
+              <Button w="max-content" colorScheme="green">
+                Jump in
+              </Button>
+            </Box>
+          </VStack>
+
+        </VaultWrapper>
       </Stack>
     </Box>
   );
