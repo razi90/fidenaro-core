@@ -1,106 +1,121 @@
-import { ReactNode } from 'react';
+import { SetStateAction, useState } from "react";
 import {
     Box,
-    Stack,
     Heading,
-    Text,
-    VStack,
-    useColorModeValue,
+    FormControl,
+    FormLabel,
+    Input,
+    Slider,
+    SliderTrack,
+    SliderFilledTrack,
+    SliderThumb,
+    Image,
     Button,
-    Flex,
-    Spacer,
-} from '@chakra-ui/react';
-import AvatarWithRipple from '../etc/avatar';
+    Stack,
+    Text
+} from "@chakra-ui/react";
 
-function VaultWrapper({ children }: { children: ReactNode }) {
-    return (
-        <Box
-            mb={4}
-            shadow="base"
-            borderWidth="1px"
-            alignSelf={{ base: 'center', lg: 'flex-start' }}
-            borderColor={useColorModeValue('gray.200', 'gray.500')}
-            borderRadius={'xl'}>
-            {children}
-        </Box>
-    );
-}
-
-interface InfoBoxProps {
-    name: string;
-    count: number;
-}
-
-function InfoBox({ name, count }: InfoBoxProps) {
-    return (
-        <Box borderWidth="1px" p="4" borderRadius="md">
-            <Flex alignItems="center">
-                <Text fontWeight="bold" mr="2">
-                    {name}
-                </Text>
-                <Spacer />
-                <Text>{count}</Text>
-            </Flex>
-        </Box>
-    );
-}
+const assets = [
+    { name: "Bitcoin", image: "https://via.placeholder.com/50x50" },
+    { name: "Ethereum", image: "https://via.placeholder.com/50x50" },
+    { name: "Radix", image: "https://via.placeholder.com/50x50" },
+];
 
 export default function Create() {
-    return (
+    const [vaultName, setVaultName] = useState("");
+    const [selectedAsset, setSelectedAsset] = useState<{ name: string; image: string; } | null>(null);
+    const [performanceFee, setPerformanceFee] = useState(10);
 
-        <Box py={12}>
+    const handleVaultNameChange = (event: { target: { value: SetStateAction<string>; }; }) => {
+        console.log(event.target.value)
+        setVaultName(event.target.value);
+    };
+
+    const handleAssetSelection = (asset: SetStateAction<{ name: string; image: string; } | null>) => {
+        console.log(asset)
+        setSelectedAsset(asset);
+    };
+
+    const handlePerformanceFeeChange = (value: SetStateAction<number>) => {
+        console.log(value)
+        setPerformanceFee(value);
+    };
+
+    const handleSubmit = (event: { preventDefault: () => void; }) => {
+        event.preventDefault();
+        console.log({
+            vaultName,
+            selectedAsset,
+            performanceFee,
+        });
+    };
+
+    return (
+        <Box p={4}>
             <Box mb={8}>
                 <Stack spacing={2} textAlign="left">
                     <Heading as="h1" fontSize="4xl">
-                        Trade smarter with {globalThis.dAppName}
+                        Create
                     </Heading>
                     <Text fontSize="lg" color={'gray.500'}>
-                        Copy Trading on Radix
+                        Set up your TradingVault and start earning on your performance
                     </Text>
                 </Stack>
             </Box>
-            <VStack>
-                <Heading as="h2" fontSize="3xl">
-                    Top Performers
-                </Heading>
-            </VStack>
-
-            <Stack
-                direction={{ base: 'column', md: 'row' }}
-                justify="center"
-                spacing={{ base: 4, lg: 10 }}
-                py={10}>
-
-                <VaultWrapper>
-
-                    <VStack>
-                        <AvatarWithRipple></AvatarWithRipple>
-                        <Box py={4} px={12}>
-                            <Text fontWeight="00" fontSize="2xl">
-                                Market Wizard
-                            </Text>
+            <form onSubmit={handleSubmit}>
+                <FormControl mb={4}>
+                    <FormLabel>Choose a name for your vault</FormLabel>
+                    <Input type="text" value={vaultName} onChange={handleVaultNameChange} />
+                </FormControl>
+                <FormControl mb={4}>
+                    <FormLabel>Choose the asset to trade</FormLabel>
+                    {assets.map((asset) => (
+                        <Box
+                            key={asset.name}
+                            as="label"
+                            display="flex"
+                            alignItems="center"
+                            mb={2}
+                            cursor="pointer"
+                        >
+                            <input
+                                type="radio"
+                                name="asset"
+                                value={asset.name}
+                                checked={selectedAsset === asset}
+                                onChange={() => handleAssetSelection(asset)}
+                                style={{ display: "none" }}
+                            />
+                            <Box
+                                borderWidth={1}
+                                borderRadius="md"
+                                borderColor="gray.200"
+                                p={2}
+                                mr={2}
+                            >
+                                <Image src={asset.image} alt={asset.name} boxSize="50px" />
+                            </Box>
+                            <span>{asset.name}</span>
                         </Box>
-                    </VStack>
-
-                    <Stack align='stretch'>
-                        <InfoBox name="TVL" count={100} />
-                        <InfoBox name="Followers" count={1000} />
-                    </Stack>
-
-                    <VStack
-                        bg={useColorModeValue('gray.50', 'gray.700')}
-                        py={4}
-                        borderBottomRadius={'xl'}
-                        textAlign="center">
-                        <Box w="80%" pt={7}>
-                            <Button w="max-content" colorScheme="green">
-                                Jump in
-                            </Button>
-                        </Box>
-                    </VStack>
-
-                </VaultWrapper>
-            </Stack>
+                    ))}
+                </FormControl>
+                <FormControl mb={4}>
+                    <FormLabel>Performance fee ({performanceFee}%)</FormLabel>
+                    <Slider
+                        defaultValue={performanceFee}
+                        min={10}
+                        max={50}
+                        step={1}
+                        onChange={handlePerformanceFeeChange}
+                    >
+                        <SliderTrack>
+                            <SliderFilledTrack />
+                        </SliderTrack>
+                        <SliderThumb />
+                    </Slider>
+                </FormControl>
+                <Button type="submit" colorScheme="blue"></Button>
+            </form>
         </Box>
     );
 }

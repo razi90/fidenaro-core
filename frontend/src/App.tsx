@@ -11,7 +11,7 @@ import Home from './routes/home'
 import Explore from "./routes/explore";
 import Dashboard from "./routes/dashboard";
 import Docs from "./routes/docs";
-import Create from "./routes/explore";
+import Create from "./routes/create";
 import Earn from "./routes/earn";
 
 
