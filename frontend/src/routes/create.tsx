@@ -31,9 +31,11 @@ function VaultWrapper({ children }: { children: ReactNode }) {
             borderWidth="1px"
             alignSelf={{ base: 'center', lg: 'flex-start' }}
             borderColor={useColorModeValue('gray.200', 'gray.500')}
-            borderRadius={'xl'}>
+            borderRadius={'xl'}
+            padding="30px"
+        >
             {children}
-        </Box>
+        </ Box >
     );
 }
 
@@ -84,7 +86,7 @@ export default function Create() {
                     spacing={{ base: 4, lg: 10 }}
                     py={10}>
                     <VaultWrapper>
-                        <FormControl mb={4}>
+                        <FormControl mt={10} mb={4}>
                             <FormLabel>Choose a name for your vault</FormLabel>
                             <Input type="text" value={vaultName} onChange={handleVaultNameChange} />
                         </FormControl>
@@ -143,6 +145,7 @@ export default function Create() {
                         <Box
                             display="flex"
                             justifyContent="center"
+                            mb={8}
                         >
                             <Button type="submit" colorScheme="blue">Create</Button>
                         </Box>
