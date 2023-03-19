@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import {
   Box,
   Stack,
-  HStack,
   Heading,
   Text,
   VStack,
@@ -71,7 +70,6 @@ export default function Home() {
         justify="center"
         spacing={{ base: 4, lg: 10 }}
         py={10}>
-
 
         <VaultWrapper>
 

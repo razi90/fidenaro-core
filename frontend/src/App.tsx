@@ -8,6 +8,11 @@ import { RadixDappToolkit } from "@radixdlt/radix-dapp-toolkit";
 import NavBarTop from './navigation/nav_bar_top'
 import NavBarBottom from './navigation/nav_bar_bottom'
 import Home from './routes/home'
+import Explore from "./routes/explore";
+import Dashboard from "./routes/dashboard";
+import Docs from "./routes/docs";
+import Create from "./routes/explore";
+import Earn from "./routes/docs copy";
 
 
 // set global variables
@@ -36,9 +41,15 @@ export const App = () => (
     <BrowserRouter>
       <NavBarTop />
       <Routes>
-        const Links = ['Own', 'Explore', 'Collections', 'Mint', 'Rewards'];
+        const Links = ['Fidenaro', 'Explore', 'Create', 'Earn', 'Dashboard', 'Docs'];
 
         <Route path="/" element={<Home />} />
+        <Route path="/fidenaro" element={<Home />} />
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/create" element={<Create />} />
+        <Route path="/earn" element={<Earn />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/docs" element={<Docs />} />
         <Route
           path="*"
           element={
