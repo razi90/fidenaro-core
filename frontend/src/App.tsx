@@ -9,8 +9,14 @@ import NavBarTop from './navigation/nav_bar_top'
 import NavBarBottom from './navigation/nav_bar_bottom'
 import Home from './routes/home'
 
+
+// set global variables
+globalThis.packageAddress = "package_tdx_b_1qxmzvdug22x5wza6u225y9vetq45ggjxmha8selv6d6qqzmkar"
+globalThis.dAppId = "account_tdx_b_1pqhy68vjzkdkujlajld6yhspztzkh5vtxu9mvm6rw9sqdq6tcd"
+globalThis.dAppName = "Fidenaro"
+
 const rdt = RadixDappToolkit(
-  { dAppDefinitionAddress: dAppId, dAppName: 'GumballMachine' },
+  { dAppDefinitionAddress: globalThis.dAppId, dAppName: globalThis.dAppName },
   (requestData) => {
     requestData({
       accounts: { quantifier: 'atLeast', quantity: 1 },
@@ -24,8 +30,8 @@ const rdt = RadixDappToolkit(
 )
 console.log("dApp Toolkit: ", rdt)
 
-
 export const App = () => (
+
   <ChakraProvider theme={theme}>
     <BrowserRouter>
       <NavBarTop />

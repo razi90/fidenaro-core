@@ -5,12 +5,6 @@ import reportWebVitals from "./reportWebVitals"
 import { ColorModeScript } from "@chakra-ui/react"
 import { App } from "./App"
 
-
-// set global variables
-globalThis.packageAddress = "package_tdx_b_1qxmzvdug22x5wza6u225y9vetq45ggjxmha8selv6d6qqzmkar"
-globalThis.dAppId = "account_tdx_b_1pqhy68vjzkdkujlajld6yhspztzkh5vtxu9mvm6rw9sqdq6tcd"
-globalThis.dAppName = "Fidenaro"
-
 const container = document.getElementById("root")
 if (!container) throw new Error('Failed to find the root element');
 const root = ReactDOM.createRoot(container)
