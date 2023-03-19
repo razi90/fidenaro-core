@@ -68,7 +68,6 @@ export default function Home() {
 
       <Stack
         direction={{ base: 'column', md: 'row' }}
-        textAlign="center"
         justify="center"
         spacing={{ base: 4, lg: 10 }}
         py={10}>
@@ -76,14 +75,14 @@ export default function Home() {
 
         <VaultWrapper>
 
-          <HStack>
+          <VStack>
             <AvatarWithRipple></AvatarWithRipple>
             <Box py={4} px={12}>
               <Text fontWeight="00" fontSize="2xl">
                 Market Wizard
               </Text>
             </Box>
-          </HStack>
+          </VStack>
 
           <Stack align='stretch'>
             <InfoBox name="TVL" count={100} />
@@ -93,7 +92,8 @@ export default function Home() {
           <VStack
             bg={useColorModeValue('gray.50', 'gray.700')}
             py={4}
-            borderBottomRadius={'xl'}>
+            borderBottomRadius={'xl'}
+            textAlign="center">
             <Box w="80%" pt={7}>
               <Button w="max-content" colorScheme="green">
                 Jump in
