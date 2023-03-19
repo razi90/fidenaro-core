@@ -84,7 +84,6 @@ export default function Create() {
                     spacing={{ base: 4, lg: 10 }}
                     py={10}>
                     <VaultWrapper>
-
                         <FormControl mb={4}>
                             <FormLabel>Choose a name for your vault</FormLabel>
                             <Input type="text" value={vaultName} onChange={handleVaultNameChange} />
@@ -99,12 +98,13 @@ export default function Create() {
                                         display="flex"
                                         alignItems="center"
                                         cursor="pointer"
-                                        bg={selectedAsset === asset ? "blue.100" : "transparent"} // add conditional styling here
-                                        borderRadius="md"
-                                        boxShadow={selectedAsset === asset ? "md" : "none"} // add conditional styling here
+                                        bg={selectedAsset === asset ? "blue.100" : "transparent"}
+                                        borderRadius={selectedAsset === asset ? "full" : "md"} // add conditional styling here
+                                        boxShadow={selectedAsset === asset ? "md" : "none"}
                                         transition="all 0.2s"
                                         _hover={{ boxShadow: "md" }}
                                     >
+
                                         <input
                                             type="radio"
                                             name="asset"
@@ -140,7 +140,12 @@ export default function Create() {
                                 <SliderThumb />
                             </Slider>
                         </FormControl>
-                        <Button type="submit" colorScheme="blue">Create</Button>
+                        <Box
+                            display="flex"
+                            justifyContent="center"
+                        >
+                            <Button type="submit" colorScheme="blue">Create</Button>
+                        </Box>
                     </VaultWrapper>
                 </Stack>
             </form>
