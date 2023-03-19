@@ -12,7 +12,7 @@ import Explore from "./routes/explore";
 import Dashboard from "./routes/dashboard";
 import Docs from "./routes/docs";
 import Create from "./routes/explore";
-import Earn from "./routes/docs copy";
+import Earn from "./routes/earn";
 
 
 // set global variables
