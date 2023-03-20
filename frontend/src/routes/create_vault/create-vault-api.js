@@ -9,29 +9,18 @@ import { dAppPackageAddress, dAppId, dAppName } from '../../etc/globals.d';
 
 // Instantiate Gateway SDK
 const transactionApi = new TransactionApi();
-
-const accountAddress = localStorage.getItem('account')
-
 const rdt = RadixDappToolkit(
     { dAppDefinitionAddress: dAppId, dAppName: dAppName },
-    (requestData) => {
-        requestData({
-            accounts: { quantifier: 'atLeast', quantity: 1 },
-        }).map(({ data: { accounts } }) => {
-            // add accounts to dApp application state
-            console.log("account data: ", accounts)
-            localStorage.setItem('account', accounts[0].address);
-        })
-    },
     { networkId: 11 }
 )
 console.log("dApp Toolkit: ", rdt)
 
+const accountAddress = localStorage.getItem('account')
+
 export async function createVauĺt() {
 
     let manifest = new ManifestBuilder()
-        // .callMethod(accountAddress, "create_proof", [ResourceAddress("resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp")])
-        .callFunction(dAppPackageAddress, "TradeVault", "init_trade_vault", [ComponentAddress(accountAddress), Decimal("10"), `"${dAppId}"`])
+        .callFunction(dAppPackageAddress, "TradeVault", "init_trade_vault", [ComponentAddress(accountAddress), Decimal("10"), ComponentAddress(dAppId)])
         .build()
         .toString();
     console.log("Instantiate Manifest: ", manifest)
