@@ -11,17 +11,13 @@ import Home from './routes/home'
 import Explore from "./routes/explore";
 import Dashboard from "./routes/dashboard";
 import Docs from "./routes/docs";
-import Create from "./routes/create";
+import Create from "./routes/create_vault/create-vault-ui";
 import Earn from "./routes/earn";
+import { dAppName, dAppId } from "./etc/globals.d";
 
-
-// set global variables
-globalThis.packageAddress = "package_tdx_b_1qxmzvdug22x5wza6u225y9vetq45ggjxmha8selv6d6qqzmkar"
-globalThis.dAppId = "account_tdx_b_1pqhy68vjzkdkujlajld6yhspztzkh5vtxu9mvm6rw9sqdq6tcd"
-globalThis.dAppName = "Fidenaro"
 
 const rdt = RadixDappToolkit(
-  { dAppDefinitionAddress: globalThis.dAppId, dAppName: globalThis.dAppName },
+  { dAppDefinitionAddress: dAppId, dAppName: dAppName },
   (requestData) => {
     requestData({
       accounts: { quantifier: 'atLeast', quantity: 1 },
@@ -59,7 +55,7 @@ export const App = () => (
           }
         />
       </Routes>
-      <Box p={4}>Copyright 2023 {globalThis.dAppName} | Trade smarter</Box>
+      <Box p={4}>Copyright 2023 {dAppName} | Trade smarter</Box>
       <NavBarBottom />
     </BrowserRouter>
   </ChakraProvider>

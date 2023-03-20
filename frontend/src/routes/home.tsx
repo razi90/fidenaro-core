@@ -11,6 +11,7 @@ import {
   Spacer,
 } from '@chakra-ui/react';
 import AvatarWithRipple from '../etc/avatar';
+import { dAppName } from '../etc/globals.d';
 
 function VaultWrapper({ children }: { children: ReactNode }) {
   return (
@@ -52,7 +53,7 @@ export default function Home() {
       <Box mb={8}>
         <Stack spacing={2} textAlign="left">
           <Heading as="h1" fontSize="4xl">
-            Trade smarter with {globalThis.dAppName}
+            Trade smarter with {dAppName}
           </Heading>
           <Text fontSize="lg" color={'gray.500'}>
             Copy Trading on Radix

@@ -16,6 +16,7 @@ import {
     useColorModeValue,
     HStack,
 } from "@chakra-ui/react";
+import { createVauĺt } from './create-vault-api.js'
 
 const assets = [
     { name: "Bitcoin", image: "https://altcoinsbox.com/wp-content/uploads/2022/12/bitcoin-logo-300x300.webp" },
@@ -147,7 +148,7 @@ export default function Create() {
                             justifyContent="center"
                             mb={8}
                         >
-                            <Button type="submit" colorScheme="blue">Create</Button>
+                            <Button type="submit" colorScheme="blue" onClick={createVauĺt}>Create</Button>
                         </Box>
                     </VaultWrapper>
                 </Stack>
