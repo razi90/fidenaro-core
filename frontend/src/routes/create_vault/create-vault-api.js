@@ -71,4 +71,17 @@ export async function createVauĺt() {
 
     resourceAddress = commitReceipt.details.referenced_global_entities[1]
     console.log(resourceAddress)
+
+    // console.log(JSON.stringify(commitReceipt.details.receipt, null, 2))
+
+    const response = await fetch('https://betanet.radixdlt.com/entity/details', {
+        method: 'POST',
+        body: '{ "address": "' + componentAddress + '"}', // string or object
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+    const vault_response = await response.json(); //extract JSON from the http response
+    console.log(vault_response)
+
 }
