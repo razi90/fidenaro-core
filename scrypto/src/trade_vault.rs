@@ -1,4 +1,4 @@
-use crate::fidenaro_treasury::*;
+use crate::fidenaro_treasury::fidenaro_treasury::*;
 use scrypto::prelude::*;
 
 // Define the methods on instantiated components
@@ -11,13 +11,13 @@ external_component! {
     }
 }
 
-#[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, LegacyDescribe)]
+#[derive(ScryptoSbor)]
 enum TradeStatus {
     Open,
     Closed,
 }
 
-#[derive(ScryptoCategorize, ScryptoEncode, ScryptoDecode, NonFungibleData, LegacyDescribe)]
+#[derive(ScryptoSbor, NonFungibleData)]
 struct Trade {
     stable_coin_amount: Decimal,
     bought_asset_amount: Decimal,
@@ -64,7 +64,7 @@ mod trade_vault {
                 .metadata("name", "Trading fund share tokens".to_string())
                 .create_with_no_initial_supply();
 
-            let fidenaro_fee = Decimal::from("0.05");
+            let fidenaro_fee = Decimal::from_str("0.05").unwrap();
 
             let trade_vec: Vec<Trade> = Vec::new();
 
