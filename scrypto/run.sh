@@ -41,13 +41,13 @@ popd
 # instantiate Radiswap component
 # add liquidity to USDC / BTC pool
 cat << EOF > ./tmp/init_lp_pool.rtm
-CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
-CALL_METHOD ComponentAddress("$account") "withdraw_by_amount" Decimal("210000") ResourceAddress("$usdc_resource_address");
-CALL_METHOD ComponentAddress("$account") "withdraw_by_amount" Decimal("10") ResourceAddress("$btc_resource_address");
-TAKE_FROM_WORKTOP ResourceAddress("$usdc_resource_address") Bucket("usdc");
-TAKE_FROM_WORKTOP ResourceAddress("$btc_resource_address") Bucket("btc");
-CALL_FUNCTION PackageAddress("$radiswap_package") "Radiswap" "instantiate_pool" Bucket("usdc") Bucket("btc") Decimal("10000") "USDCBTC" "Liquidity for USDC and BTC" "LP_URL" Decimal("0");
-CALL_METHOD ComponentAddress("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
+CALL_METHOD Address("$account") "lock_fee" Decimal("10");
+CALL_METHOD Address("$account") "withdraw" Decimal("210000") Address("$usdc_resource_address");
+CALL_METHOD Address("$account") "withdraw" Decimal("10") Address("$btc_resource_address");
+TAKE_FROM_WORKTOP Address("$usdc_resource_address") Bucket("usdc");
+TAKE_FROM_WORKTOP Address("$btc_resource_address") Bucket("btc");
+CALL_FUNCTION Address("$radiswap_package") "Radiswap" "instantiate_pool" Bucket("usdc") Bucket("btc") Decimal("10000") "USDCBTC" "Liquidity for USDC and BTC" "LP_URL" Decimal("0");
+CALL_METHOD Address("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
 EOF
 
 OP=$(resim run ./tmp/init_lp_pool.rtm)
@@ -71,39 +71,39 @@ export shares_token_address=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+
 
 # deposit 1000 usdc into the vault
 cat << EOF > ./tmp/deposit.rtm
-CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
-CALL_METHOD ComponentAddress("$account") "withdraw_by_amount" Decimal("1000") ResourceAddress("$usdc_resource_address");
-TAKE_FROM_WORKTOP ResourceAddress("$usdc_resource_address") Bucket("usdc");
-CALL_METHOD ComponentAddress("$trading_vault_component") "deposit" Bucket("usdc");
-CALL_METHOD ComponentAddress("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
+CALL_METHOD Address("$account") "lock_fee" Decimal("10");
+CALL_METHOD Address("$account") "withdraw" Address("$usdc_resource_address") Decimal("1000");
+TAKE_FROM_WORKTOP Address("$usdc_resource_address") Bucket("usdc");
+CALL_METHOD Address("$trading_vault_component") "deposit" Bucket("usdc");
+CALL_METHOD Address("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
 EOF
 
 resim run ./tmp/deposit.rtm
 
 # withdraw 500 usdc from the vault
 cat << EOF > ./tmp/withdraw.rtm
-CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
-CALL_METHOD ComponentAddress("$account") "withdraw_by_amount" Decimal("500") ResourceAddress("$shares_token_address");
-TAKE_FROM_WORKTOP ResourceAddress("$shares_token_address") Bucket("shares");
-CALL_METHOD ComponentAddress("$trading_vault_component") "withdraw" Bucket("shares");
-CALL_METHOD ComponentAddress("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
+CALL_METHOD Address("$account") "lock_fee" Decimal("10");
+CALL_METHOD Address("$account") Address("$shares_token_address") "withdraw" Decimal("500");
+TAKE_FROM_WORKTOP Address("$shares_token_address") Bucket("shares");
+CALL_METHOD Address("$trading_vault_component") "withdraw" Bucket("shares");
+CALL_METHOD Address("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
 EOF
 
 resim run ./tmp/withdraw.rtm
 
 # open trade
 cat << EOF > ./tmp/open_trade.rtm
-CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
-CALL_METHOD ComponentAddress("$trading_vault_component") "open_trade" Decimal("300");
+CALL_METHOD Address("$account") "lock_fee" Decimal("10");
+CALL_METHOD Address("$trading_vault_component") "open_trade" Decimal("300");
 EOF
 
 resim run ./tmp/open_trade.rtm
 
 # close trade
 cat << EOF > ./tmp/close_trade.rtm
-CALL_METHOD ComponentAddress("$account") "lock_fee" Decimal("10");
-CALL_METHOD ComponentAddress("$trading_vault_component") "close_trade" 0u32;
-CALL_METHOD ComponentAddress("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
+CALL_METHOD Address("$account") "lock_fee" Decimal("10");
+CALL_METHOD Address("$trading_vault_component") "close_trade" 0u32;
+CALL_METHOD Address("$account") "deposit_batch" Expression("ENTIRE_WORKTOP");
 EOF
 
 resim run ./tmp/close_trade.rtm
