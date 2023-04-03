@@ -33,7 +33,7 @@ export btc_resource_address=$(echo "$OP" | sed -nr "s/.*Resource: ([[:alnum:]_]+
 
 ############################################################## SETUP RADISWAP ###############################################################################
 
-pushd "../scrypto-examples/defi/radiswap"
+pushd "../../scrypto-examples/defi/radiswap"
 # publish Radiswap
 export radiswap_package=$(resim publish . | sed -nr "s/Success! New Package: ([[:alnum:]_]+)/\1/p")
 popd
@@ -110,5 +110,5 @@ resim run ./tmp/close_trade.rtm
 
 
 
-resim show $account
-resim show $trading_vault_component
+# resim show $account
+# resim show $trading_vault_component

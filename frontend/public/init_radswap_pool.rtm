@@ -1,0 +1,11 @@
+CALL_METHOD ComponentAddress("account_tdx_b_1pqemf7d9nwcje77uu8vtlnqj7h8gn0jp8kmcx4q368lqh994hk") "withdraw_by_amount" Decimal("100") ResourceAddress("resource_tdx_b_1qpev6f8v2su68ak5p2fswd6gqml3u7q0lkrtfx99c4ts3zxlah");
+
+CALL_METHOD ComponentAddress("account_tdx_b_1pqemf7d9nwcje77uu8vtlnqj7h8gn0jp8kmcx4q368lqh994hk") "withdraw_by_amount" Decimal("0.01") ResourceAddress("resource_tdx_b_1qre9sv98scqut4k9g3j6kxuvscczv0lzumefwgwhuf6qdu4c3r");
+
+TAKE_FROM_WORKTOP ResourceAddress("resource_tdx_b_1qpev6f8v2su68ak5p2fswd6gqml3u7q0lkrtfx99c4ts3zxlah") Bucket("usdc");
+
+TAKE_FROM_WORKTOP ResourceAddress("resource_tdx_b_1qre9sv98scqut4k9g3j6kxuvscczv0lzumefwgwhuf6qdu4c3r") Bucket("btc");
+
+CALL_FUNCTION PackageAddress("package_tdx_b_1qxty2xnw93djt5n3pt9m6dn8n06cclhs9fhtq00k5c6sma3ev2") "Radiswap" "instantiate_pool" Bucket("usdc") Bucket("btc") Decimal("10000") "USDCBTC" "Liquidity for USDC and BTC" "LP_URL" Decimal("0");
+
+CALL_METHOD ComponentAddress("account_tdx_b_1pqemf7d9nwcje77uu8vtlnqj7h8gn0jp8kmcx4q368lqh994hk") "deposit_batch" Expression("ENTIRE_WORKTOP");
