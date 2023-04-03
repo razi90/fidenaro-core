@@ -74,14 +74,29 @@ export async function createVauĺt() {
 
     // console.log(JSON.stringify(commitReceipt.details.receipt, null, 2))
 
-    const response = await fetch('https://betanet.radixdlt.com/entity/details', {
-        method: 'POST',
-        body: '{ "address": "' + componentAddress + '"}', // string or object
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-    const vault_response = await response.json(); //extract JSON from the http response
-    console.log(vault_response)
+    // const response = await fetch('https://betanet.radixdlt.com/entity/details', {
+    //     method: 'POST',
+    //     body: '{ "address": "' + componentAddress + '"}', // string or object
+    //     headers: {
+    //         'Content-Type': 'application/json'
+    //     }
+    // });
+    // const vault_response = await response.json(); //extract JSON from the http response
+    // console.log(vault_response)
+
+    // Retrieve the JSON string from the localStorage with the key 'myStringList'
+    const tradingVaultList = localStorage.getItem('TradingVaults');
+
+    // Parse the JSON string to get the original list of strings, or create an empty list if the storedJsonString is null or undefined.
+    const storedTradingVaults = tradingVaultList ? JSON.parse(tradingVaultList) : [];
+
+    // Add a new string element to the list
+    storedTradingVaults.push(componentAddress);
+
+    // Convert the updated list of strings to a JSON string
+    const updatedTradingVaultList = JSON.stringify(storedTradingVaults);
+
+    // Store the updated JSON string in the localStorage
+    localStorage.setItem('TradingVaults', updatedTradingVaultList);
 
 }
