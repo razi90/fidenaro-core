@@ -42,8 +42,8 @@ popd
 # add liquidity to USDC / BTC pool
 cat << EOF > ./tmp/init_lp_pool.rtm
 CALL_METHOD Address("$account") "lock_fee" Decimal("10");
-CALL_METHOD Address("$account") "withdraw" Decimal("210000") Address("$usdc_resource_address");
-CALL_METHOD Address("$account") "withdraw" Decimal("10") Address("$btc_resource_address");
+CALL_METHOD Address("$account") "withdraw" Address("$usdc_resource_address") Decimal("210000");
+CALL_METHOD Address("$account") "withdraw" Address("$btc_resource_address") Decimal("10");
 TAKE_FROM_WORKTOP Address("$usdc_resource_address") Bucket("usdc");
 TAKE_FROM_WORKTOP Address("$btc_resource_address") Bucket("btc");
 CALL_FUNCTION Address("$radiswap_package") "Radiswap" "instantiate_pool" Bucket("usdc") Bucket("btc") Decimal("10000") "USDCBTC" "Liquidity for USDC and BTC" "LP_URL" Decimal("0");
