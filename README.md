@@ -1,3 +1,22 @@
+### Usefull links
+
+https://docs-babylon.radixdlt.com/main/frontend/radix-dapp-toolkit.html
+
+https://github.com/radixdlt/scrypto-examples/tree/main/full-stack/dapp-toolkit-gumball-machine
+
+https://rcnet-dashboard.radixdlt.com/
+
+https://docs-babylon.radixdlt.com/main/getting-started-developers/wallet-and-connector.html
+
+https://docs-babylon.radixdlt.com/main/getting-started-developers/dapp-frontend/building-a-pure-frontend.html
+
+https://github.com/radixdlt/wallet-sdk#get-wallet-data
+
+https://github.com/radixdlt/connect-button
+
+https://radix-rcnet-v1-core.redoc.ly/
+
+
 ### General idea
 
 * Trader creates a trading vault
