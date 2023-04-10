@@ -10,11 +10,17 @@ This tutorial is meant to guide you through building, deploying and using the Fi
 3. Scrypto v0.9.0. Instructions to install [here](https://docs-babylon.radixdlt.com/main/getting-started-developers/first-component/install-scrypto.html) and update [here](https://docs-babylon.radixdlt.com/main/getting-started-developers/first-component/updating-scrypto.html)
 
 ## Building the Scrypto code
+
+> **Hint:** The following steps need to be performed first for the radswap package. Just replace `fidenaro` with `radswap` in the steps below.
+
 1. Enter the scrypto directory in a terminal: `cd scrypto`
 1. Build the code: `scrypto build`
 1. Two important files (`fidenaro.schema` and `fidenaro.wasm`) will be generated in `scrypto/target/wasm32-unknown-unknown/release/`. You will need them for the next step.
 
 ## Deploy the package to RCnet
+
+> **Hint:** The following steps need to be performed first for the radswap package. Just replace `fidenaro` with `radswap` in the steps below.
+
 1. Go to the [RCnet Dashboard Website](https://rcnet-dashboard.radixdlt.com/)
 2. Connect the Wallet Via the Connect Button
 3. Navigate to Deploy Package & choose an account and badge or have one created for you if you don't have one yet using the link below. (Which appears once you have selected an account)
@@ -56,6 +62,12 @@ It is intended for use by node-runners on a private network, and is not intended
 This API exposes queries against the node's current state (see /lts/state/ or /state/), and streams of transaction history (under /lts/stream/ or /stream).
 
 https://radix-rcnet-v1-core.redoc.ly/
+
+### Beaker DEX
+
+You can swap XRD to other assets using the Beaker DEX. This assets can then be used to create a trading vault on the RCnet.
+
+https://beaker.fi/swap?tk1=XRD&tk2=WBTC
 
 
 # General idea
