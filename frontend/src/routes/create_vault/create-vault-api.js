@@ -10,26 +10,31 @@ import { dAppPackageAddress, dAppId, dAppName, radswapPoolComponentAddress } fro
 
 // Instantiate Gateway SDK
 const transactionApi = new TransactionApi();
-const rdt = RadixDappToolkit(
-    { dAppDefinitionAddress: dAppId, dAppName: dAppName },
-    (requestData) => {
-        requestData({
-            accounts: { quantifier: 'atLeast', quantity: 1 },
-        })
-    },
-    { networkId: 11 }
-)
-console.log("dApp Toolkit: ", rdt)
 
 const accountAddress = localStorage.getItem('account')
 let resourceAddress
 let componentAddress
 
-export async function createVauĺt() {
+export async function createVault(rdt) {
 
     let manifest = new ManifestBuilder()
-        .callMethod(accountAddress, "create_proof", [ResourceAddress("resource_tdx_b_1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq8z96qp")])
-        .callFunction(dAppPackageAddress, "TradeVault", "init_trade_vault", [ComponentAddress(accountAddress), Decimal("10"), ComponentAddress(radswapPoolComponentAddress)])
+        .callMethod(
+            accountAddress,
+            "create_proof",
+            [
+                ResourceAddress("resource_tdx_c_1qyqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq40v2wv")
+            ]
+        )
+        .callFunction(
+            dAppPackageAddress,
+            "TradeVault",
+            "init_trade_vault",
+            [
+                ComponentAddress(accountAddress),
+                Decimal("10"),
+                ComponentAddress(radswapPoolComponentAddress)
+            ]
+        )
         .build()
         .toString();
 
