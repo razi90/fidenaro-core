@@ -27,9 +27,31 @@ const rdt = RadixDappToolkit(
       localStorage.setItem('account', accounts[0].address);
     })
   },
-  { networkId: 11 }
+  {
+    networkId: 12, // 12 is for RCnet 01 for Mainnet
+    onDisconnect: () => {
+      // clear your application state
+    },
+    onInit: ({ accounts }) => {
+      // set your initial application state
+      console.log("onInit accounts: ", accounts)
+      if (accounts && accounts.length > 0) {
+        localStorage.setItem('account', accounts[0].address);
+      }
+    },
+  }
 )
-console.log("dApp Toolkit: ", rdt)
+
+
+declare global {
+  interface Window {
+    rdt: typeof rdt
+  }
+}
+
+window.rdt = rdt
+
+console.log("dApp Toolkit: ", window.rdt)
 
 export const App = () => (
 
