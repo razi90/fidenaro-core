@@ -36,25 +36,33 @@ const TradingInterface = (props) => {
     };
 
     const options = {
+        responsive: true,
+        maintainAspectRatio: false, // Add this line to allow the chart to scale with the screen
         scales: {
-            x: {
-                type: 'time',
-                time: {
-                    unit: 'day',
+            x: [
+                {
+                    type: 'time',
+                    time: {
+                        unit: 'day',
+                    },
                 },
-            },
-            y: {
-                type: 'linear',
-            },
+            ],
+            y: [
+                {
+                    type: 'linear',
+                },
+            ],
         },
     };
 
     return (
         <Container>
             <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-                <GridItem>
+                <GridItem colSpan={2}>
                     {state.bitcoinData.length > 0 && (
-                        <Line data={data} options={options} />
+                        <div style={{ position: "relative", height: "80vh", width: "100%" }}>
+                            <Line data={data} options={options} />
+                        </div>
                     )}
                 </GridItem>
                 <GridItem>
