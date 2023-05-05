@@ -13,6 +13,7 @@ import Dashboard from "./routes/dashboard";
 import Docs from "./routes/docs";
 import Create from "./routes/create_vault/create-vault-ui";
 import Earn from "./routes/earn";
+import Trade from "./routes/trade";
 import { dAppName, dAppId } from "./etc/globals.d";
 
 
@@ -68,6 +69,7 @@ export const App = () => (
         <Route path="/earn" element={<Earn />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/docs" element={<Docs />} />
+        <Route path="/trade" element={<Trade />} />
         <Route
           path="*"
           element={
