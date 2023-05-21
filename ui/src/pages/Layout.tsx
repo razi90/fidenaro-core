@@ -20,7 +20,7 @@ class Layout extends React.Component {
                 justifyContent="center"
             >
                 <Center>
-                    <CircularProgress isIndeterminate color='pElement.200' size='60vh' display="flex"
+                    <CircularProgress isIndeterminate color='pElement.200' size='30vh' display="flex"
                         alignItems="center"
                         justifyContent="center"
                         position="relative"
@@ -29,7 +29,7 @@ class Layout extends React.Component {
                             <Image
                                 sx={{
                                     borderRadius: "full",
-                                    boxSize: "40vh",
+                                    boxSize: "20vh",
                                     padding: "5px",
                                     position: "absolute",
                                     top: "50%",
