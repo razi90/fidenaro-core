@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import ConnectButton from "../etc/wallet_connect";
 
-const Links = ['Fidenaro', 'Explore', 'Create', 'Dashboard', 'Docs'];
+const Links = ['Fidenaro', 'Explore', 'Create', 'Dashboard', 'Docs', 'Trade'];
 
 const NavLink = ({ children }: { children: string }) => (
   <Link
