@@ -8,7 +8,7 @@ import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 const Explore: React.FC = () => {
 
     return (
-        <Box sx={routePageBoxStyle} >
+        <Box sx={routePageBoxStyle}>
             <Center>
                 Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore
                 Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore

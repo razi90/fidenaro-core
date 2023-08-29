@@ -3,7 +3,7 @@ export const leftNavigationToggleButtonStyle = (isMinimized: any) => ({
     w: isMinimized ? "60px" : "200px",
     transition: "width 0.3s",
     position: "absolute",
-    bottom: "4",
+    bottom: "20",
 
     color: "backTransparent.900",
     size: "md",
@@ -56,14 +56,12 @@ export const leftNavigationButtonStyle = {
 };
 
 export const leftNavigationMainBoxStyle = {
+    borderRight: "1px solid",
     boxShadow: "0 0 10px 0px #ccc;",
-    height: "92vh",
     bg: "white",
     transition: "width 0.3s",
-
-    position: "fixed",
-    zIndex: "1490",
-
+    height: '100%',
+    position: "fixed"
 };
 
 export const leftNavigationMainVStackStyle = {

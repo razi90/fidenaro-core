@@ -28,7 +28,10 @@ const LeftNavigationBar: React.FC = () => {
     };
 
     return (
-        <Box sx={leftNavigationMainBoxStyle} width={isMinimized ? "60px" : "200px"} >
+        <Box
+            sx={leftNavigationMainBoxStyle}
+            width={isMinimized ? "60px" : "200px"}
+        >
             <VStack align="stretch" sx={leftNavigationMainVStackStyle}>
                 <LeftNavigationButton link="/profile" title="Profile" icon={FaUserCircle} navIsMinimized={isMinimized} />
 
@@ -47,19 +50,19 @@ const LeftNavigationBar: React.FC = () => {
                 <LeftNavigationButton link="/faq" title="FAQ" icon={FaQuestion} navIsMinimized={isMinimized} />
                 <LeftNavigationButton link="https://docs.fidenaro.com/" title="Documentation" icon={FaBookOpen} navIsMinimized={isMinimized} />
 
+                <Box>
+                    <Button
+                        onClick={toggleMinimize}
+                        sx={leftNavigationToggleButtonStyle(isMinimized)}
+                    >
+                        {isMinimized ?
+                            <Icon as={ArrowRightIcon} sx={leftNavigationToggleIconStyle} />
+                            :
+                            <Icon as={ArrowLeftIcon} sx={leftNavigationToggleIconStyle} />
+                        }
+                    </Button>
+                </Box>
             </VStack >
-            <Box>
-                <Button
-                    onClick={toggleMinimize}
-                    sx={leftNavigationToggleButtonStyle(isMinimized)}
-                >
-                    {isMinimized ?
-                        <Icon as={ArrowRightIcon} sx={leftNavigationToggleIconStyle} />
-                        :
-                        <Icon as={ArrowLeftIcon} sx={leftNavigationToggleIconStyle} />
-                    }
-                </Button>
-            </Box>
         </Box >
     );
 };
