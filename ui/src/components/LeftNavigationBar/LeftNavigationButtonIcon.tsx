@@ -3,8 +3,6 @@ import {
     Stack,
     Icon,
 } from "@chakra-ui/react";
-import { ReactElement } from "react";
-
 
 interface FeatureProps {
     icon: any;

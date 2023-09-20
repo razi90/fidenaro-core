@@ -7,7 +7,7 @@ import {
     Icon,
 
 } from '@chakra-ui/react';
-import { ChevronDownIcon, ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
+import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import { FaMedal, FaQuestion, FaBookOpen, FaChartPie, FaChartBar, FaUserCircle } from "react-icons/fa";
 
 import { LeftNavigationButton } from "./LeftNavigationButton"

@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { FaPlus } from "react-icons/fa";
-
+import { WalletButton } from './WalletButton';
 
 import {
     topNavigationBoxStyle,
@@ -54,12 +54,7 @@ export default function TopNavigationBar() {
                                 <FaPlus />
                             </Button>
                         </Tooltip>
-                        <Button
-                            sx={topNavigationButtonStyle}
-                            title="Placeholder"
-                        >
-                            <Text >Placeholder</Text>
-                        </Button>
+                        <WalletButton />
                         <IconButton
                             icon={isOpen ? <CloseIcon color={"black"} boxSize={5} /> : <HamburgerIcon color={"black"} boxSize={7} />}
                             aria-label={"Open Menu"}

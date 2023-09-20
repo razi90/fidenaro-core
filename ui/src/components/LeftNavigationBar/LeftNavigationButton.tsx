@@ -1,7 +1,6 @@
 import {
     Link,
     Button,
-    Icon,
     Box,
     Text,
 } from "@chakra-ui/react";
