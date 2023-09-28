@@ -5,18 +5,19 @@ import {
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 
-interface PortfolioProps {
+interface WallOfFameProps {
     isMinimized: boolean;
 }
 
-const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
+const WallOfFame: React.FC<WallOfFameProps> = ({ isMinimized }) => {
 
     return (
-        <Box sx={routePageBoxStyle(isMinimized)} >
+
+        <Box sx={routePageBoxStyle(isMinimized)}>
             <Center>
-                Portfolio
+                Wall of Fame 1.2.3
             </Center>
         </Box >
     )
 }
-export default Portfolio;
+export default WallOfFame;

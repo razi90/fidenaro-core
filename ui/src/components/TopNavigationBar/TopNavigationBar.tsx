@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { FaPlus } from "react-icons/fa";
-import { WalletButton } from './WalletButton';
+import { WalletButton } from '../Button/WalletButton/WalletButton';
 
 import {
     topNavigationBoxStyle,
