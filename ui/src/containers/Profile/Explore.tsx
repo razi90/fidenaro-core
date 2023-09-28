@@ -5,18 +5,19 @@ import {
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 
-interface PortfolioProps {
+interface ProfileProps {
     isMinimized: boolean;
 }
 
-const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
+const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
     return (
-        <Box sx={routePageBoxStyle(isMinimized)} >
+
+        <Box sx={routePageBoxStyle(isMinimized)}>
             <Center>
-                Portfolio
+                Coolio is on stage.
             </Center>
         </Box >
     )
 }
-export default Portfolio;
+export default Profile;

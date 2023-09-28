@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { walletButtonStyle, walletButtonBoxStyle } from './Styled';
-import { Box } from '@chakra-ui/react';
-import rdt from '../../libs/radix-dapp-toolkit/rdt'
+import { Box, Tooltip } from '@chakra-ui/react';
+import rdt from '../../../libs/radix-dapp-toolkit/rdt'
 
 rdt.buttonApi.setTheme('white-with-outline')
 
@@ -25,19 +25,21 @@ export const WalletButton: React.FC = () => {
 
 
     return (
-        <Box sx={walletButtonBoxStyle}>
-            <style>{walletButtonStyle}</style>
-            <div className="connect-button-wrapper">
-                <radix-connect-button
-                    personalabel=""
-                    dappname=""
-                    mode="light"
-                    status=""
-                    avatarurl=""
-                    activetab=""
-                    loggedintimestamp=""
-                ></radix-connect-button>
-            </div>
-        </Box>
+        <Tooltip label='Connect to your Wallet'>
+            <Box sx={walletButtonBoxStyle}>
+                <style>{walletButtonStyle}</style>
+                <div className="connect-button-wrapper">
+                    <radix-connect-button
+                        personalabel=""
+                        dappname=""
+                        mode="light"
+                        status=""
+                        avatarurl=""
+                        activetab=""
+                        loggedintimestamp=""
+                    ></radix-connect-button>
+                </div>
+            </Box>
+        </Tooltip>
     );
 };

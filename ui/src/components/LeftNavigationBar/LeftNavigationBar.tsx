@@ -20,11 +20,16 @@ import {
     leftNavigationDividerBoxStyle,
 } from "./Styled";
 
-const LeftNavigationBar: React.FC = () => {
-    const [isMinimized, setIsMinimized] = useState(false);
+interface LeftNavigationBarProps {
+    isMinimized: boolean;
+    setIsMinimized: (value: boolean) => void;
+}
+
+const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setIsMinimized }) => {
 
     const toggleMinimize = () => {
         setIsMinimized(!isMinimized);
+        localStorage.setItem("leftNavigationBarIsMinimized", JSON.stringify(isMinimized));
     };
 
     return (

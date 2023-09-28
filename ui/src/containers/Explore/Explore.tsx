@@ -5,10 +5,15 @@ import {
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 
-const Explore: React.FC = () => {
+interface ExploreProps {
+    isMinimized: boolean;
+}
+
+const Explore: React.FC<ExploreProps> = ({ isMinimized }) => {
 
     return (
-        <Box sx={routePageBoxStyle}>
+
+        <Box sx={routePageBoxStyle(isMinimized)}>
             <Center>
                 Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore
                 Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore Explore

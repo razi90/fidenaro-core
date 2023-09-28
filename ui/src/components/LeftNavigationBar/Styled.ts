@@ -52,11 +52,11 @@ export const leftNavigationButtonStyle = {
     },
     ":hover": {
         textDecoration: "none",
+        bg: "pElementTransparent.895",
     },
 };
 
 export const leftNavigationMainBoxStyle = {
-    borderRight: "1px solid",
     boxShadow: "0 0 10px 0px #ccc;",
     bg: "white",
     transition: "width 0.3s",
@@ -77,5 +77,4 @@ export const leftNavigationDividerBoxStyle = (isMinimized: any) => ({
     w: "100%", borderColor: 'gray.200',
     borderBottom: "1px solid #ddd",
     pt: isMinimized ? "0" : "6",
-
 });
