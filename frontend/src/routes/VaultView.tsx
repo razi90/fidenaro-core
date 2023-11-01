@@ -122,25 +122,6 @@ const VaultView: React.FC = () => {
         return <div>Loading...</div>;
     }
 
-    const dummyData2 = [
-        {
-            title: "Card 1",
-            content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-        {
-            title: "Card 2",
-            content: "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.",
-        },
-        {
-            title: "Card 3",
-            content: "Nullam bibendum est sit amet elit imperdiet, quis lacinia nisi varius.",
-        },
-        {
-            title: "Card 4",
-            content: "Sed euismod libero nec libero ultrices tincidunt.",
-        },
-    ];
-
     return (
         <Box mt={4} textAlign="center">
             <Heading>{vaultData.vault}</Heading>
