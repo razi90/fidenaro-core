@@ -1,0 +1,38 @@
+[
+    {
+        "id": "0",
+        "vault": "BearosSnap",
+        "total": -97.99,
+        "today": -12,
+        "activeDays": 712,
+        "followers": 7,
+        "equity": 12000
+    },
+    {
+        "id": "1",
+        "vault": "BTC TDM",
+        "total": 212,
+        "today": 12,
+        "activeDays": 41,
+        "followers": 2,
+        "equity": 114000
+    },
+    {
+        "id": "2",
+        "vault": "ETH TDM",
+        "total": 2,
+        "today": 8,
+        "activeDays": 3,
+        "followers": 10,
+        "equity": 12
+    },
+    {
+        "id": "3",
+        "vault": "JanJan",
+        "total": -49.999,
+        "today": 10,
+        "activeDays": 3,
+        "followers": 10,
+        "equity": 12
+    }
+]
