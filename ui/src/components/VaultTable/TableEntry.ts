@@ -7,6 +7,7 @@ export interface TableEntry {
     activeDays: number;
     followers: number;
     equity: number;
+    profitShare: number;
 }
 
 // Define an interface for the possible keys of TableEntry
