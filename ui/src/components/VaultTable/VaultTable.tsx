@@ -212,7 +212,7 @@ const VaultTable: React.FC<{ tableData: TableEntry[] }> = ({ tableData }) => {
                                     </Td>
                                     <Td isNumeric>{entry.equity}</Td>
                                     <Td>
-                                        <FollowButton />
+                                        <FollowButton vaultName={entry.vault} vaultFee={entry.profitShare} />
                                     </Td>
                                 </Tr>
                             ))}

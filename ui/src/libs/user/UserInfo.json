@@ -1,0 +1,8 @@
+{
+    "account": "account_xrd_1234",
+    "assets": {
+        "XRD": 120000,
+        "BTC": 0.11,
+        "USD": 1200
+    }
+}
