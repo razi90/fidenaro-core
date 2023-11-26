@@ -1,5 +1,6 @@
 export interface User {
     account: string;
+    avatar: string;
     assets: {
         XRD: number;
         BTC: number;
@@ -9,6 +10,7 @@ export interface User {
 
 export class AppUser implements User {
     account: string;
+    avatar: string;
     assets: {
         XRD: number;
         BTC: number;
@@ -17,6 +19,7 @@ export class AppUser implements User {
 
     constructor(data: User) {
         this.account = data.account;
+        this.avatar = data.avatar;
         this.assets = data.assets;
     }
 

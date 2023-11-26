@@ -17,33 +17,28 @@ import {
     StackDivider,
     Collapse,
     Input,
+    Link
 } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
 import FollowButton from '../Button/FollowButton/FollowButton';
 import SortableTh from './SortableTableHeader';
-import { TableEntry, TableEntryKeys } from './TableEntry';
 import { explorerTableHeaderPerformanceTextStyle, explorerTableHeaderTextStyle } from './Styled';
 import AreaChart from '../../libs/charts/MiniatureAreaChartApex';
 import FilterSelect from './Filter/FilterSelect';
 import ResetButton from '../Button/ResetButton.tsx/ResetButton';
 import FilterButton from '../Button/FilterButton/FilterButton';
+import { Vault } from '../../libs/entities/Vault';
 
-interface VaultTable {
-    sortedColumn: string | null;
-    sortOrder: 'asc' | 'desc';
-    handleSort: (column: TableEntryKeys) => void;
-}
 
-// Dummy data for the graph
-const seriesData = [30, 40, 35, 50, 49, 60, 70, 91, 125, 30, 40, 35, 50, 49, 60, 70, 91, 125];
+const VaultTable: React.FC<{ bigHeader: string, smallHeader: string, tableData: Vault[] }> = ({ bigHeader, smallHeader, tableData }) => {
 
-const VaultTable: React.FC<{ tableData: TableEntry[] }> = ({ tableData }) => {
+    // Define an interface for the possible keys of a vault table entry
+    type TableEntryKeys = keyof Vault;
 
     // Controls the width of the element where the graph is and therefore the width of the graph
-    const performanceFieldWidth = 250
+    const performanceFieldWidth = 150
 
     // Filtered and sorded table data
-    const [filteredData, setFilteredData] = useState<TableEntry[]>(tableData);
+    const [filteredData, setFilteredData] = useState<Vault[]>(tableData);
 
     // State variables for sort values
     const [sortedColumn, setSortedColumn] = useState<TableEntryKeys | null>(null);
@@ -120,9 +115,9 @@ const VaultTable: React.FC<{ tableData: TableEntry[] }> = ({ tableData }) => {
                 <Box>
 
                     <Flex>
-                        <Heading>Explore</Heading>
+                        <Heading size={'md'}>{bigHeader}</Heading>
                         <Spacer />
-                        <Text>Become part of the community</Text>
+                        <Text>{smallHeader}</Text>
                         <Spacer />
                         <HStack>
                             <ResetButton onClick={resetFilters} />
@@ -197,7 +192,7 @@ const VaultTable: React.FC<{ tableData: TableEntry[] }> = ({ tableData }) => {
                             {filteredData.map((entry, index) => (
                                 <Tr key={index}>
                                     <Td>
-                                        <Link to={`/vault/${entry.id}`}>{entry.vault}</Link>
+                                        <Link href={`/vault/${entry.id}`}>{entry.vault}</Link>
                                     </Td>
                                     <Td isNumeric color={entry.total >= 0 ? 'green.500' : 'red.500'}>
                                         {entry.total} %
@@ -208,7 +203,8 @@ const VaultTable: React.FC<{ tableData: TableEntry[] }> = ({ tableData }) => {
                                     <Td isNumeric>{entry.activeDays}</Td>
                                     <Td isNumeric>{entry.followers}</Td>
                                     <Td width={performanceFieldWidth}>
-                                        <AreaChart seriesData={seriesData} ></AreaChart>
+                                        {/* TODO: Investiga why the chart makes the view so laggy */}
+                                        <AreaChart seriesData={entry.tradeHistory} width={performanceFieldWidth}></AreaChart>
                                     </Td>
                                     <Td isNumeric>{entry.equity}</Td>
                                     <Td>

@@ -2,7 +2,7 @@
 import React from 'react';
 import { useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Profile from './containers/Profile/Explore';
+import Profile from './containers/Profile/Profile';
 import Explore from './containers/Explore/Explore';
 import Portfolio from './containers/Portfolio/Portfolio';
 import WallOfFame from './containers/WallOfFame/WallOfFame';
