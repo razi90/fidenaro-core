@@ -6,6 +6,7 @@ import Profile from './containers/Profile/Profile';
 import Explore from './containers/Explore/Explore';
 import Portfolio from './containers/Portfolio/Portfolio';
 import WallOfFame from './containers/WallOfFame/WallOfFame';
+import Vault from './containers/Vault/Vault';
 import UnknownPage from './containers/UnknownPage/UnknownPage';
 import LeftNavigationBar from './components/LeftNavigationBar/LeftNavigationBar';
 import TopNavigationBar from './components/TopNavigationBar/TopNavigationBar';
@@ -33,6 +34,7 @@ const Layout: React.FC = () => {
                     <Route path="/portfolio" element={<Portfolio isMinimized={isMinimized} />} />
                     <Route path="/walloffame" element={<WallOfFame isMinimized={isMinimized} />} />
                     <Route path="/profile" element={<Profile isMinimized={isMinimized} />} />
+                    <Route path="/vault" element={<Vault isMinimized={isMinimized} />} />
                     <Route
                         path="*"
                         element={<UnknownPage isMinimized={isMinimized} />}

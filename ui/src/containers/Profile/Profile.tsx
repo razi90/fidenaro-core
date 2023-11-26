@@ -8,7 +8,7 @@ import {
     Spacer,
     VStack,
     Text,
-    Button,
+    Flex,
     IconButton,
     Icon,
     Table,
@@ -17,6 +17,8 @@ import {
     Td,
     TableContainer,
     Square,
+    Avatar,
+    WrapItem,
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 import { useQuery } from '@tanstack/react-query';
@@ -27,6 +29,10 @@ import { FaDiscord, FaTelegram, FaTwitter } from 'react-icons/fa';
 import AreaChart from '../../libs/charts/MiniatureAreaChartApex';
 import { fetchVaultList } from '../../libs/vault/VaultDataService';
 import ProfileEditButton from '../../components/Button/ProfileEditButton/ProfileEditButton';
+import { PrimerCard } from '../../components/Card/PrimerCard';
+import { ValueCard } from '../../components/Card/ValueCard';
+import { DescriptionCard } from '../../components/Card/DescriptionCard';
+import { ManagerCard } from '../../components/Card/ManagerCard';
 
 interface ProfileProps {
     isMinimized: boolean;
@@ -117,83 +123,99 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
     return (
         <Box sx={routePageBoxStyle(isMinimized)} p={'8'}>
-            <Box>
-                <HStack justify="space-between">
-                    <HStack width="100%">
-                        <Image
-                            borderRadius='full'
-                            src={user.avatar}
-                            boxSize='100px'
-                            ml={'16'}
-                        />
-                        <Spacer></Spacer>
-                        <VStack>
-                            <Heading fontWeight={'light'} fontFamily={'body'} fontSize={'3xl'}>{user.account}</Heading>
-                            <HStack spacing={2}>
-                                <IconButton aria-label="Twitter"
-                                    icon={<Icon as={FaTwitter} boxSize={5} />}
-                                    variant="unstyled"
-                                    _focus={{ outline: "none" }}
-                                />
-                                <IconButton aria-label="Twitter"
-                                    icon={<Icon as={FaTelegram} boxSize={5} />}
-                                    variant="unstyled"
-                                    _focus={{ outline: "none" }}
-                                />
-                                <IconButton aria-label="Twitter"
-                                    icon={<Icon as={FaDiscord} boxSize={5} />}
-                                    variant="unstyled"
-                                    _focus={{ outline: "none" }}
-                                />
-                            </HStack>
-                            <Text>This is my profile description.</Text>
-                            <HStack justify="space-between">
-                                <Text>{totalFollowers} Followers</Text>
-                                <Text>$ {totalEquity} Equity</Text>
-                            </HStack>
-                        </VStack>
-                        <Spacer></Spacer>
-                        <ProfileEditButton onClick={function (): void {
-                            throw new Error('Function not implemented.');
-                        }} ></ProfileEditButton>
-                    </HStack>
-                </HStack >
-            </Box>
-            <Box p={'10'}>
-                <HStack>
-                    <Square size={'275px'}>
-                        <TableContainer>
-                            <Table variant="simple">
-                                <Tbody>
-                                    <Tr>
-                                        <Td><Text fontWeight="bold">Rank</Text></Td>
-                                        <Td>10</Td>
-                                    </Tr>
-                                    <Tr>
-                                        <Td><Text fontWeight="bold">Total Raised</Text></Td>
-                                        <Td>$ {totalEquity}</Td>
-                                    </Tr>
-                                    <Tr>
-                                        <Td><Text fontWeight="bold">Manager PnL</Text></Td>
-                                        <Td>$ {managerPnL}</Td>
-                                    </Tr>
-                                    <Tr>
-                                        <Td><Text fontWeight="bold">Investor PnL</Text></Td>
-                                        <Td>$ {investorPnL}</Td>
-                                    </Tr>
-                                    <Tr>
-                                        <Td><Text fontWeight="bold">Total Trades</Text></Td>
-                                        <Td>{totalTrades}</Td>
-                                    </Tr>
-                                </Tbody>
-                            </Table>
-                        </TableContainer>
-                    </Square>
-                    <Box flex='1' mr={10} ref={boxRef} >
-                        <AreaChart seriesData={seriesData} width={boxWidth}></AreaChart>
-                    </Box>
-                </HStack>
-            </Box>
+            <Center>
+                <Box maxW="6xl" minH="xl" width="100vw" >
+                    <Flex p={4} >
+                        <PrimerCard cardTitle={user.account} cardWidth='50%' cardHeight='100%'>
+                            <Flex p={1}>
+                                <VStack p={4} mr={4}>
+                                    <WrapItem>
+                                        <Avatar size='2xl' name={user.account} src={user.avatar} />{' '}
+                                    </WrapItem>
+                                    <Box>
+                                        <IconButton aria-label="Twitter"
+                                            icon={<Icon as={FaTwitter} boxSize={5} />}
+                                            variant="unstyled"
+                                            _focus={{ outline: "none" }}
+                                        />
+                                        <IconButton aria-label="Twitter"
+                                            icon={<Icon as={FaTelegram} boxSize={5} />}
+                                            variant="unstyled"
+                                            _focus={{ outline: "none" }}
+                                        />
+                                        <IconButton aria-label="Twitter"
+                                            icon={<Icon as={FaDiscord} boxSize={5} />}
+                                            variant="unstyled"
+                                            _focus={{ outline: "none" }}
+                                        />
+                                    </Box>
+                                </VStack>
+                                <Box>
+                                    <DescriptionCard title='Description' isLoading={isUserFetchLoading}>
+                                        View a summary of all your customers over the last month.
+                                        View a summary of all your customers over the last month.
+                                        View a summary of all your customers over the last month.
+                                        View a summary of all your customers over the last month.
+                                        View a summary of all your customers over the last month.
+                                        test test
+                                    </DescriptionCard>
+                                    <Flex>
+                                        <ValueCard value={totalFollowers.toString()} description={"Follower"} isLoading={isUserFetchLoading} />
+                                        <ValueCard value={totalEquity.toString() + " $"} description={"Equity"} isLoading={isUserFetchLoading} />
+                                    </Flex>
+                                    <Flex justifyContent='flex-end' w={"100%"} pr={3} mt={4} >
+
+                                        <ProfileEditButton onClick={function (): void {
+                                            throw new Error('Function not implemented.');
+                                        }} ></ProfileEditButton>
+
+                                    </Flex>
+                                </Box>
+                            </Flex>
+
+
+                        </PrimerCard>
+
+                        <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto'>
+                            <Box p={'4'}>
+                                <HStack>
+
+                                    <TableContainer w={"100%"}>
+                                        <Table variant="simple">
+                                            <Tbody>
+                                                <Tr>
+                                                    <Td><Text fontWeight="bold">Rank</Text></Td>
+                                                    <Td>10</Td>
+                                                </Tr>
+                                                <Tr>
+                                                    <Td><Text fontWeight="bold">Total Raised</Text></Td>
+                                                    <Td>$ {totalEquity}</Td>
+                                                </Tr>
+                                                <Tr>
+                                                    <Td><Text fontWeight="bold">Manager PnL</Text></Td>
+                                                    <Td>$ {managerPnL}</Td>
+                                                </Tr>
+                                                <Tr>
+                                                    <Td><Text fontWeight="bold">Investor PnL</Text></Td>
+                                                    <Td>$ {investorPnL}</Td>
+                                                </Tr>
+                                                <Tr>
+                                                    <Td><Text fontWeight="bold">Total Trades</Text></Td>
+                                                    <Td>{totalTrades}</Td>
+                                                </Tr>
+                                            </Tbody>
+                                        </Table>
+                                    </TableContainer>
+
+                                </HStack>
+                                <Box flex='1' mr={10} ref={boxRef} >
+                                    <AreaChart seriesData={seriesData} width={boxWidth}></AreaChart>
+                                </Box>
+                            </Box>
+                        </PrimerCard>
+                    </Flex>
+                </Box >
+            </Center>
         </Box >
     )
 }

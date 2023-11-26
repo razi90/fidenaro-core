@@ -13,7 +13,7 @@ const ProfileEditButton: React.FC<(ProfileEditButtonProps)> = () => {
 
     return (
         <>
-            <Button {...followButtonStyle} onClick={() => setIsOpen(true)}>
+            <Button onClick={() => setIsOpen(true)}>
                 Edit
             </Button>
             <ProfileEditDialog isOpen={isOpen} setIsOpen={setIsOpen} />
