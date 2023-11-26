@@ -33,7 +33,7 @@ const Explore: React.FC<ExploreProps> = ({ isMinimized }) => {
     // Data is ready, render the VaultTable component with the fetched data
     return (
         <Box sx={routePageBoxStyle(isMinimized)}>
-            <VaultTable tableData={vaults} />
+            <VaultTable bigHeader='Explore' smallHeader='Become part of the community' tableData={vaults} />
         </Box>
     );
 }

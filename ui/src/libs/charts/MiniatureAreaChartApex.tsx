@@ -1,19 +1,20 @@
-import { Box } from '@chakra-ui/react';
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 
 interface AreaChartProps {
   seriesData: number[];
+  width: number;
 }
 
-const AreaChart: React.FC<AreaChartProps> = ({ seriesData }) => {
+const AreaChart: React.FC<AreaChartProps> = ({ seriesData, width }) => {
   const chart_type = "area"
   const chart_height = 100
-  
+
   const options: ApexCharts.ApexOptions = {
     chart: {
       type: chart_type,
       height: chart_height,
+
       toolbar: {
         show: false,
       },
@@ -23,18 +24,18 @@ const AreaChart: React.FC<AreaChartProps> = ({ seriesData }) => {
         show: false,
       },
       axisTicks: {
-        show:false
+        show: false
       },
     },
     yaxis: {
       labels: {
-        show:false,
+        show: false,
       },
       crosshairs: {
-        show:false
+        show: false
       },
       axisTicks: {
-        show:false
+        show: false
       },
 
     },
@@ -67,9 +68,7 @@ const AreaChart: React.FC<AreaChartProps> = ({ seriesData }) => {
   ];
 
   return (
-    <Box id="area-chart">
-      <ReactApexChart options={options} series={series} type={chart_type} height={chart_height} />
-    </Box>
+    <ReactApexChart options={options} series={series} type={chart_type} height={chart_height} width={width} />
   );
 };
 

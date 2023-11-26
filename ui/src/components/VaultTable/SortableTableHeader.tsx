@@ -1,7 +1,7 @@
 import React from 'react';
 import { Th, Button, Icon, Text } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
-import { TableEntryKeys } from './TableEntry';
+import { TableEntryKeys } from './TableEntryKeys';
 import { explorerTableHeaderTextStyle } from './Styled';
 
 interface SortableTableHeaderProps {

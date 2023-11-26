@@ -1,10 +1,12 @@
-import { Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage } from "@chakra-ui/react";
+
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { fetchUserInfo } from "../../libs/user/UserDataService";
 import { AppUser } from "../../libs/entities/User";
-import FollowButton from "../Button/FollowDialog/FollowButton.tsx/FollowButton";
-import CancelButton from "../Button/FollowDialog/CancelButton.tsx/CancelButton";
+
+import ConfirmButton from "../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
+import CancelButton from "../Button/Dialog/CancelButton.tsx/CancelButton";
 
 interface FollowDialogProps {
     isOpen: boolean,
@@ -81,8 +83,8 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
                                 <Checkbox>I confirm that I have read and agreed to the <Link>Terms and Conditions</Link> and fully understand all the associated risks.</Checkbox>
                             </Box>
                             <Box display="flex" alignItems="center" justifyContent="center">
-                                <FollowButton onClick={onClose} />
                                 <CancelButton onClick={onClose} />
+                                <ConfirmButton onClick={onClose} />
                             </Box>
                         </Stack>
                     </ModalFooter>

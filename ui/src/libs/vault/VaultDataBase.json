@@ -2,41 +2,145 @@
         {
                 "id": "0",
                 "vault": "BearosSnap",
+                "avatar": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/1e/1e02087f582b1745e3320048ab7753461393794e_full.jpg",
                 "total": -97.99,
                 "today": -12,
                 "activeDays": 712,
                 "followers": 7,
                 "equity": 12000,
-                "profitShare": 98
+                "profitShare": 98,
+                "pnl": -4053.59,
+                "manager": "RaziCorleone",
+                "followerList": [
+                        "some_dude"
+                ],
+                "tradeHistory": [
+                        30,
+                        40,
+                        35,
+                        50,
+                        49,
+                        60,
+                        70,
+                        91,
+                        125,
+                        30,
+                        40,
+                        35,
+                        50,
+                        49,
+                        60,
+                        70,
+                        91,
+                        125
+                ]
         },
         {
                 "id": "1",
-                "vault": "BTC TDM",
+                "vault": "CryptoViking",
+                "avatar": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/68/68bbb76a568f0a0000af52bc7dc7f18a6b6a0b0e_full.jpg",
                 "total": 212,
                 "today": 12,
                 "activeDays": 41,
                 "followers": 2,
                 "equity": 114000,
-                "profitShare": 0.3
+                "profitShare": 0.3,
+                "pnl": 2497.13,
+                "manager": "not_RaziCorleone",
+                "followerList": [
+                        "RaziCorleone"
+                ],
+                "tradeHistory": [
+                        55,
+                        62,
+                        70,
+                        83,
+                        95,
+                        105,
+                        120,
+                        132,
+                        145,
+                        55,
+                        62,
+                        70,
+                        83,
+                        95,
+                        105,
+                        120,
+                        132,
+                        145
+                ]
         },
         {
                 "id": "2",
-                "vault": "ETH TDM",
+                "vault": "Inkovisk",
+                "avatar": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/3d/3d1145e1fd71c1cb7abb1eeed692c8230b85bcab_full.jpg",
                 "total": 2,
                 "today": 8,
                 "activeDays": 3,
                 "followers": 10,
                 "equity": 12,
-                "profitShare": 0.1
+                "profitShare": 0.1,
+                "pnl": 1558.02,
+                "manager": "not_RaziCorleone",
+                "followerList": [
+                        "RaziCorleone"
+                ],
+                "tradeHistory": [
+                        15,
+                        28,
+                        19,
+                        32,
+                        44,
+                        51,
+                        69,
+                        77,
+                        88,
+                        15,
+                        28,
+                        19,
+                        32,
+                        44,
+                        51,
+                        69,
+                        77,
+                        88
+                ]
         },
         {
                 "id": "3",
                 "vault": "JanJan",
+                "avatar": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/a0/a0cf3d51e30d4c3c174a0c4941d84283ab09106d_full.jpg",
                 "total": -49.999,
                 "today": 10,
                 "activeDays": 3,
                 "followers": 10,
                 "equity": 12,
-                "profitShare": 0.02
+                "profitShare": 0.02,
+                "pnl": -1203.02,
+                "manager": "not_RaziCorleone",
+                "followerList": [
+                        "some_other_dude"
+                ],
+                "tradeHistory": [
+                        25,
+                        33,
+                        22,
+                        45,
+                        55,
+                        42,
+                        37,
+                        60,
+                        80,
+                        25,
+                        33,
+                        22,
+                        45,
+                        55,
+                        42,
+                        37,
+                        60,
+                        80
+                ]
         }
 ]
