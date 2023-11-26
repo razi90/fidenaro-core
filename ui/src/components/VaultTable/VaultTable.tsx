@@ -19,7 +19,7 @@ import {
     Input,
     Link
 } from '@chakra-ui/react';
-import FollowButton from '../Button/FollowButton/FollowButton';
+import { FollowButton } from '../Button/FollowButton/FollowButton';
 import SortableTh from './SortableTableHeader';
 import { explorerTableHeaderPerformanceTextStyle, explorerTableHeaderTextStyle } from './Styled';
 import AreaChart from '../../libs/charts/MiniatureAreaChartApex';

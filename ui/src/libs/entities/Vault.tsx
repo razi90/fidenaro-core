@@ -1,5 +1,5 @@
 export interface Vault {
-    id: string,
+    id: string;
     vault: string;
     avatar: string;
     total: number;
@@ -12,4 +12,26 @@ export interface Vault {
     manager: string;
     followerList: string[];
     tradeHistory: number[];
+}
+
+export interface VaultPerformance {
+    x: Date;
+    y: number[];
+}
+
+export interface VaultCandleChart {
+    name: string;
+    data: VaultPerformance[];
+}
+
+export interface VaultHistory {
+    symbol: string;
+    call: string;
+    open: string;
+    openDate: string;
+    close: string;
+    closeDate: string;
+    amount: string;
+    totalUSD: string;
+    transaction: string;
 }
