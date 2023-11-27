@@ -60,7 +60,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
             <Center>
                 <Box maxW="6xl" minH="xl" width="100vw" >
                     <Flex p={4} >
-                        <PrimerCard cardTitle='Vault' cardWidth='50%' cardHeight='100%'>
+                        <PrimerCard cardTitle='Vault' cardWidth='50%' cardHeight='100%' isLoading={isVaultFetchLoading || isUserFetchLoading}>
                             <Flex >
                                 <DescriptionCard title='Vault Name' isLoading={isVaultFetchLoading || isUserFetchLoading}>
                                     The Bitcoin maxi
@@ -100,7 +100,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             </Flex>
                         </PrimerCard>
 
-                        <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto'>
+                        <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto' isLoading={isVaultFetchLoading || isUserFetchLoading}>
                             <Flex >
                                 <StatCard title="Total" value="10 %" isLoading={isVaultFetchLoading || isUserFetchLoading} />
 

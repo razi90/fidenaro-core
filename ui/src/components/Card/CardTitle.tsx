@@ -1,18 +1,25 @@
-import { Card, Heading } from '@chakra-ui/react';
+import { Card, Heading, SkeletonText } from '@chakra-ui/react';
 
 interface CardTitleProps {
-    cardTitle: string;
+    cardTitle: string | undefined;
+    isLoading: boolean;
 }
 
-export const CardTitle: React.FC<CardTitleProps> = ({ cardTitle }) => {
+export const CardTitle: React.FC<CardTitleProps> = ({ cardTitle, isLoading }) => {
 
     return (
         <>
-            {cardTitle != "" ?
-                <Card position="absolute" top="-10px" left="5" transform="translateX(-0%)" px="2" py={1}>
-                    <Heading fontSize='xl'>{cardTitle}</Heading>
+            {isLoading ? (
+                // Render loading state here
+                // ...
+                <Card position="absolute" top="-10px" left="5" transform="translateX(-0%)" px="2" py={1} minW={"100px"}>
+                    <Heading fontSize="xl"><SkeletonText mt='2' noOfLines={1} spacing='4' skeletonHeight='3' /></Heading>
                 </Card>
-                : null}
+            ) : cardTitle !== "" ? (
+                <Card position="absolute" top="-10px" left="5" transform="translateX(-0%)" px="2" py={1}>
+                    <Heading fontSize="xl">{cardTitle}</Heading>
+                </Card>
+            ) : null}
         </>
     );
 };

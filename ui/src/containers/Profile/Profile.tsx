@@ -33,33 +33,40 @@ import { PrimerCard } from '../../components/Card/PrimerCard';
 import { ValueCard } from '../../components/Card/ValueCard';
 import { DescriptionCard } from '../../components/Card/DescriptionCard';
 import { ManagerCard } from '../../components/Card/ManagerCard';
+import { SocialButton } from '../../components/Button/SocialButton/SocialButton';
+import { ProfileStatsTable } from '../../components/Table/ProfileStatsTable';
+import { ChartCard } from '../../components/Chart/ChartCard';
 
 interface ProfileProps {
     isMinimized: boolean;
 }
 
 const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
-
     const seriesData = [
-        30,
-        40,
-        35,
-        50,
-        49,
-        60,
-        70,
-        91,
-        125,
-        30,
-        40,
-        35,
-        50,
-        49,
-        60,
-        70,
-        91,
-        125
-    ]
+        {
+            name: 'X',
+            data: [
+                30,
+                40,
+                35,
+                50,
+                49,
+                60,
+                70,
+                91,
+                125,
+                30,
+                40,
+                35,
+                50,
+                49,
+                60,
+                70,
+                91,
+                125
+            ],
+        }
+    ];
 
     const boxRef = useRef<HTMLDivElement | null>(null); // Specify the type of the ref
     const [boxWidth, setBoxWidth] = useState<number>(0); // State to store the box width
@@ -88,70 +95,79 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
         }
     });
 
-    if (isLoading || isUserFetchLoading) {
-        return (
-            <Box sx={routePageBoxStyle(isMinimized)}>
-                <Center>
-                    <FidenaroCircularProgress circleSize="30vh" circleBorderThickness="2px" circleImageSize="20vh" />
-                </Center>
-            </Box>
-        );
-    }
+    //if (isLoading || isUserFetchLoading) {
+    //    return (
+    //        <Box sx={routePageBoxStyle(isMinimized)}>
+    //            <Center>
+    //                <FidenaroCircularProgress circleSize="30vh" circleBorderThickness="2px" circleImageSize="20vh" />
+    //            </Center>
+    //        </Box>
+    //    );
+    //}
 
     if (isError || isUserFetchError) {
         // Return error JSX if an error occurs during fetching
         return <Box sx={routePageBoxStyle(isMinimized)}>Error loading data</Box>;
     }
 
-    const managedVaults = vaults.filter((vault) => vault.manager === user.account)
-    const investedVaults = vaults.filter((vault) => vault.followerList.includes(user.account))
+
+
+    const managedVaults = vaults?.filter((vault) => vault.manager === user?.account)
+
+
+    const investedVaults = vaults?.filter((vault) => vault.followerList.includes(user?.account ?? ''))
+
+
 
     // Calculate the total followers from managed vaults
-    const totalFollowers = managedVaults.reduce((total, vault) => total + vault.followers, 0);
+    const totalFollowers = managedVaults?.reduce((total, vault) => total + vault.followers, 0);
 
     // Calculate the total equity from managed vaults
-    const totalEquity = managedVaults.reduce((total, vault) => total + vault.equity, 0);
+    const totalEquity = managedVaults?.reduce((total, vault) => total + vault.equity, 0);
 
     // Calculate the total PnL as manager
-    const managerPnL = managedVaults.reduce((total, vault) => total + vault.pnl, 0);
+    const managerPnL = managedVaults?.reduce((total, vault) => total + vault.pnl, 0);
 
     // Calculate the total PnL as investor. Should be based on shares one has in the vault but we assume 100% of shares for now
-    const investorPnL = investedVaults.reduce((total, vault) => total + vault.pnl, 0);
+
+    const investorPnL = investedVaults?.reduce((total: any, vault: any) => total + vault.pnl, 0);
+
+
 
     // Total number of trades from all managed vaults
-    const totalTrades = managedVaults.reduce((total, vault) => total + vault.tradeHistory.length, 0);
+    const totalTrades = managedVaults?.reduce((total, vault) => total + vault.tradeHistory.length, 0);
 
     return (
         <Box sx={routePageBoxStyle(isMinimized)} p={'8'}>
             <Center>
                 <Box maxW="6xl" minH="xl" width="100vw" >
                     <Flex p={4} >
-                        <PrimerCard cardTitle={user.account} cardWidth='50%' cardHeight='100%'>
-                            <Flex p={1}>
-                                <VStack p={4} mr={4}>
+                        <PrimerCard cardTitle={user?.account} cardWidth='50%' cardHeight='100%' isLoading={isLoading || isUserFetchLoading}>
+                            <Flex flex='1' p={1} >
+                                <VStack pt={4} mr={0} >
                                     <WrapItem>
-                                        <Avatar size='2xl' name={user.account} src={user.avatar} />{' '}
+                                        <Avatar size='2xl' name={user?.account} src={user?.avatar} />{' '}
                                     </WrapItem>
-                                    <Box>
-                                        <IconButton aria-label="Twitter"
-                                            icon={<Icon as={FaTwitter} boxSize={5} />}
-                                            variant="unstyled"
-                                            _focus={{ outline: "none" }}
-                                        />
-                                        <IconButton aria-label="Twitter"
-                                            icon={<Icon as={FaTelegram} boxSize={5} />}
-                                            variant="unstyled"
-                                            _focus={{ outline: "none" }}
-                                        />
-                                        <IconButton aria-label="Twitter"
-                                            icon={<Icon as={FaDiscord} boxSize={5} />}
-                                            variant="unstyled"
-                                            _focus={{ outline: "none" }}
-                                        />
-                                    </Box>
+                                    <Flex >
+                                        <Box flex='1' mx={2}>
+                                            <SocialButton label={'Twitter'} href={'#'}>
+                                                <FaTwitter />
+                                            </SocialButton>
+                                        </Box>
+                                        <Box flex='1' mx={2}>
+                                            <SocialButton label={'Telegram'} href={'#'}>
+                                                <FaTelegram />
+                                            </SocialButton>
+                                        </Box>
+                                        <Box flex='1' mx={2}>
+                                            <SocialButton label={'Discord'} href={'#'}>
+                                                <FaDiscord />
+                                            </SocialButton>
+                                        </Box>
+                                    </Flex>
                                 </VStack>
-                                <Box>
-                                    <DescriptionCard title='Description' isLoading={isUserFetchLoading}>
+                                <Box flex='1'>
+                                    <DescriptionCard title='Description' isLoading={isLoading || isUserFetchLoading}>
                                         View a summary of all your customers over the last month.
                                         View a summary of all your customers over the last month.
                                         View a summary of all your customers over the last month.
@@ -160,8 +176,8 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                         test test
                                     </DescriptionCard>
                                     <Flex>
-                                        <ValueCard value={totalFollowers.toString()} description={"Follower"} isLoading={isUserFetchLoading} />
-                                        <ValueCard value={totalEquity.toString() + " $"} description={"Equity"} isLoading={isUserFetchLoading} />
+                                        <ValueCard value={totalFollowers?.toString() ?? ''} description={"Follower"} isLoading={isLoading || isUserFetchLoading} />
+                                        <ValueCard value={totalEquity?.toString() + " $"} description={"Equity"} isLoading={isLoading || isUserFetchLoading} />
                                     </Flex>
                                     <Flex justifyContent='flex-end' w={"100%"} pr={3} mt={4} >
 
@@ -176,41 +192,36 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
                         </PrimerCard>
 
-                        <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto'>
+                        <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto' isLoading={isLoading}>
                             <Box p={'4'}>
-                                <HStack>
 
-                                    <TableContainer w={"100%"}>
-                                        <Table variant="simple">
-                                            <Tbody>
-                                                <Tr>
-                                                    <Td><Text fontWeight="bold">Rank</Text></Td>
-                                                    <Td>10</Td>
-                                                </Tr>
-                                                <Tr>
-                                                    <Td><Text fontWeight="bold">Total Raised</Text></Td>
-                                                    <Td>$ {totalEquity}</Td>
-                                                </Tr>
-                                                <Tr>
-                                                    <Td><Text fontWeight="bold">Manager PnL</Text></Td>
-                                                    <Td>$ {managerPnL}</Td>
-                                                </Tr>
-                                                <Tr>
-                                                    <Td><Text fontWeight="bold">Investor PnL</Text></Td>
-                                                    <Td>$ {investorPnL}</Td>
-                                                </Tr>
-                                                <Tr>
-                                                    <Td><Text fontWeight="bold">Total Trades</Text></Td>
-                                                    <Td>{totalTrades}</Td>
-                                                </Tr>
-                                            </Tbody>
-                                        </Table>
-                                    </TableContainer>
+                                <Flex m={2} >
+                                    <ChartCard
+                                        cardTitle={""}
+                                        cardWidth={"100%"}
+                                        cardHeight={"120"}
+                                        chartType={"area"}
+                                        chartHeight={"120"}
+                                        chartWidth={"100%"}
+                                        chartSeries={seriesData}
+                                        isLoading={isLoading || isUserFetchLoading} />
+                                </Flex>
+
+                                <HStack mt={8}>
+
+
+                                    <ProfileStatsTable
+                                        totalEquity={totalEquity}
+                                        managerPnL={managerPnL}
+                                        investorPnL={investorPnL}
+                                        totalTrades={totalTrades}
+                                        isLoading={isLoading || isUserFetchLoading}
+                                    />
+
 
                                 </HStack>
-                                <Box flex='1' mr={10} ref={boxRef} >
-                                    <AreaChart seriesData={seriesData} width={boxWidth}></AreaChart>
-                                </Box>
+
+
                             </Box>
                         </PrimerCard>
                     </Flex>

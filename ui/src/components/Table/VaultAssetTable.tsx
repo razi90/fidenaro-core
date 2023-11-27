@@ -40,7 +40,7 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
             {
                 isLoading ? (
                     <Card w={"50%"} ml={4} p={6} pt={10}>
-                        <CardTitle cardTitle={title} />
+                        <CardTitle cardTitle={title} isLoading={isLoading} />
 
                         <Table size="sm">
                             <Thead>
@@ -74,7 +74,7 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
                     </Card >
                 ) : (
                     <Card w={"50%"} ml={4} p={6} pt={10}>
-                        <CardTitle cardTitle={title} />
+                        <CardTitle cardTitle={title} isLoading={isLoading} />
 
                         <Table size="sm">
                             <Thead>
