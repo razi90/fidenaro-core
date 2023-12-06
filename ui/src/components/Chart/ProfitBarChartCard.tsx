@@ -118,7 +118,7 @@ export const ProfitBarChartCard: React.FC<ProfitBarChartCardProps> = ({ cardTitl
                         w={cardWidth}
                         h={cardHeight}
                     >
-                        <CardTitle cardTitle={cardTitle} />
+                        <CardTitle cardTitle={cardTitle} isLoading={isLoading} />
                         <Box id="bar-chart">
                             <ReactApexChart
                                 options={chartOptions}

@@ -1,5 +1,5 @@
-import { Button } from '@chakra-ui/react';
-import { followButtonStyle } from './Styled';
+import { Button, Tooltip } from '@chakra-ui/react';
+import { profileButtonStyle } from './Styled';
 import { useState } from 'react';
 import ProfileEditDialog from '../../ProfileEditDialog/ProfileEditDialog';
 
@@ -13,9 +13,19 @@ const ProfileEditButton: React.FC<(ProfileEditButtonProps)> = () => {
 
     return (
         <>
-            <Button onClick={() => setIsOpen(true)}>
-                Edit
-            </Button>
+            <Tooltip label='Edit your Profile'>
+                <Button
+                    onClick={() => setIsOpen(true)}
+                    sx={profileButtonStyle}
+                    size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
+                    title="Edit your Profile"
+                >
+                    Edit
+                </Button>
+            </Tooltip>
+
+
+
             <ProfileEditDialog isOpen={isOpen} setIsOpen={setIsOpen} />
         </>
     );

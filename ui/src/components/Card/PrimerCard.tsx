@@ -4,16 +4,17 @@ import { CardTitle } from './CardTitle';
 
 interface PrimerCardProps {
     children: ReactNode
-    cardTitle: string;
+    cardTitle: string | undefined;
     cardHeight: string;
     cardWidth: string;
+    isLoading: boolean;
 }
 
-export const PrimerCard: React.FC<PrimerCardProps> = ({ children, cardTitle, cardWidth, cardHeight }) => {
+export const PrimerCard: React.FC<PrimerCardProps> = ({ children, cardTitle, cardWidth, cardHeight, isLoading }) => {
 
     return (
         <Card m={1} p="6" w={cardWidth} h={cardHeight}>
-            <CardTitle cardTitle={cardTitle} />
+            <CardTitle cardTitle={cardTitle} isLoading={isLoading} />
             {children}
         </Card>
     );

@@ -7,13 +7,17 @@ import { vaultPerformanceCandleChartData } from './VaultPerformanceData';
 import { vaultProfitabilityChartData } from './VaultProfitabilityData';
 
 
-export async function fetchVaultList() {
+export const fetchVaultList = async (): Promise<Vault[]> => {
     // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
     try {
         // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
         // return response.data;
         const vaults: Vault[] = VaultDataBase
-        return vaults;
+        const prom = new Promise<Vault[]>((resolve) => {
+            resolve(vaults);
+        });
+        //const prom = new Promise<Vault[]>(vaults)
+        return prom
     } catch (error) {
         throw error;
     }

@@ -89,7 +89,7 @@ export const ChartCard: React.FC<ChartProps> = ({ cardTitle, cardHeight, cardWid
                         w={cardWidth}
                         h={cardHeight}
                     >
-                        <CardTitle cardTitle={cardTitle} />
+                        <CardTitle cardTitle={cardTitle} isLoading={isLoading} />
                         <Box id="area-chart">
                             <ReactApexChart
                                 options={chartOptions}

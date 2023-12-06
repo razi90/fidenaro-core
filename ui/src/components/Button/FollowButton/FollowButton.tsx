@@ -24,6 +24,7 @@ export const FollowButton: React.FC<FollowButtonProps> = ({ vaultName, vaultFee 
             <Tooltip label='Follow this trader'>
                 <Button
                     //as={Link}
+                    onClick={() => setIsOpen(true)}
                     sx={followButtonStyle}
                     size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
                     title="Follow the Vault"

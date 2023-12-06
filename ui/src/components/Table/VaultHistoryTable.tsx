@@ -49,7 +49,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
             {
                 isLoading ? (
                     <Card p={6} pt={10}>
-                        <CardTitle cardTitle={title} />
+                        <CardTitle cardTitle={title} isLoading={isLoading} />
 
                         <Table size="sm">
                             <Thead>
@@ -97,7 +97,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                     </Card >
                 ) : (
                     <Card p={6} pt={10}>
-                        <CardTitle cardTitle={title} />
+                        <CardTitle cardTitle={title} isLoading={isLoading} />
 
                         <Table size="sm">
                             <Thead>
