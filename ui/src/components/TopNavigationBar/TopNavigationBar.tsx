@@ -19,8 +19,11 @@ import {
     topNavigationLogoStyle,
     topNavigationHamburgerMenuStyle,
 } from "./Styled";
-import { defaultLinkButtonStyle } from "../Button/DefaultLinkButton/Styled";
+
+import FeedbackButton from "../Button/FeedbackButton/FeedbackButton";
+
 import { CreateVaultButton } from "../Button/CreateVault/CreateVault";
+
 
 
 export default function TopNavigationBar() {
@@ -44,7 +47,11 @@ export default function TopNavigationBar() {
                         </Box>
                         <Text color="black" fontSize='2xl'>Fidenaro</Text>
                         <Spacer />
+
+                        <FeedbackButton />
+
                         <CreateVaultButton user="John Smith" />
+
                         <WalletButton />
                         <IconButton
                             icon={isOpen ? <CloseIcon color={"black"} boxSize={5} /> : <HamburgerIcon color={"black"} boxSize={7} />}
