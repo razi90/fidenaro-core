@@ -8,3 +8,4 @@ export const explorerTableHeaderPerformanceTextStyle = {
     fontSize: '16px',
     textAlign: 'right'
 };
+

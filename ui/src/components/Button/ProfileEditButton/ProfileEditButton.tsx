@@ -1,7 +1,8 @@
 import { Button, Tooltip } from '@chakra-ui/react';
 import { profileButtonStyle } from './Styled';
 import { useState } from 'react';
-import ProfileEditDialog from '../../ProfileEditDialog/ProfileEditDialog';
+import ProfileEditDialog from '../../Dialog/ProfileEditDialog/ProfileEditDialog';
+
 
 interface ProfileEditButtonProps {
     onClick: () => void;

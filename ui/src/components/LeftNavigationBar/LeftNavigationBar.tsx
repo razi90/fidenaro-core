@@ -38,7 +38,8 @@ const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setI
             width={isMinimized ? "60px" : "200px"}
         >
             <VStack align="stretch" sx={leftNavigationMainVStackStyle}>
-                <LeftNavigationButton link="/profile" title="Profile" icon={FaUserCircle} navIsMinimized={isMinimized} />
+                { /* <LeftNavigationButton link="/profile" title="Profile" icon={FaUserCircle} navIsMinimized={isMinimized} /> */}
+                <LeftNavigationButton link="/profile" title="Profile" icon={"https://purepng.com/public/uploads/large/purepng.com-sapphire-gemsapphiregemstonemineral-corundumaluminium-oxideblue-in-colorfancysapphires-17015289803894slxg.png"} navIsMinimized={isMinimized} />
 
                 <Box sx={leftNavigationDividerBoxStyle(isMinimized)}>
                     {isMinimized ? null : <Text as='b'>Trade</Text>}

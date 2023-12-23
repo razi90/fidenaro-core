@@ -10,7 +10,7 @@ import { valueCardStyle } from './Styled';
 
 
 interface ValueCardProps {
-    value: string;
+    value: any;
     description: string;
     isLoading: boolean;
 }

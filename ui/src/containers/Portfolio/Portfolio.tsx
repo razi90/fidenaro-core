@@ -2,7 +2,6 @@ import React from 'react';
 import {
     Box,
     Center,
-    Divider,
     Spacer,
     VStack,
 } from "@chakra-ui/react";
@@ -10,9 +9,10 @@ import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 import { FidenaroCircularProgress } from '../../components/Loading/FidenaroCircularProgress/FidenaroCircularProgress';
 import { useQuery } from '@tanstack/react-query';
 import { fetchVaultList } from '../../libs/vault/VaultDataService';
-import VaultTable from '../../components/VaultTable/VaultTable';
+import VaultTable from '../../components/Table/VaultTable/VaultTable';
 import { AppUser } from '../../libs/entities/User';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
+import { PrimerCard } from '../../components/Card/PrimerCard';
 
 interface PortfolioProps {
     isMinimized: boolean;
@@ -26,11 +26,20 @@ const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
 
     if (isLoading || isUserFetchLoading) {
         return (
-            <Box sx={routePageBoxStyle(isMinimized)}>
+            <Box sx={routePageBoxStyle(isMinimized)} p={'8'}>
                 <Center>
-                    <FidenaroCircularProgress circleSize="30vh" circleBorderThickness="2px" circleImageSize="20vh" />
-                </Center>
-            </Box>
+                    <Box maxW="6xl" minH="xl" width="100vw" >
+                        <VStack spacing={4}>
+                            <PrimerCard cardTitle={"My Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
+                                <VaultTable smallHeader='' tableData={undefined} isLoading={isLoading} user={user} />
+                            </PrimerCard>
+                            <PrimerCard cardTitle={"Following Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
+                                <VaultTable smallHeader='' tableData={undefined} isLoading={isLoading} user={user} />
+                            </PrimerCard>
+                        </VStack>
+                    </Box >
+                </Center >
+            </Box >
         );
     }
 
@@ -46,11 +55,19 @@ const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
 
 
     return (
-        <Box sx={routePageBoxStyle(isMinimized)} >
-            <VStack spacing={12}>
-                <VaultTable bigHeader='My Vaults' smallHeader='' tableData={my_vaults} />
-                <VaultTable bigHeader='Following Vaults' smallHeader='' tableData={following_faults} />
-            </VStack>
+        <Box sx={routePageBoxStyle(isMinimized)} p={'8'}>
+            <Center>
+                <Box maxW="6xl" minH="xl" width="100vw" >
+                    <VStack spacing={4}>
+                        <PrimerCard cardTitle={"My Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
+                            <VaultTable smallHeader='' tableData={my_vaults} isLoading={isLoading} user={user} />
+                        </PrimerCard>
+                        <PrimerCard cardTitle={"Following Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
+                            <VaultTable smallHeader='' tableData={following_faults} isLoading={isLoading} user={user} />
+                        </PrimerCard>
+                    </VStack>
+                </Box >
+            </Center >
         </Box >
     )
 }

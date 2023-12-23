@@ -1,14 +1,15 @@
 
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage } from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage, Menu, MenuButton, MenuList, MenuItem, Button, Select, Flex } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { fetchUserInfo } from "../../libs/user/UserDataService";
-import { AppUser } from "../../libs/entities/User";
+import { fetchUserInfo } from "../../../libs/user/UserDataService";
+import { AppUser } from "../../../libs/entities/User";
 
-import ConfirmButton from "../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
-import CancelButton from "../Button/Dialog/CancelButton.tsx/CancelButton";
+import ConfirmButton from "../../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
+import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
-interface FollowDialogProps {
+interface TradeDialogProps {
     isOpen: boolean,
     setIsOpen: (isOpen: boolean) => void,
     vaultName: string
@@ -16,7 +17,7 @@ interface FollowDialogProps {
 }
 
 
-const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultName, vaultFee }) => {
+const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vaultName, vaultFee }) => {
     const onClose = () => setIsOpen(false);
     const initialRef = useRef(null)
     const [inputValue, setInputValue] = useState('');
@@ -46,13 +47,34 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
             <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl" initialFocusRef={initialRef}>
                 <ModalOverlay />
                 <ModalContent >
-                    <ModalHeader>New Following</ModalHeader>
+                    <ModalHeader>Trade</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <Text>You are about to Follow the Strategy <b>{vaultName}</b>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
+                        <Text>You are about to trade ont the <b>{vaultName}</b>.</Text>
+                        <Select placeholder='Select exchange'>
+                            <option value='unknown'>UNKNOWN</option>
+                            <option value='cavier'>Cavier</option>
+                            <option value='alpha'>AlphaDEX</option>
+                            <option value='oci'>OCI</option>
+                        </Select>
+
                         <Box my={4}>
-                            <Text>Wallet balance {userUsdAmount} USD</Text>
-                            <Text><b>Deposit</b></Text>
+                            <Text>Vault balance {userUsdAmount} USD</Text>
+                            <Text><b>Trade</b></Text>
+                            <Flex>
+                                <Select placeholder='Select coin'>
+                                    <option value='btc'>BTC</option>
+                                    <option value='eth'>ETH</option>
+                                    <option value='xrd'>XRD</option>
+                                </Select>
+                                <Select placeholder='Action' defaultValue={'buy'}>
+                                    <option value='buy'>Buy</option>
+                                    <option value='sell'>Sell</option>
+                                </Select>
+                                <Select placeholder='Vault Funds' defaultValue={'xusd'}>
+                                    <option value='xusd'>XUSD</option>
+                                </Select>
+                            </Flex>
                             <FormControl isInvalid={isBalanceError}>
                                 <Input
                                     ref={initialRef}
@@ -72,9 +94,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
                         <Box my={4}>
                             <Text>Your profit share: {100 - vaultFee}%</Text>
                         </Box>
-                        <Box my={4} color="orange.400">
-                            <Text>⚠️ Please be informed that following a strategy using Covesting Copy-trading Module involves risk of capital loss. Following a strategy could result in a partial or complete loss of your funds, therefore, you should not operate with funds you cannot afford to lose.</Text>
-                        </Box>
+
                     </ModalBody>
 
                     <ModalFooter>
@@ -94,4 +114,4 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
     );
 }
 
-export default FollowDialog;
+export default TradeDialog;

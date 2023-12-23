@@ -1,7 +1,8 @@
 import { Card, Heading, SkeletonText } from '@chakra-ui/react';
+import { IconType } from 'react-icons';
 
 interface CardTitleProps {
-    cardTitle: string | undefined;
+    cardTitle: string | any | undefined;
     isLoading: boolean;
 }
 

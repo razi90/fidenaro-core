@@ -1,6 +1,6 @@
 [
         {
-                "id": "0",
+                "id": "rdx130s8wx9v3pgnx5wvej9wvqy",
                 "vault": "BearosSnap",
                 "avatar": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/1e/1e02087f582b1745e3320048ab7753461393794e_full.jpg",
                 "total": -97.99,
@@ -10,9 +10,9 @@
                 "equity": 12000,
                 "profitShare": 98,
                 "pnl": -4053.59,
-                "manager": "RaziCorleone",
+                "manager": "not_RaziCorleone",
                 "followerList": [
-                        "some_dude"
+                        "some other dude"
                 ],
                 "tradeHistory": [
                         30,
@@ -36,19 +36,19 @@
                 ]
         },
         {
-                "id": "1",
-                "vault": "CryptoViking",
-                "avatar": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/68/68bbb76a568f0a0000af52bc7dc7f18a6b6a0b0e_full.jpg",
+                "id": "rdx933asdfsadfs8wxj9wvqy",
+                "vault": "CryptoViking Vault",
+                "avatar": "https://purepng.com/public/uploads/large/purepng.com-sapphire-gemsapphiregemstonemineral-corundumaluminium-oxideblue-in-colorfancysapphires-17015289803894slxg.png",
                 "total": 212,
                 "today": 12,
                 "activeDays": 41,
-                "followers": 2,
+                "followers": 147,
                 "equity": 114000,
                 "profitShare": 0.3,
                 "pnl": 2497.13,
-                "manager": "not_RaziCorleone",
+                "manager": "John Smith",
                 "followerList": [
-                        "RaziCorleone"
+                        "not_RaziCorleone"
                 ],
                 "tradeHistory": [
                         55,
@@ -72,7 +72,7 @@
                 ]
         },
         {
-                "id": "2",
+                "id": "rdx3pgnx5wvej130s8wx9v9wvqy",
                 "vault": "Inkovisk",
                 "avatar": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/3d/3d1145e1fd71c1cb7abb1eeed692c8230b85bcab_full.jpg",
                 "total": 2,
@@ -82,9 +82,9 @@
                 "equity": 12,
                 "profitShare": 0.1,
                 "pnl": 1558.02,
-                "manager": "not_RaziCorleone",
+                "manager": "not John",
                 "followerList": [
-                        "RaziCorleone"
+                        "John Smith"
                 ],
                 "tradeHistory": [
                         15,
@@ -108,8 +108,8 @@
                 ]
         },
         {
-                "id": "3",
-                "vault": "JanJan",
+                "id": "rdxwvej130s8wx3pgnx59v9wvqy",
+                "vault": "ETH Only Vault",
                 "avatar": "https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/a0/a0cf3d51e30d4c3c174a0c4941d84283ab09106d_full.jpg",
                 "total": -49.999,
                 "today": 10,
@@ -118,9 +118,10 @@
                 "equity": 12,
                 "profitShare": 0.02,
                 "pnl": -1203.02,
-                "manager": "not_RaziCorleone",
+                "manager": "not John",
                 "followerList": [
-                        "some_other_dude"
+                        "some_other_dude",
+                        "John Smith"
                 ],
                 "tradeHistory": [
                         25,
