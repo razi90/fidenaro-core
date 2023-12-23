@@ -6,12 +6,20 @@ const config = {
     useSystemColorMode: false,
 
     styles: {
-        global: () => ({
+        global: {
             body: {
-                bg: "white",
+                bg: "#F8F8F8", // Replace "your-color" with your desired background color
             },
-        }),
-    }
+        },
+    },
+};
+
+const styles = {
+    global: {
+        body: {
+            bg: "#F8F8F8", // Replace "your-color" with your desired background color
+        },
+    },
 };
 
 const colors = {
@@ -164,6 +172,6 @@ const breakpoints = {
     '2xl': '1536px',
 }
 
-const theme = extendTheme({ config, colors, fonts, breakpoints });
+const theme = extendTheme({ config, styles, colors, fonts, breakpoints });
 
 export default theme;

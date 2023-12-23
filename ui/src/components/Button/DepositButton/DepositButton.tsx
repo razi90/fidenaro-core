@@ -10,27 +10,28 @@ import { followButtonStyle } from './Styled';
 import FollowDialog from '../../Dialog/FollowDialog/FollowDialog';
 
 
-interface FollowButtonProps {
+
+interface DepositButtonProps {
     vaultName: string
     vaultFee: number
 }
 
-export const FollowButton: React.FC<FollowButtonProps> = ({ vaultName, vaultFee }) => {
+export const DepositButton: React.FC<DepositButtonProps> = ({ vaultName, vaultFee }) => {
 
     const [isOpen, setIsOpen] = useState(false);
 
     return (
         <>
-            <Tooltip label='Follow this trader'>
+            <Tooltip label='Deposit stable coin'>
                 <Button
                     //as={Link}
                     onClick={() => setIsOpen(true)}
                     sx={followButtonStyle}
                     size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
-                    title="Follow the Vault"
+                    title="Deposit Stable Coins"
                 //href="https://twitter.com/fidenaro"
                 >
-                    Follow
+                    Deposit
                 </Button>
             </Tooltip>
             <FollowDialog isOpen={isOpen} setIsOpen={setIsOpen} vaultName={vaultName} vaultFee={vaultFee} />

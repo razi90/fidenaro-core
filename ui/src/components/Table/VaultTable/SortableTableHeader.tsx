@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { Th, Button, Icon, Text } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { TableEntryKeys } from './TableEntryKeys';
 import { explorerTableHeaderTextStyle } from './Styled';
+import { defaultLinkButtonStyle } from '../../Button/DefaultLinkButton/Styled';
 
 interface SortableTableHeaderProps {
-    label: string;
+    children: ReactNode;
     column: TableEntryKeys;
     sortedColumn: string | null;
     sortOrder: 'asc' | 'desc';
@@ -13,7 +14,7 @@ interface SortableTableHeaderProps {
 }
 
 const SortableTableHeader: React.FC<SortableTableHeaderProps> = ({
-    label,
+    children,
     column,
     sortedColumn,
     sortOrder,
@@ -22,15 +23,16 @@ const SortableTableHeader: React.FC<SortableTableHeaderProps> = ({
     const isSorted = sortedColumn === column;
 
     return (
-        <Th isNumeric>
-            <Button textTransform="none" variant='link' onClick={() => handleSort(column)}>
-                <Text sx={explorerTableHeaderTextStyle}>{label}</Text>
-                {isSorted && (
-                    <Icon as={sortOrder === 'asc' ? ChevronDownIcon : ChevronUpIcon} boxSize={4} ml={1} />
-                )}
-            </Button>
+        <Th onClick={() => handleSort(column)} sx={defaultLinkButtonStyle}>
+
+            {children}
+            {isSorted && (
+                <Icon as={sortOrder === 'asc' ? ChevronDownIcon : ChevronUpIcon} boxSize={4} ml={1} />
+            )}
+
         </Th>
     );
 };
 
 export default SortableTableHeader;
+

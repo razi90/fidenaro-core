@@ -18,7 +18,7 @@ export const topNavigationBoxStyle = {
 };
 
 export const topNavigationHiddenBoxStyle = {
-    bg: "white",
+    bg: "#F8F8F8",
     as: "header",
     w: "100%",
     h: "16",
@@ -37,18 +37,6 @@ export const topNavigationLogoStyle = {
     boxSize: "55px",
     py: "5px",
     px: "3px",
-};
-
-export const topNavigationButtonStyle = {
-    color: "black",
-    size: "md",
-    borderRadius: "md",
-    bg: "white",
-    mr: "0",
-    _hover: {
-        textDecoration: "none",
-        bg: "pElementTransparent.880",
-    },
 };
 
 export const topNavigationHamburgerMenuStyle = {

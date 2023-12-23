@@ -1,7 +1,7 @@
 // WinnerCard.tsx
 import { Text, Image, Card, CardBody, Heading, VStack, Link } from "@chakra-ui/react";
-import { Vault } from "../../libs/entities/Vault";
-import PnlText from "../Podium/PnlText";
+import { Vault } from "../../../libs/entities/Vault";
+import PnlText from "../../Text/PnlText";
 
 interface WinnerCardProps {
     winner: Vault

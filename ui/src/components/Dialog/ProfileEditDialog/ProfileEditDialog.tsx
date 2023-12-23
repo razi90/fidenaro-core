@@ -1,6 +1,6 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, InputGroup, InputLeftElement, Icon, Checkbox } from "@chakra-ui/react";
-import ConfirmButton from "../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
-import CancelButton from "../Button/Dialog/CancelButton.tsx/CancelButton";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, InputGroup, InputLeftElement, Icon, Checkbox, Textarea } from "@chakra-ui/react";
+import ConfirmButton from "../../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
+import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { FaDiscord, FaTelegram, FaTwitter } from "react-icons/fa";
 
 interface ProfileEditDialogProps {
@@ -24,9 +24,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                             <Input
                                 placeholder="Enter Nickname"
                             />
-                            <Input
-                                placeholder="Write Your Bio"
-                            />
+                            <Textarea placeholder='Add your Bio' />
                         </Stack>
                     </ModalBody>
                     <ModalHeader>Linked Accounts</ModalHeader>

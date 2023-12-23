@@ -8,7 +8,7 @@ import { vaultProfitabilityChartData } from './VaultProfitabilityData';
 
 
 export const fetchVaultList = async (): Promise<Vault[]> => {
-    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
     try {
         // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
         // return response.data;
@@ -36,6 +36,67 @@ export const fetchVaultPerformanceSeries = async () => {
 }
 
 
+
+
+export const fetchVaultFollowerChartData = async () => {
+
+    const vaultFollowerChartData = [
+        {
+            name: 'X',
+            data: [0, 1, 1, 1, 2, 3, 3, 3, 4, 3, 3, 4, 5, 6, 7, 7, 7, 7, 6, 7, 7, 7, 7],
+        },
+    ];
+
+
+    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
+    try {
+        // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
+        // return response.data;
+        return vaultFollowerChartData;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const fetchVaultTotalChartData = async () => {
+
+    const vaultTotalChartData = [
+        {
+            name: 'X',
+            data: [30, 3, 40, 45, 50, 49, 60, 70, 91, 80, 50, 30, 25, 20, 17, 40],
+        },
+    ];
+
+
+    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
+    try {
+        // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
+        // return response.data;
+        return vaultTotalChartData;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const fetchVaultTodayChartData = async () => {
+
+    const vaultTodayChartData = [
+        {
+            name: 'X',
+            data: [17, 16, 18, 20, 23, 28, 31, 37, 37, 34, 39, 39, 37, 40, 40, 40],
+        },
+    ];
+
+
+    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
+    try {
+        // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
+        // return response.data;
+        return vaultTodayChartData;
+    } catch (error) {
+        throw error;
+    }
+}
 
 export const fetchVaultDummyChartData = async () => {
 

@@ -25,8 +25,9 @@ import { VaultAssetTable } from '../../components/Table/VaultAssetTable';
 import { VaultHistoryTable } from '../../components/Table/VaultHistoryTable';
 import { DescriptionCard } from '../../components/Card/DescriptionCard';
 import { ManagerCard } from '../../components/Card/ManagerCard';
-import { FollowButton } from '../../components/Button/FollowButton/FollowButton';
-import { fetchVaultAssetData, fetchVaultDummyChartData, fetchVaultHistoryData, fetchVaultList, fetchVaultPerformanceSeries, fetchVaultProfitabilityData } from '../../libs/vault/VaultDataService';
+import { DepositButton } from '../../components/Button/DepositButton/DepositButton';
+import { WithdrawButton } from '../../components/Button/WithdrawButton/WithdrawButton';
+import { fetchVaultAssetData, fetchVaultDummyChartData, fetchVaultHistoryData, fetchVaultList, fetchVaultPerformanceSeries, fetchVaultProfitabilityData, fetchVaultFollowerChartData, fetchVaultTotalChartData, fetchVaultTodayChartData } from '../../libs/vault/VaultDataService';
 import { AppUser } from '../../libs/entities/User';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { FidenaroCircularProgress } from '../../components/Loading/FidenaroCircularProgress/FidenaroCircularProgress';
@@ -45,6 +46,9 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<AppUser>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
     const { data: candleChartData, isLoading: isCandleChartLoading, isError: isCandleChartFetchError } = useQuery({ queryKey: ['candle_chart'], queryFn: fetchVaultPerformanceSeries });
     const { data: dummyChartData, isLoading: isDummyChartLoading, isError: isDummyChartFetchError } = useQuery({ queryKey: ['dummy_chart'], queryFn: fetchVaultDummyChartData });
+    const { data: followerChartData, isLoading: isFollowerChartLoading, isError: isFollowerChartFetchError } = useQuery({ queryKey: ['follower_chart'], queryFn: fetchVaultFollowerChartData });
+    const { data: totalChartData, isLoading: isTotalChartLoading, isError: isTotalChartFetchError } = useQuery({ queryKey: ['total_chart'], queryFn: fetchVaultTotalChartData });
+    const { data: todayChartData, isLoading: isTodayChartLoading, isError: isTodayChartFetchError } = useQuery({ queryKey: ['today_chart'], queryFn: fetchVaultTodayChartData });
     const { data: profitabilityChartData, isLoading: isProfitabilityChartLoading, isError: isProfitabilityChartFetchError } = useQuery({ queryKey: ['profitability_chart'], queryFn: fetchVaultProfitabilityData });
     const { data: vaultHistoryData, isLoading: isVaultHistoryLoading, isError: isVaultHistoryFetchError } = useQuery<VaultHistory[]>({ queryKey: ['vault_history'], queryFn: fetchVaultHistoryData });
     const { data: vaultAssetData, isLoading: isVaultAssetLoading, isError: isVaultAssetFetchError } = useQuery({ queryKey: ['vault_assets'], queryFn: fetchVaultAssetData });
@@ -63,19 +67,21 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                         <PrimerCard cardTitle='Vault' cardWidth='50%' cardHeight='100%' isLoading={isVaultFetchLoading || isUserFetchLoading}>
                             <Flex >
                                 <DescriptionCard title='Vault Name' isLoading={isVaultFetchLoading || isUserFetchLoading}>
-                                    The Bitcoin maxi
+                                    OG Bitcoin only
                                 </DescriptionCard>
                                 <Box w={"60%"}>
-                                    <ManagerCard name='Segun Adebayo' imageLink='https://bit.ly/sage-adebayo' isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                    <ManagerCard name='John Smith' imageLink='https://purepng.com/public/uploads/large/purepng.com-sapphire-gemsapphiregemstonemineral-corundumaluminium-oxideblue-in-colorfancysapphires-17015289803894slxg.png' isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 </Box>
                             </Flex>
                             <DescriptionCard title='Description' isLoading={isVaultFetchLoading || isUserFetchLoading}>
-                                View a summary of all your customers over the last month.
-                                View a summary of all your customers over the last month.
-                                View a summary of all your customers over the last month.
-                                View a summary of all your customers over the last month.
-                                View a summary of all your customers over the last month.
-                                test test
+                                Bitcoin Trading with Expert Trader.
+                                Unleashing the Power of Copy Trading for Bitcoin.
+
+                                This unique trading vault is led by an expert trader
+                                with a proven track record in Bitcoin trading.
+                                With a focus solely on Bitcoin, the Crypto Vault offers a secure
+                                and dynamic environment for traders to tap into the potential
+                                of this booming cryptocurrency.
                             </DescriptionCard>
 
                             <Flex >
@@ -85,17 +91,19 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                     <ChartCard
                                         cardTitle={""}
                                         cardWidth={"200"}
-                                        cardHeight={"110"}
+                                        cardHeight={"100"}
                                         chartType={"area"}
-                                        chartHeight={"110"}
+                                        chartHeight={"120"}
                                         chartWidth={"200"}
-                                        chartSeries={dummyChartData}
-                                        isLoading={isDummyChartLoading} />
+                                        chartSeries={followerChartData}
+                                        isLoading={isFollowerChartLoading} />
                                 </Flex>
                             </Flex>
                             <Flex justifyContent='flex-end' w={"100%"} mt={6} px={2}  >
 
-                                <FollowButton vaultName='Horst' vaultFee={0.1} />
+                                <DepositButton vaultName='Horst' vaultFee={0.1} />
+                                <Box mx={1}></Box>
+                                <WithdrawButton vaultName='Horst' vaultFee={0.1} />
 
                             </Flex>
                         </PrimerCard>
@@ -112,8 +120,8 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                         chartType={"area"}
                                         chartHeight={"110"}
                                         chartWidth={"100%"}
-                                        chartSeries={dummyChartData}
-                                        isLoading={isDummyChartLoading} />
+                                        chartSeries={totalChartData}
+                                        isLoading={isTotalChartLoading} />
 
                                 </Flex>
                             </Flex>
@@ -128,8 +136,8 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                         chartType={"area"}
                                         chartHeight={"110"}
                                         chartWidth={"100%"}
-                                        chartSeries={dummyChartData}
-                                        isLoading={isDummyChartLoading} />
+                                        chartSeries={todayChartData}
+                                        isLoading={isTodayChartLoading} />
                                 </Flex>
                             </Flex>
                             <Flex >

@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/react';
-import { confirmButtonStyle } from './Styled';
+import { defaultLinkButtonStyle } from '../../DefaultLinkButton/Styled';
 
 interface ConfirmButtonProps {
     onClick: () => void;
@@ -8,7 +8,7 @@ interface ConfirmButtonProps {
 const ConfirmButton: React.FC<ConfirmButtonProps> = ({ onClick }) => {
     return (
         <Button
-            {...confirmButtonStyle}
+            sx={defaultLinkButtonStyle}
             onClick={onClick}
         >
             Confirm

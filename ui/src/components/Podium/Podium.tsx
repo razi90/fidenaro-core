@@ -1,8 +1,8 @@
 // Podium.tsx
 import { Box, Center, HStack, Heading, Table, TableContainer, Tbody, Td, Th, Thead, Tr, VStack, Text, Link } from "@chakra-ui/react";
-import WinnerCard from "../WinnerCard/WinnerCard";
+import WinnerCard from "../Card/WinnerCard/WinnerCard";
 import { Vault } from "../../libs/entities/Vault";
-import PnlText from "./PnlText";
+import PnlText from "../Text/PnlText";
 
 interface PodiumProps {
     rankedVaults: Vault[];

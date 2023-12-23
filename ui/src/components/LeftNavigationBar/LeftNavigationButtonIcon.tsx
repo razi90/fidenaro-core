@@ -2,6 +2,7 @@ import {
     Flex,
     Stack,
     Icon,
+    Image,
 } from "@chakra-ui/react";
 
 interface FeatureProps {
@@ -19,7 +20,15 @@ export const LeftNavigationButtonIcon = ({ icon }: FeatureProps) => {
                 rounded={"full"}
                 bg={"pElementTransparent.890"}
             >
-                <Icon as={icon} color={"pElement.200"} w={{ base: 6, sm: 6 }} h={{ base: 6, sm: 6 }} />
+                {
+                    (typeof icon !== 'string') ? (
+
+                        <Icon as={icon} color={"pElement.200"} w={{ base: 6, sm: 6 }} h={{ base: 6, sm: 6 }} />
+
+                    ) : (
+                        <Image src={icon.toString()} color={"pElement.200"} w={{ base: 6, sm: 6 }} h={{ base: 6, sm: 6 }} />
+                    )
+                }
 
             </Flex>
         </Stack>

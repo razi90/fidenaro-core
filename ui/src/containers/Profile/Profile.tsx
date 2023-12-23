@@ -3,20 +3,8 @@ import {
     Box,
     Center,
     HStack,
-    Heading,
-    Image,
-    Spacer,
     VStack,
-    Text,
     Flex,
-    IconButton,
-    Icon,
-    Table,
-    Tbody,
-    Tr,
-    Td,
-    TableContainer,
-    Square,
     Avatar,
     WrapItem,
 } from "@chakra-ui/react";
@@ -24,15 +12,12 @@ import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 import { useQuery } from '@tanstack/react-query';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { AppUser } from '../../libs/entities/User';
-import { FidenaroCircularProgress } from '../../components/Loading/FidenaroCircularProgress/FidenaroCircularProgress';
 import { FaDiscord, FaTelegram, FaTwitter } from 'react-icons/fa';
-import AreaChart from '../../libs/charts/MiniatureAreaChartApex';
 import { fetchVaultList } from '../../libs/vault/VaultDataService';
 import ProfileEditButton from '../../components/Button/ProfileEditButton/ProfileEditButton';
 import { PrimerCard } from '../../components/Card/PrimerCard';
 import { ValueCard } from '../../components/Card/ValueCard';
 import { DescriptionCard } from '../../components/Card/DescriptionCard';
-import { ManagerCard } from '../../components/Card/ManagerCard';
 import { SocialButton } from '../../components/Button/SocialButton/SocialButton';
 import { ProfileStatsTable } from '../../components/Table/ProfileStatsTable';
 import { ChartCard } from '../../components/Chart/ChartCard';
@@ -95,15 +80,6 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
         }
     });
 
-    //if (isLoading || isUserFetchLoading) {
-    //    return (
-    //        <Box sx={routePageBoxStyle(isMinimized)}>
-    //            <Center>
-    //                <FidenaroCircularProgress circleSize="30vh" circleBorderThickness="2px" circleImageSize="20vh" />
-    //            </Center>
-    //        </Box>
-    //    );
-    //}
 
     if (isError || isUserFetchError) {
         // Return error JSX if an error occurs during fetching
@@ -168,12 +144,11 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                 </VStack>
                                 <Box flex='1'>
                                     <DescriptionCard title='Description' isLoading={isLoading || isUserFetchLoading}>
-                                        View a summary of all your customers over the last month.
-                                        View a summary of all your customers over the last month.
-                                        View a summary of all your customers over the last month.
-                                        View a summary of all your customers over the last month.
-                                        View a summary of all your customers over the last month.
-                                        test test
+                                        John Smith is a seasoned expert in the field of cryptocurrency trading,
+                                        specializing in the dynamic realm of Bitcoin.
+                                        With a wealth of experience and a keen understanding of the nuances
+                                        of the crypto market, John has established himself as a prominent figure in the world of digital assets.
+                                        Follow him on X
                                     </DescriptionCard>
                                     <Flex>
                                         <ValueCard value={totalFollowers?.toString() ?? ''} description={"Follower"} isLoading={isLoading || isUserFetchLoading} />
@@ -208,8 +183,6 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                 </Flex>
 
                                 <HStack mt={8}>
-
-
                                     <ProfileStatsTable
                                         totalEquity={totalEquity}
                                         managerPnL={managerPnL}
@@ -217,11 +190,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                         totalTrades={totalTrades}
                                         isLoading={isLoading || isUserFetchLoading}
                                     />
-
-
                                 </HStack>
-
-
                             </Box>
                         </PrimerCard>
                     </Flex>

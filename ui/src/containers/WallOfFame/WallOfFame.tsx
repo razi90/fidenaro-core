@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-    Box, Center,
+    Box, Center, VStack,
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 import Podium from '../../components/Podium/Podium';
 import { useQuery } from '@tanstack/react-query';
 import { fetchVaultList } from '../../libs/vault/VaultDataService';
 import { FidenaroCircularProgress } from '../../components/Loading/FidenaroCircularProgress/FidenaroCircularProgress';
+import { CardCarousel } from '../../components/Carousel/CardCarousel';
+import { PrimerCard } from '../../components/Card/PrimerCard';
+import { VaultRankingTable } from '../../components/Table/VaultRankingTable';
+
+
+
 
 interface WallOfFameProps {
     isMinimized: boolean;
@@ -20,9 +26,18 @@ const WallOfFame: React.FC<WallOfFameProps> = ({ isMinimized }) => {
         return (
             <Box sx={routePageBoxStyle(isMinimized)}>
                 <Center>
-                    <FidenaroCircularProgress circleSize="30vh" circleBorderThickness="2px" circleImageSize="20vh" />
+                    <Box maxW="6xl" minH="xl" width="100vw" >
+                        <VStack spacing={4}>
+                            <PrimerCard cardTitle={"Wall of Fame"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
+                                <CardCarousel rankedVaults={undefined} />
+                            </PrimerCard>
+                            <Box w={"100%"}>
+                                <VaultRankingTable title='Ranking' data={undefined} isLoading={isLoading} />
+                            </Box>
+                        </VStack>
+                    </Box >
                 </Center>
-            </Box>
+            </Box >
         );
     }
 
@@ -33,10 +48,24 @@ const WallOfFame: React.FC<WallOfFameProps> = ({ isMinimized }) => {
 
     const rankedVaults = vaults!.sort((a, b) => b.pnl - a.pnl);
 
+
+
     return (
         <Box sx={routePageBoxStyle(isMinimized)}>
-            <Podium rankedVaults={rankedVaults} />
+            <Center>
+                <Box maxW="6xl" minH="xl" width="100vw" >
+                    <VStack spacing={4}>
+                        <PrimerCard cardTitle={"Wall of Fame"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
+                            <CardCarousel rankedVaults={rankedVaults} />
+                        </PrimerCard>
+                        <Box w={"100%"}>
+                            <VaultRankingTable title='Ranking' data={rankedVaults} isLoading={isLoading} />
+                        </Box>
+                    </VStack>
+                </Box >
+            </Center>
         </Box >
     )
 }
+
 export default WallOfFame;
