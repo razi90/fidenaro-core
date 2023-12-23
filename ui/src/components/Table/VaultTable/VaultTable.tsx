@@ -25,7 +25,7 @@ import { FollowButton } from '../../Button/FollowButton/FollowButton';
 import SortableTh from './SortableTableHeader';
 import { explorerTableHeaderPerformanceTextStyle, explorerTableHeaderTextStyle } from './Styled';
 import FilterSelect from './Filter/FilterSelect';
-import ResetButton from '../../Button/ResetButton.tsx/ResetButton';
+
 import FilterButton from '../../Button/FilterButton/FilterButton';
 import { Vault } from '../../../libs/entities/Vault';
 import { MinimalChartCard } from '../../Chart/MinimalChartCard';
@@ -34,6 +34,7 @@ import { tableTrStyle } from '../Styled';
 import { IoEnterOutline } from "react-icons/io5";
 import { AppUser } from '../../../libs/entities/User';
 import { TradeButton } from '../../Button/TradeButton/TradeButton';
+import ResetButton from '../../Button/ResetButton/ResetButton';
 
 
 interface VaultTableProps {

@@ -1,7 +1,6 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, InputGroup, InputLeftElement, Icon, Checkbox, Textarea } from "@chakra-ui/react";
-import ConfirmButton from "../../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, InputGroup, InputLeftElement, Icon, Checkbox, Textarea, Button } from "@chakra-ui/react";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
-import { FaDiscord, FaTelegram, FaTwitter } from "react-icons/fa";
+import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 
 interface CreateVaultDialogProps {
     isOpen: boolean,
@@ -28,8 +27,14 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
                         </Stack>
                     </ModalBody>
                     <ModalFooter>
+                        <Button
+                            sx={defaultHighlightedLinkButtonStyle}
+                            onClick={onClose}
+                        >
+                            Confirm
+                        </Button >
+                        <Box m={1}></Box>
                         <CancelButton onClick={onClose} />
-                        <ConfirmButton onClick={onClose} />
                     </ModalFooter>
                 </ModalContent>
             </Modal>
