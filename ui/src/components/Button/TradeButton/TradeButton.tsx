@@ -14,24 +14,39 @@ interface TradeButtonProps {
     vaultName: string;
     vaultID: string;
     vaultFee: number;
+    isConnected: boolean;
 }
 
-export const TradeButton: React.FC<TradeButtonProps> = ({ vaultID, vaultName, vaultFee }) => {
+export const TradeButton: React.FC<TradeButtonProps> = ({ vaultID, vaultName, vaultFee, isConnected }) => {
 
     const [isOpen, setIsOpen] = useState(false);
 
     return (
         <>
-            <Tooltip label='Trade on this Vault'>
-                <Button
-                    onClick={() => setIsOpen(true)}
-                    sx={followButtonStyle}
-                    size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
-                    title="Trade on this Vault"
-                >
-                    Trade
-                </Button>
-            </Tooltip>
+            {isConnected ? (
+                <Tooltip label='Trade on this Vault'>
+                    <Button
+                        onClick={() => setIsOpen(true)}
+                        sx={followButtonStyle}
+                        size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
+                        title="Trade on this Vault"
+                    >
+                        Trade
+                    </Button>
+                </Tooltip>
+            ) : (
+                <Tooltip label='Trade on this Vault'>
+                    <Button
+                        onClick={() => setIsOpen(true)}
+                        sx={followButtonStyle}
+                        size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
+                        title="Trade on this Vault"
+                        isDisabled={true}
+                    >
+                        Trade
+                    </Button>
+                </Tooltip>
+            )}
             <TradeDialog isOpen={isOpen} setIsOpen={setIsOpen} vaultName={vaultName} vaultFee={vaultFee} />
         </>
     );

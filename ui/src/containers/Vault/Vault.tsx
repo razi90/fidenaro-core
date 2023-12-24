@@ -32,6 +32,8 @@ import { AppUser } from '../../libs/entities/User';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { FidenaroCircularProgress } from '../../components/Loading/FidenaroCircularProgress/FidenaroCircularProgress';
 import { VaultHistory } from '../../libs/entities/Vault';
+import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
+import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 
 
 interface VaultProps {
@@ -52,6 +54,12 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
     const { data: profitabilityChartData, isLoading: isProfitabilityChartLoading, isError: isProfitabilityChartFetchError } = useQuery({ queryKey: ['profitability_chart'], queryFn: fetchVaultProfitabilityData });
     const { data: vaultHistoryData, isLoading: isVaultHistoryLoading, isError: isVaultHistoryFetchError } = useQuery<VaultHistory[]>({ queryKey: ['vault_history'], queryFn: fetchVaultHistoryData });
     const { data: vaultAssetData, isLoading: isVaultAssetLoading, isError: isVaultAssetFetchError } = useQuery({ queryKey: ['vault_assets'], queryFn: fetchVaultAssetData });
+    // Get data to check if wallet is connected
+    const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
+    // Get Wallet Data and Personas
+    //const queryClient = useQueryClient();
+    //const walletData = queryClient.getQueryData<WalletDataState>(['wallet_data'])
+
 
     if (isError || isUserFetchError || isCandleChartFetchError || isDummyChartFetchError || isProfitabilityChartFetchError || isVaultHistoryFetchError || isVaultAssetFetchError) {
         // Return error JSX if an error occurs during fetching
@@ -101,9 +109,9 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             </Flex>
                             <Flex justifyContent='flex-end' w={"100%"} mt={6} px={2}  >
 
-                                <DepositButton vaultName='Horst' vaultFee={0.1} />
+                                <DepositButton vaultName='Horst' vaultFee={0.1} isConnected={(wallet?.persona) == undefined ? false : true} />
                                 <Box mx={1}></Box>
-                                <WithdrawButton vaultName='Horst' vaultFee={0.1} />
+                                <WithdrawButton vaultName='Horst' vaultFee={0.1} isConnected={(wallet?.persona) == undefined ? false : true} />
 
                             </Flex>
                         </PrimerCard>
