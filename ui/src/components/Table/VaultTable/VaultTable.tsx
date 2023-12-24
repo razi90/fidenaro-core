@@ -42,8 +42,9 @@ interface VaultTableProps {
     tableData: Vault[] | undefined;
     isLoading: boolean;
     user: AppUser | undefined;
+    isConnected: boolean;
 }
-const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoading, user }) => {
+const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoading, user, isConnected }) => {
 
     // Define an interface for the possible keys of a vault table entry
     type TableEntryKeys = keyof Vault;
@@ -92,11 +93,10 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
         setFollowersFilter(Number.MIN_SAFE_INTEGER);
     };
 
-
-
-
     // Function to sort and filter the data
     useEffect(() => {
+        console.log("tableData")
+        console.log(tableData)
 
         if (tableData != undefined) {
 
@@ -289,9 +289,9 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                                 {
                                                     user?.account === entry.manager ?
                                                         (
-                                                            <TradeButton vaultName={entry.vault} vaultID={entry.id} vaultFee={entry.profitShare} />
+                                                            <TradeButton vaultName={entry.vault} vaultID={entry.id} vaultFee={entry.profitShare} isConnected={isConnected} />
                                                         ) : (
-                                                            <FollowButton vaultName={entry.vault} vaultFee={entry.profitShare} />
+                                                            <FollowButton vaultName={entry.vault} vaultFee={entry.profitShare} isConnected={isConnected} />
                                                         )
                                                 }
 

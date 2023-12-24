@@ -1,5 +1,5 @@
 // general
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Profile from './containers/Profile/Profile';
@@ -14,6 +14,8 @@ import {
     Text,
     Flex,
 } from "@chakra-ui/react";
+import { initRadixDappToolkit } from './libs/radix-dapp-toolkit/rdt';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 
@@ -23,7 +25,14 @@ const Layout: React.FC = () => {
         const storedValue = localStorage.getItem("leftNavigationBarIsMinimized");
         return storedValue ? JSON.parse(storedValue) : false;
     });
-    //useState(false);
+
+    // init subscription for wallet connection recognizer.
+    const queryClient = useQueryClient()
+    useEffect(() => {
+        initRadixDappToolkit(queryClient);
+    }, []);
+
+
 
     return (
         <BrowserRouter>

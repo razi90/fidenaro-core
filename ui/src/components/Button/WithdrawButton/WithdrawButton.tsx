@@ -11,28 +11,42 @@ import FollowDialog from '../../Dialog/FollowDialog/FollowDialog';
 
 
 interface WithdrawButtonProps {
-    vaultName: string
-    vaultFee: number
+    vaultName: string;
+    vaultFee: number;
+    isConnected: boolean;
 }
 
-export const WithdrawButton: React.FC<WithdrawButtonProps> = ({ vaultName, vaultFee }) => {
+export const WithdrawButton: React.FC<WithdrawButtonProps> = ({ vaultName, vaultFee, isConnected }) => {
 
     const [isOpen, setIsOpen] = useState(false);
 
     return (
         <>
-            <Tooltip label='Withdraw your stable coins'>
-                <Button
-                    //as={Link}
-                    onClick={() => setIsOpen(true)}
-                    sx={followButtonStyle}
-                    size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
-                    title="Withdraw Stable Coins"
-                //href="https://twitter.com/fidenaro"
-                >
-                    Withdraw
-                </Button>
-            </Tooltip>
+            {isConnected ? (
+                <Tooltip label='Withdraw your stable coins'>
+                    <Button
+                        onClick={() => setIsOpen(true)}
+                        sx={followButtonStyle}
+                        size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
+                        title="Withdraw Stable Coins"
+
+                    >
+                        Withdraw
+                    </Button>
+                </Tooltip>
+            ) : (
+                <Tooltip label='Withdraw your stable coins'>
+                    <Button
+                        onClick={() => setIsOpen(true)}
+                        sx={followButtonStyle}
+                        size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
+                        title="Withdraw Stable Coins"
+                        isDisabled={true}
+                    >
+                        Withdraw
+                    </Button>
+                </Tooltip>
+            )}
             <FollowDialog isOpen={isOpen} setIsOpen={setIsOpen} vaultName={vaultName} vaultFee={vaultFee} />
         </>
     );

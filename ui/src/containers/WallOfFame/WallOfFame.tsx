@@ -10,6 +10,8 @@ import { FidenaroCircularProgress } from '../../components/Loading/FidenaroCircu
 import { CardCarousel } from '../../components/Carousel/CardCarousel';
 import { PrimerCard } from '../../components/Card/PrimerCard';
 import { VaultRankingTable } from '../../components/Table/VaultRankingTable';
+import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
+import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 
 
 
@@ -20,7 +22,11 @@ interface WallOfFameProps {
 
 const WallOfFame: React.FC<WallOfFameProps> = ({ isMinimized }) => {
     const { data: vaults, isLoading, isError } = useQuery({ queryKey: ['vault_list'], queryFn: fetchVaultList });
-
+    // Get data to check if wallet is connected
+    const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
+    // Get Wallet Data and Personas
+    //const queryClient = useQueryClient();
+    //const walletData = queryClient.getQueryData<WalletDataState>(['wallet_data'])
 
     if (isLoading) {
         return (
@@ -29,7 +35,7 @@ const WallOfFame: React.FC<WallOfFameProps> = ({ isMinimized }) => {
                     <Box maxW="6xl" minH="xl" width="100vw" >
                         <VStack spacing={4}>
                             <PrimerCard cardTitle={"Wall of Fame"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                                <CardCarousel rankedVaults={undefined} />
+                                <CardCarousel rankedVaults={undefined} isConnected={(wallet?.persona) == undefined ? false : true} />
                             </PrimerCard>
                             <Box w={"100%"}>
                                 <VaultRankingTable title='Ranking' data={undefined} isLoading={isLoading} />
@@ -56,7 +62,7 @@ const WallOfFame: React.FC<WallOfFameProps> = ({ isMinimized }) => {
                 <Box maxW="6xl" minH="xl" width="100vw" >
                     <VStack spacing={4}>
                         <PrimerCard cardTitle={"Wall of Fame"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                            <CardCarousel rankedVaults={rankedVaults} />
+                            <CardCarousel rankedVaults={rankedVaults} isConnected={(wallet?.persona) == undefined ? false : true} />
                         </PrimerCard>
                         <Box w={"100%"}>
                             <VaultRankingTable title='Ranking' data={rankedVaults} isLoading={isLoading} />

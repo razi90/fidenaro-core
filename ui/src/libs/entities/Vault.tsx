@@ -12,6 +12,7 @@ export interface Vault {
     manager: string;
     followerList: string[];
     tradeHistory: number[];
+    trades: Trade[];
 }
 
 export interface VaultPerformance {
@@ -34,4 +35,8 @@ export interface VaultHistory {
     amount: string;
     totalUSD: string;
     transaction: string;
+}
+
+export interface Trade {
+
 }

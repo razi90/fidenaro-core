@@ -10,9 +10,10 @@ import { FollowButton } from '../Button/FollowButton/FollowButton';
 
 interface CardCarouselProps {
     rankedVaults: Vault[] | undefined;
+    isConnected: boolean;
 }
 
-export const CardCarousel: React.FC<CardCarouselProps> = ({ rankedVaults }) => {
+export const CardCarousel: React.FC<CardCarouselProps> = ({ rankedVaults, isConnected }) => {
     return (
         <Flex>
             {rankedVaults?.slice(0, 3).map((vault, index) => (
@@ -28,7 +29,7 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({ rankedVaults }) => {
                             <ValueCard description={"Total profit and loss (PnL)"} value={<PnlText value={vault.pnl} />} isLoading={false} />
                         </Box>
                         <Flex justifyContent='flex-end' w={"100%"} mt={6} px={2}  >
-                            <FollowButton vaultName={vault.vault} vaultFee={vault.profitShare} />
+                            <FollowButton vaultName={vault.vault} vaultFee={vault.profitShare} isConnected={isConnected} />
                         </Flex>
                     </VStack>
                 </CarouselCard>

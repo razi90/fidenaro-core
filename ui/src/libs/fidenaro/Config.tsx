@@ -1,0 +1,1 @@
+export const componentAddress = "component_tdx_2_1cqkpmaerr2qhkgyjr935g8hdls3x324cm24kvzvh25607kaxgf47r9";
