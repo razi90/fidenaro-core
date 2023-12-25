@@ -3,10 +3,18 @@ import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody,
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { fetchUserInfo } from "../../../libs/user/UserDataService";
-import { AppUser } from "../../../libs/entities/User";
+import { User } from "../../../libs/entities/User";
 
 import ConfirmButton from "../../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
+
+import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
+// import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
+
+
+// TODO: use from user
+let componentAddress = "component_tdx_2_1cplgxw6675ss8atu5l8rm2pq77flpqn93aqjl99rveqtnw7w253s0t"
+let usdResource = "resource_tdx_2_1tkk467s802k4r44jltc5c5np7e53lurekcs2cxu5jja5xcs7mk64ld"
 
 interface FollowDialogProps {
     isOpen: boolean,
@@ -23,8 +31,8 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
     const [isBalanceError, setIsBalanceError] = useState(false);
 
     // read user data
-    const { data: user, isError: isUserFetchError } = useQuery<AppUser>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
-    const userUsdAmount = user?.assets.USD;
+    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    const userUsdAmount = 0;
 
     if (isUserFetchError) {
         return <Box>Error loading user data</Box>;
@@ -39,6 +47,39 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
 
         setInputValue(value);
         setIsBalanceError(Number(value) > userUsdAmount!);
+    };
+
+    const deposit = async () => {
+        // build manifast to create a trade vault
+        let manifest = `
+            CALL_METHOD
+                Address("${user?.account}")
+                "withdraw"
+                Address("${usdResource}")
+                Decimal("100");
+            TAKE_ALL_FROM_WORKTOP
+                Address("${usdResource}")
+                Bucket("usdf");
+            CALL_METHOD
+                Address("${componentAddress}")
+                "deposit"
+                Bucket("usdf");
+            CALL_METHOD
+                Address("${user?.account}")
+                "deposit_batch"
+                Expression("ENTIRE_WORKTOP");`
+
+        console.log('deposit manifest: ', manifest)
+
+        // send manifast to extension for signing
+        const result = await rdt.walletApi
+            .sendTransaction({
+                transactionManifest: manifest,
+                version: 1,
+            })
+
+        // if (result.isErr()) throw result.error
+        // console.log("Intantiate WalletSDK Result: ", result.value)
     };
 
     return (
@@ -84,7 +125,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
                             </Box>
                             <Box display="flex" alignItems="center" justifyContent="center">
                                 <CancelButton onClick={onClose} />
-                                <ConfirmButton onClick={onClose} />
+                                <ConfirmButton onClick={deposit} />
                             </Box>
                         </Stack>
                     </ModalFooter>

@@ -1,18 +1,20 @@
+import { Asset } from "./Asset";
+import { User } from "./User";
+
 export interface Vault {
     id: string;
     vault: string;
-    avatar: string;
+    description: string;
     total: number;
     today: number;
     activeDays: number;
-    followers: number;
+    followers: string[];
     equity: number;
     profitShare: number;
     pnl: number;
-    manager: string;
+    manager: User;
     followerList: string[];
-    tradeHistory: number[];
-    trades: Trade[];
+    tradeHistory: Trade[];
 }
 
 export interface VaultPerformance {
@@ -36,7 +38,18 @@ export interface VaultHistory {
     totalUSD: string;
     transaction: string;
 }
-
 export interface Trade {
+    epoch: number;
+    action: TradeAction;
+    from: Asset;
+    from_amount: number;
+    to: Asset;
+    to_amount: number;
+    price: number;
+}
 
+export enum TradeAction {
+    Buy = "Buy",
+    Sell = "Sell",
+    Default = "Default"
 }

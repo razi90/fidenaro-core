@@ -19,6 +19,11 @@ import {
     leftNavigationMainBoxStyle,
     leftNavigationDividerBoxStyle,
 } from "./Styled";
+import { useQuery } from '@tanstack/react-query';
+import { User } from '../../libs/entities/User';
+import { fetchUserInfo } from '../../libs/user/UserDataService';
+import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
+import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 
 interface LeftNavigationBarProps {
     isMinimized: boolean;
@@ -32,6 +37,9 @@ const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setI
         localStorage.setItem("leftNavigationBarIsMinimized", JSON.stringify(isMinimized));
     };
 
+    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
+
     return (
         <Box
             sx={leftNavigationMainBoxStyle}
@@ -39,7 +47,23 @@ const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setI
         >
             <VStack align="stretch" sx={leftNavigationMainVStackStyle}>
                 { /* <LeftNavigationButton link="/profile" title="Profile" icon={FaUserCircle} navIsMinimized={isMinimized} /> */}
-                <LeftNavigationButton link="/profile" title="Profile" icon={"https://purepng.com/public/uploads/large/purepng.com-sapphire-gemsapphiregemstonemineral-corundumaluminium-oxideblue-in-colorfancysapphires-17015289803894slxg.png"} navIsMinimized={isMinimized} />
+                {wallet?.persona == undefined ? (
+                    <LeftNavigationButton
+                        link="/profile"
+                        title={'Profile'}
+                        icon={FaUserCircle}
+                        navIsMinimized={isMinimized}
+                    />
+                ) : (
+                    <LeftNavigationButton
+                        link="/profile"
+                        title={user ? user.name : 'Profile'}
+                        icon={user ? user.avatar : FaUserCircle}
+                        navIsMinimized={isMinimized}
+                    />
+                )
+                }
+
 
                 <Box sx={leftNavigationDividerBoxStyle(isMinimized)}>
                     {isMinimized ? null : <Text as='b'>Trade</Text>}

@@ -28,10 +28,11 @@ import { ManagerCard } from '../../components/Card/ManagerCard';
 import { DepositButton } from '../../components/Button/DepositButton/DepositButton';
 import { WithdrawButton } from '../../components/Button/WithdrawButton/WithdrawButton';
 import { fetchVaultAssetData, fetchVaultDummyChartData, fetchVaultHistoryData, fetchVaultList, fetchVaultPerformanceSeries, fetchVaultProfitabilityData, fetchVaultFollowerChartData, fetchVaultTotalChartData, fetchVaultTodayChartData } from '../../libs/vault/VaultDataService';
-import { AppUser } from '../../libs/entities/User';
+import { User } from '../../libs/entities/User';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
+import { Vault as VaultData, VaultHistory } from '../../libs/entities/Vault';
+import { useParams } from 'react-router-dom';
 import { FidenaroCircularProgress } from '../../components/Loading/FidenaroCircularProgress/FidenaroCircularProgress';
-import { VaultHistory } from '../../libs/entities/Vault';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 
@@ -42,29 +43,43 @@ interface VaultProps {
 
 const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
 
+    const { id } = useParams();
+
     const { enqueueSnackbar } = useSnackbar();
 
     const { data: vaults, isLoading: isVaultFetchLoading, isError } = useQuery({ queryKey: ['vault_list'], queryFn: fetchVaultList });
-    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<AppUser>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
     const { data: candleChartData, isLoading: isCandleChartLoading, isError: isCandleChartFetchError } = useQuery({ queryKey: ['candle_chart'], queryFn: fetchVaultPerformanceSeries });
     const { data: dummyChartData, isLoading: isDummyChartLoading, isError: isDummyChartFetchError } = useQuery({ queryKey: ['dummy_chart'], queryFn: fetchVaultDummyChartData });
     const { data: followerChartData, isLoading: isFollowerChartLoading, isError: isFollowerChartFetchError } = useQuery({ queryKey: ['follower_chart'], queryFn: fetchVaultFollowerChartData });
     const { data: totalChartData, isLoading: isTotalChartLoading, isError: isTotalChartFetchError } = useQuery({ queryKey: ['total_chart'], queryFn: fetchVaultTotalChartData });
     const { data: todayChartData, isLoading: isTodayChartLoading, isError: isTodayChartFetchError } = useQuery({ queryKey: ['today_chart'], queryFn: fetchVaultTodayChartData });
     const { data: profitabilityChartData, isLoading: isProfitabilityChartLoading, isError: isProfitabilityChartFetchError } = useQuery({ queryKey: ['profitability_chart'], queryFn: fetchVaultProfitabilityData });
-    const { data: vaultHistoryData, isLoading: isVaultHistoryLoading, isError: isVaultHistoryFetchError } = useQuery<VaultHistory[]>({ queryKey: ['vault_history'], queryFn: fetchVaultHistoryData });
     const { data: vaultAssetData, isLoading: isVaultAssetLoading, isError: isVaultAssetFetchError } = useQuery({ queryKey: ['vault_assets'], queryFn: fetchVaultAssetData });
-    // Get data to check if wallet is connected
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
-    // Get Wallet Data and Personas
-    //const queryClient = useQueryClient();
-    //const walletData = queryClient.getQueryData<WalletDataState>(['wallet_data'])
 
-
-    if (isError || isUserFetchError || isCandleChartFetchError || isDummyChartFetchError || isProfitabilityChartFetchError || isVaultHistoryFetchError || isVaultAssetFetchError) {
+    if (isError || isUserFetchError || isCandleChartFetchError || isDummyChartFetchError || isProfitabilityChartFetchError || isVaultAssetFetchError) {
         // Return error JSX if an error occurs during fetching
         enqueueSnackbar("Error loading user data", { variant: "error" });
     }
+
+    //if (!vaults || vaults.length === 0) {
+    //    return (
+    //        <Box sx={routePageBoxStyle(isMinimized)}>
+    //            <Text>No vaults yet</Text>
+    //        </Box>
+    //    );
+    //}
+    //else {
+    let vault = vaults?.find((vault) => vault.id === id);
+
+    //if (!vault) {
+    //    return (
+    //        <Box sx={routePageBoxStyle(isMinimized)}>
+    //            <Text>Vault not found</Text>
+    //        </Box>
+    //    );
+    //} else {
 
     return (
 
@@ -74,8 +89,8 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                     <Flex p={4} >
                         <PrimerCard cardTitle='Vault' cardWidth='50%' cardHeight='100%' isLoading={isVaultFetchLoading || isUserFetchLoading}>
                             <Flex >
-                                <DescriptionCard title='Vault Name' isLoading={isVaultFetchLoading || isUserFetchLoading}>
-                                    OG Bitcoin only
+                                <DescriptionCard title={"Vault Name"} isLoading={isVaultFetchLoading || isUserFetchLoading}>
+                                    {vault?.vault}
                                 </DescriptionCard>
                                 <Box w={"60%"}>
                                     <ManagerCard name='John Smith' imageLink='https://purepng.com/public/uploads/large/purepng.com-sapphire-gemsapphiregemstonemineral-corundumaluminium-oxideblue-in-colorfancysapphires-17015289803894slxg.png' isLoading={isVaultFetchLoading || isUserFetchLoading} />
@@ -94,7 +109,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
 
                             <Flex >
                                 <ValueCard value={"47"} description={"Active Days"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                <ValueCard value={"7"} description={"Follower"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                <ValueCard value={vault?.followers.length} description={"Follower"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <Flex m={2} >
                                     <ChartCard
                                         cardTitle={""}
@@ -114,6 +129,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                 <WithdrawButton vaultName='Horst' vaultFee={0.1} isConnected={(wallet?.persona) == undefined ? false : true} />
 
                             </Flex>
+
                         </PrimerCard>
 
                         <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto' isLoading={isVaultFetchLoading || isUserFetchLoading}>
@@ -179,15 +195,17 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             chartSeries={profitabilityChartData}
                             isLoading={isProfitabilityChartLoading}
                         />
-                        <VaultAssetTable title='Assets' data={vaultAssetData} isLoading={isVaultFetchLoading || isUserFetchLoading || isVaultHistoryLoading} />
+                        <VaultAssetTable title='Assets' data={vaultAssetData} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                     </Flex>
 
                     <Box p={4}>
-                        <VaultHistoryTable title='History' data={vaultHistoryData} isLoading={isVaultFetchLoading || isUserFetchLoading || isVaultAssetLoading} />
+                        <VaultHistoryTable title='History' data={vault?.tradeHistory} isLoading={isVaultFetchLoading || isUserFetchLoading || isVaultAssetLoading} />
                     </Box>
                 </Box>
             </Center >
         </Box >
     )
+    // }
+    //}
 }
 export default Vault;

@@ -1,0 +1,45 @@
+{
+    "is_burned": false,
+    "non_fungible_id": "#0#",
+    "data": {
+        "raw_hex": "5c21060c0a426561726f73536e61700c19426573742074726164657220696e2074686520776f726c642e0c4d68747470733a2f2f7062732e7477696d672e636f6d2f70726f66696c655f696d616765732f313732333033343439363235313935333135322f77397171466a30465f343030783430302e6a70670c0a6d795f747769747465720c0b6d795f74656c656772616d0c034e2f41",
+        "programmatic_json": {
+            "fields": [
+                {
+                    "value": "BearosSnap",
+                    "kind": "String",
+                    "field_name": "user_name"
+                },
+                {
+                    "value": "Best trader in the world.",
+                    "kind": "String",
+                    "field_name": "bio"
+                },
+                {
+                    "value": "https://pbs.twimg.com/profile_images/1723034496251953152/w9qqFj0F_400x400.jpg",
+                    "kind": "String",
+                    "type_name": "Url",
+                    "field_name": "pfp_url"
+                },
+                {
+                    "value": "ThanosOfCrypto",
+                    "kind": "String",
+                    "field_name": "twitter"
+                },
+                {
+                    "value": "my_telegram",
+                    "kind": "String",
+                    "field_name": "telegram"
+                },
+                {
+                    "value": "N/A",
+                    "kind": "String",
+                    "field_name": "discord"
+                }
+            ],
+            "kind": "Tuple",
+            "type_name": "User"
+        }
+    },
+    "last_updated_at_state_version": 36172725
+}

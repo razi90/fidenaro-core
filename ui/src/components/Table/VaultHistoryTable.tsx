@@ -14,11 +14,11 @@ import {
 import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
-import { VaultHistory } from '../../libs/entities/Vault';
+import { Trade } from '../../libs/entities/Vault';
 
 interface VaultHistoryTableProps {
     title: string;
-    data: VaultHistory[] | undefined;
+    data: Trade[] | undefined;
     isLoading: boolean;
 }
 
@@ -54,21 +54,26 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                         <Table size="sm">
                             <Thead>
                                 <Tr>
-                                    <Th>Symbol</Th>
-                                    <Th>Call</Th>
-                                    <Th>Amount</Th>
-                                    <Th>Total USD</Th>
-                                    <Th isNumeric>Open </Th>
-                                    <Th isNumeric>Close</Th>
-                                    <Th >Transaction</Th>
+                                    <Th isNumeric>Epoch</Th>
+                                    <Th>Action</Th>
+                                    <Th>From</Th>
+                                    <Th isNumeric> Amount</Th>
+                                    <Th>To</Th>
+                                    <Th isNumeric>Amount </Th>
+                                    <Th isNumeric>Price</Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
                                 {Array.from({ length: 5 }).map((_, index) => (
                                     <Tr sx={tableStyle} key={index}>
-                                        <Td> <SkeletonText mt='2' noOfLines={2} spacing='3' skeletonHeight='2' /></Td>
+                                        <Td isNumeric>
+                                            <Text><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Text>
+                                        </Td>
                                         <Td><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Td>
                                         <Td><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Td>
+                                        <Td isNumeric>
+                                            <Text><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Text>
+                                        </Td>
                                         <Td><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Td>
                                         <Td isNumeric>
                                             <Text><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Text>
@@ -76,21 +81,19 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                         <Td isNumeric>
                                             <Text><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Text>
                                         </Td>
-                                        <Td>
-                                            <SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' />
-                                        </Td>
+
                                     </Tr>
                                 ))}
                             </Tbody>
                             <Tfoot>
                                 <Tr>
-                                    <Th>Symbol</Th>
-                                    <Th>Call</Th>
-                                    <Th>Amount</Th>
-                                    <Th>Total USD</Th>
-                                    <Th isNumeric>Open </Th>
-                                    <Th isNumeric>Close</Th>
-                                    <Th>Transaction</Th>
+                                    <Th isNumeric>Epoch</Th>
+                                    <Th>Action</Th>
+                                    <Th>From</Th>
+                                    <Th isNumeric> Amount</Th>
+                                    <Th>To</Th>
+                                    <Th isNumeric>Amount </Th>
+                                    <Th isNumeric>Price</Th>
                                 </Tr>
                             </Tfoot>
                         </Table>
@@ -102,45 +105,40 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                         <Table size="sm">
                             <Thead>
                                 <Tr>
-                                    <Th>Symbol</Th>
-                                    <Th>Call</Th>
-                                    <Th>Amount</Th>
-                                    <Th>Total USD</Th>
-                                    <Th isNumeric>Open </Th>
-                                    <Th isNumeric>Close</Th>
-                                    <Th >Transaction</Th>
+                                    <Th isNumeric>Epoch</Th>
+                                    <Th>Action</Th>
+                                    <Th>From</Th>
+                                    <Th isNumeric> Amount</Th>
+                                    <Th>To</Th>
+                                    <Th isNumeric>Amount </Th>
+                                    <Th isNumeric>Price</Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
                                 {data?.map((item, index) => (
                                     <Tr sx={tableStyle} key={index}>
-                                        <Td>{item.symbol}</Td>
-                                        <Td>{item.call}</Td>
-                                        <Td>{item.amount}</Td>
-                                        <Td>{item.totalUSD}</Td>
-                                        <Td isNumeric>
-                                            <Text>{item.open}</Text>
-                                            <Text fontSize="xs">{item.openDate}</Text>
-                                        </Td>
-                                        <Td isNumeric>
-                                            <Text>{item.close}</Text>
-                                            <Text fontSize="xs">{item.closeDate}</Text>
-                                        </Td>
-                                        <Td>
+                                        <Td isNumeric>{item.epoch}</Td>
+                                        <Td>{item.action}</Td>
+                                        <Td>{item.from.ticker}</Td>
+                                        <Td isNumeric>{item.from_amount}</Td>
+                                        <Td>{item.to.ticker}</Td>
+                                        <Td isNumeric>{item.to_amount}</Td>
+                                        <Td isNumeric>{item.price}</Td>
+                                        {/* <Td>
                                             <RadixTansactionLink content={item.transaction} />
-                                        </Td>
+                                        </Td> */}
                                     </Tr>
                                 ))}
                             </Tbody>
                             <Tfoot>
                                 <Tr>
-                                    <Th>Symbol</Th>
-                                    <Th>Call</Th>
-                                    <Th>Amount</Th>
-                                    <Th>Total USD</Th>
-                                    <Th isNumeric>Open </Th>
-                                    <Th isNumeric>Close</Th>
-                                    <Th>Transaction</Th>
+                                    <Th isNumeric>Epoch</Th>
+                                    <Th>Action</Th>
+                                    <Th>From</Th>
+                                    <Th isNumeric> Amount</Th>
+                                    <Th>To</Th>
+                                    <Th isNumeric>Amount </Th>
+                                    <Th isNumeric>Price</Th>
                                 </Tr>
                             </Tfoot>
                         </Table>
