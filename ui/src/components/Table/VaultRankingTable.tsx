@@ -68,7 +68,7 @@ export const VaultRankingTable: React.FC<VaultRankingTableProps> = ({ title, dat
                                     <Tr sx={tableStyle} key={index}>
                                         <Td>{index + 1}</Td>
                                         <Td>{item.vault}</Td>
-                                        <Td>{item.manager}</Td>
+                                        <Td>{item.manager.name}</Td>
                                         <Td><PnlText value={item.pnl} /> </Td>
                                     </Tr>
                                 ))}

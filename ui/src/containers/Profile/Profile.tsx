@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import {
     Box,
     Center,
@@ -10,9 +10,9 @@ import {
     Text,
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
-import { AppUser } from '../../libs/entities/User';
+import { User } from '../../libs/entities/User';
 import { FaDiscord, FaTelegram, FaTwitter } from 'react-icons/fa';
 import { fetchVaultList } from '../../libs/vault/VaultDataService';
 import ProfileEditButton from '../../components/Button/ProfileEditButton/ProfileEditButton';
@@ -24,8 +24,6 @@ import { ProfileStatsTable } from '../../components/Table/ProfileStatsTable';
 import { ChartCard } from '../../components/Chart/ChartCard';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
-
-
 
 interface ProfileProps {
     isMinimized: boolean;
@@ -62,21 +60,16 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
 
     const { data: vaults, isLoading, isError } = useQuery({ queryKey: ['vault_list'], queryFn: fetchVaultList });
-    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<AppUser>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
     // Get data to check if wallet is connected
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
-    // Get Wallet Data and Personas
-    //const queryClient = useQueryClient();
-    //const walletData = queryClient.getQueryData<WalletDataState>(['wallet_data'])
 
-    if (isError || isUserFetchError) {
+    if (isError) {
         // Return error JSX if an error occurs during fetching
         return <Box sx={routePageBoxStyle(isMinimized)}>Error loading data</Box>;
     }
 
-
-
-    const managedVaults = vaults?.filter((vault) => vault.manager === user?.account)
+    const managedVaults = vaults?.filter((vault) => vault.manager.id === user?.id)
 
 
     const investedVaults = vaults?.filter((vault) => vault.followerList.includes(user?.account ?? ''))
@@ -84,7 +77,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
 
     // Calculate the total followers from managed vaults
-    const totalFollowers = managedVaults?.reduce((total, vault) => total + vault.followers, 0);
+    const totalFollowers = managedVaults?.reduce((total, vault) => total + vault.followers.length, 0);
 
     // Calculate the total equity from managed vaults
     const totalEquity = managedVaults?.reduce((total, vault) => total + vault.equity, 0);
@@ -119,15 +112,15 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                         <Center>
                             <Box maxW="6xl" minH="xl" width="100vw" >
                                 <Flex p={4} >
-                                    <PrimerCard cardTitle={user?.account} cardWidth='50%' cardHeight='100%' isLoading={isLoading || isUserFetchLoading}>
+                                    <PrimerCard cardTitle={user?.name} cardWidth='50%' cardHeight='100%' isLoading={isLoading || isUserFetchLoading}>
                                         <Flex flex='1' p={1} >
                                             <VStack pt={4} mr={0} >
                                                 <WrapItem>
-                                                    <Avatar size='2xl' name={user?.account} src={user?.avatar} />{' '}
+                                                    <Avatar size='2xl' name={user?.name} src={user?.avatar} />{' '}
                                                 </WrapItem>
                                                 <Flex >
                                                     <Box flex='1' mx={2}>
-                                                        <SocialButton label={'Twitter'} href={'#'}>
+                                                        <SocialButton label={'Twitter'} href={`https://www.twitter.com/${user?.twitter}`}>
                                                             <FaTwitter />
                                                         </SocialButton>
                                                     </Box>
@@ -145,11 +138,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                             </VStack>
                                             <Box flex='1'>
                                                 <DescriptionCard title='Description' isLoading={isLoading || isUserFetchLoading}>
-                                                    John Smith is a seasoned expert in the field of cryptocurrency trading,
-                                                    specializing in the dynamic realm of Bitcoin.
-                                                    With a wealth of experience and a keen understanding of the nuances
-                                                    of the crypto market, John has established himself as a prominent figure in the world of digital assets.
-                                                    Follow him on X
+                                                    {user?.bio}
                                                 </DescriptionCard>
                                                 <Flex>
                                                     <ValueCard value={totalFollowers?.toString() ?? ''} description={"Follower"} isLoading={isLoading || isUserFetchLoading} />

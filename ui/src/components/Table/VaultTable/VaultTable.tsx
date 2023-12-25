@@ -32,19 +32,24 @@ import { MinimalChartCard } from '../../Chart/MinimalChartCard';
 import { defaultLinkButtonStyle } from '../../Button/DefaultLinkButton/Styled';
 import { tableTrStyle } from '../Styled';
 import { IoEnterOutline } from "react-icons/io5";
-import { AppUser } from '../../../libs/entities/User';
+import { User } from '../../../libs/entities/User';
 import { TradeButton } from '../../Button/TradeButton/TradeButton';
 import ResetButton from '../../Button/ResetButton/ResetButton';
+import { TableEntryKeys } from './TableEntryKeys';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchVaultList } from '../../../libs/vault/VaultDataService';
 
 
 interface VaultTableProps {
     smallHeader: string;
     tableData: Vault[] | undefined;
     isLoading: boolean;
-    user: AppUser | undefined;
+    user: User | undefined;
     isConnected: boolean;
 }
 const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoading, user, isConnected }) => {
+
+    const [isDataLoaded, setIsDataLoaded] = useState(false);
 
     // Define an interface for the possible keys of a vault table entry
     type TableEntryKeys = keyof Vault;
@@ -52,7 +57,6 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
     // Controls the width of the element where the graph is and therefore the width of the graph
     const performanceFieldWidth = 150
 
-    // Filtered and sorded table data
     const [filteredData, setFilteredData] = useState<Vault[] | undefined>(tableData);
 
     // State variables for sort values
@@ -93,11 +97,26 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
         setFollowersFilter(Number.MIN_SAFE_INTEGER);
     };
 
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                // Wait for both Promises to resolve
+                await Promise.all([tableData]);
+
+                setFilteredData(tableData);
+                // Set the flag to indicate that the data is loaded
+                setIsDataLoaded(true);
+            } catch (error) {
+                console.log('An error has occurred:', error);
+            }
+        };
+
+        loadData();
+    }, [tableData]);
+
     // Function to sort and filter the data
     useEffect(() => {
-        console.log("tableData")
-        console.log(tableData)
-
         if (tableData != undefined) {
 
             // Copy the original data to avoid mutating it
@@ -118,7 +137,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                 const totalMatch = entry.total >= totalFilter;
                 const todayMatch = entry.today >= todayFilter;
                 const activeDaysMatch = entry.activeDays >= activeDaysFilter;
-                const followersMatch = entry.followers >= followersFilter;
+                const followersMatch = entry.followers.length >= followersFilter;
 
                 return nameMatch && totalMatch && todayMatch && activeDaysMatch && followersMatch;
             });
@@ -126,7 +145,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
             setFilteredData(filteredEntries);
 
         }
-    }, [nameFilter, totalFilter, todayFilter, activeDaysFilter, followersFilter, sortedColumn, sortOrder, isLoading]);
+    }, [nameFilter, totalFilter, todayFilter, activeDaysFilter, followersFilter, sortedColumn, sortOrder]);
     //}, [nameFilter, totalFilter, todayFilter, activeDaysFilter, followersFilter, filteredData, sortedColumn, sortOrder]);
 
     return (
@@ -271,7 +290,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                                 {entry.today} %
                                             </Td>
                                             <Td isNumeric>{entry.activeDays}</Td>
-                                            <Td isNumeric>{entry.followers}</Td>
+                                            <Td isNumeric>{entry.followers.length}</Td>
                                             <Td width={performanceFieldWidth}>
 
                                                 <MinimalChartCard
@@ -287,7 +306,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                             <Td isNumeric>{entry.equity}</Td>
                                             <Td>
                                                 {
-                                                    user?.account === entry.manager ?
+                                                    user?.id === entry.manager.id ?
                                                         (
                                                             <TradeButton vaultName={entry.vault} vaultID={entry.id} vaultFee={entry.profitShare} isConnected={isConnected} />
                                                         ) : (

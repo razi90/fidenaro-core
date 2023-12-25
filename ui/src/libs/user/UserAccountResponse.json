@@ -1,0 +1,2663 @@
+{
+    "address": "account_tdx_2_12xmwv55ap2n25uzl9hywpu7ytyzhp9gl6zc9fnz3rssj40nv8pqmkn",
+    "fungible_resources": {
+        "total_count": 34,
+        "items": [
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tr8qzj8vua788dydg6rzflhp4awdvg9vg3d7exkg40fr8p66hydy0s",
+                            "amount": "10187.08609641175",
+                            "last_updated_at_state_version": 36281643
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c055261646978",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Radix",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Radix",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": true,
+                            "last_updated_at_state_version": 2
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c9e01546865205261646978205075626c6963204e6574776f726b2773206e617469766520746f6b656e2c207573656420746f2070617920746865206e6574776f726b2773207265717569726564207472616e73616374696f6e206665657320616e6420746f2073656375726520746865206e6574776f726b207468726f756768207374616b696e6720746f206974732076616c696461746f72206e6f6465732e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "The Radix Public Network's native token, used to pay the network's required transaction fees and to secure the network through staking to its validator nodes.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "The Radix Public Network's native token, used to pay the network's required transaction fees and to secure the network through staking to its validator nodes.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": true,
+                            "last_updated_at_state_version": 2
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tpqdkwz7mpzww8aau8z3542d96hwwg9kgvy2jlmz7l9amwhj8xrwdl",
+                            "amount": "99999579900",
+                            "last_updated_at_state_version": 36275299
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1tkk467s802k4r44jltc5c5np7e53lurekcs2cxu5jja5xcs7mk64ld",
+                "explicit_metadata": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c0455534446",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "USDF",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "USDF",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 25513180
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1trcv7cvk9wdepl7znq3pmfkrl42mp36nhrayrdystcspgh09jmvqmm",
+                            "amount": "10000",
+                            "last_updated_at_state_version": 36171115
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1tkl4v2n8eeyzu8ptc48dv0l0829wvm76umcgjdmcqqq44k0zkjs52x",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1d52617a6920546865204d616368696e6520536861726520546f6b656e73",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Razi The Machine Share Tokens",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Razi The Machine Share Tokens",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 36170773
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c42526570726573656e747320696e766573746f7220736861726573206f662074686520466964656e61726f2052617a6920546865204d616368696e65207661756c742e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Represents investor shares of the Fidenaro Razi The Machine vault.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Represents investor shares of the Fidenaro Razi The Machine vault.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 36170773
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tzdvc4urp8vhawsnj36hud63x7q3vz3vgyr8fajz4wn9k8872m9exs",
+                            "amount": "1",
+                            "last_updated_at_state_version": 36170773
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1tkf6sf86cc7wp57758cyfaea9thmmt3t8qg5n9zcw6qwdg9mdqf4pl",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c2452617a6920546865204d616368696e65205661756c74204d616e61676572204261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Razi The Machine Vault Manager Badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Razi The Machine Vault Manager Badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 36170773
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c364d616e6167657220626164676520666f722074686520466964656e61726f2052617a6920546865204d616368696e65207661756c742e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Manager badge for the Fidenaro Razi The Machine vault.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Manager badge for the Fidenaro Razi The Machine vault.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 36170773
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tzwfnynyzumwyex7rswsr5g6jx0u86z5entxzm6aaqzcknnst6q8dl",
+                            "amount": "1",
+                            "last_updated_at_state_version": 36170647
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1tk2hcz9ddf3n3nt0vsthaa6ufx7fqqf6gsuayfvt9206adv5h3008x",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c14466964656e61726f2061646d696e206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Fidenaro admin badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Fidenaro admin badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 36170647
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c2e41646d696e6973747261746f7220626164676520666f722074686520466964656e61726f20636f6d706f6e656e74",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Administrator badge for the Fidenaro component",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Administrator badge for the Fidenaro component",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 36170647
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1trfyhrdxh3rjuvt3eh7tegcvn90tn6y3uc6mnvdrprj8uvre4ey5jn",
+                            "amount": "499999990.049751243781094527",
+                            "last_updated_at_state_version": 26152079
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3",
+                "explicit_metadata": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c08457468657265756d",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Ethereum",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Ethereum",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 25514204
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tq9sqchmsgza8qqskuc6a7vus77tx089q0349t0nuf8vyrj8f9aqg8",
+                            "amount": "10000",
+                            "last_updated_at_state_version": 26147889
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t57wt8p0yj5hzq6fzw5wemhlvyk5ycrn035cf06ktlhqj42zjs3yde",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1d52617a6920546865204d616368696e6520536861726520546f6b656e73",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Razi The Machine Share Tokens",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Razi The Machine Share Tokens",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 26140057
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c42526570726573656e747320696e766573746f7220736861726573206f662074686520466964656e61726f2052617a6920546865204d616368696e65207661756c742e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Represents investor shares of the Fidenaro Razi The Machine vault.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Represents investor shares of the Fidenaro Razi The Machine vault.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 26140057
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tqu7t30lrna9ndkhfxld552x8s6kg4pxemlh4hy0suljgww2vq7nr2",
+                            "amount": "1",
+                            "last_updated_at_state_version": 26140057
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1thdj0wam4fzrraknladpp08f4lfxqgur3ndj27k4yeq44nkurw90cn",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c2452617a6920546865204d616368696e65205661756c74204d616e61676572204261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Razi The Machine Vault Manager Badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Razi The Machine Vault Manager Badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 26140057
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c364d616e6167657220626164676520666f722074686520466964656e61726f2052617a6920546865204d616368696e65207661756c742e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Manager badge for the Fidenaro Razi The Machine vault.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Manager badge for the Fidenaro Razi The Machine vault.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 26140057
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tpykgqv9az2ay5p2x8uzzmu3g2gdassdhr799em26efugvxa2zv0n2",
+                            "amount": "1",
+                            "last_updated_at_state_version": 26137888
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1thkc3fsnl6lqfx49y4g96gua0ktv0esehgldffrfmjd0yygu76pges",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c14466964656e61726f2061646d696e206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Fidenaro admin badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Fidenaro admin badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 26137888
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c2e41646d696e6973747261746f7220626164676520666f722074686520466964656e61726f20636f6d706f6e656e74",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Administrator badge for the Fidenaro component",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Administrator badge for the Fidenaro component",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 26137888
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tpq9nlc0rex60d6u475f9z2mk3cxv0ef08ldcz5yyz4v9es09fvp7z",
+                            "amount": "99999999990",
+                            "last_updated_at_state_version": 25517701
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1thl25uw98gzsjh6kwu6hygm04dmvxaf0yp07shd7knvsmxxhxhlqpy",
+                "explicit_metadata": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c07426974636f696e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Bitcoin",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Bitcoin",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 25513775
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tqf96nemhv8x6t9nua5dcaumkjltf62ufftag07wqv5qrk8mc2vhch",
+                            "amount": "1923.538406167134475185",
+                            "last_updated_at_state_version": 25517701
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t4ujntxhh8r5dp9kn2e0p5n2svef7aantpr0epqdp3hvg4s8lcqn54",
+                "explicit_metadata": {
+                    "total_count": 0,
+                    "items": []
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1trwsux3tm82r8wdpud8pqq3qn5mm50hrar66k98dg6lanmp07j3mwa",
+                            "amount": "447.213595499957939281",
+                            "last_updated_at_state_version": 25517127
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t5ay2vf0actmq7vm6ms6ycjczzuz0n7ud3904pxzt2mea2ya47tgtw",
+                "explicit_metadata": {
+                    "total_count": 0,
+                    "items": []
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tru7zr24pultf6q37sdc0mwhsk40tsskn9wlrfgy7eep5jgrt4m7r0",
+                            "amount": "100",
+                            "last_updated_at_state_version": 20019065
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1thgqpqaafpmhpuenavla48tw6zeadw7nyz8545gactgjfc6cuqrl6r",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1652617a695661756c7420736861726520746f6b656e73",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "RaziVault share tokens",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "RaziVault share tokens",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20018670
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c34546f6b656e73207573656420746f2073686f772077686174207368617265206f662052617a695661756c7420796f752068617665",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Tokens used to show what share of RaziVault you have",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Tokens used to show what share of RaziVault you have",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20018670
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tqmmsqxhxkftjncmmp62s8wcagyj4j3negjrfj465n79pl3ddku4d3",
+                            "amount": "1",
+                            "last_updated_at_state_version": 20018670
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1thvjzw9ajdpcma5g36zvu7lllc4yjgaxm7wpa7sxq9n2s8vegzw9pq",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1752617a695661756c74206d616e61676572206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "RaziVault manager badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "RaziVault manager badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20018670
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c224261646765207573656420666f72206d616e6167696e672052617a695661756c742e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for managing RaziVault.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for managing RaziVault.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20018670
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tp0y73kq0fjw24k00sfkgd8gqxt570tedj33ehdfj4wkq7z7n4hw3f",
+                            "amount": "1",
+                            "last_updated_at_state_version": 20018151
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1tkcpvqy50mlqd8cnvw99wgessyvq02kvxf08qe5ydy27t95lp6wyec",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c14666964656e61726f2061646d696e206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "fidenaro admin badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "fidenaro admin badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20018151
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c1a4261646765207573656420666f722061646d696e207374756666",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for admin stuff",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for admin stuff",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20018151
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tr43dnwtl68az8s4las5cyhpzzndek0ljrsk9tlvrdwv9c5wjwulf9",
+                            "amount": "100",
+                            "last_updated_at_state_version": 20013078
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1thmleg54gm9kc0tujywc3wk4k98xsmhuwks4rpaw69xghgcy4x0fs7",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1c426561726f73536e61705661756c7420736861726520746f6b656e73",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault share tokens",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault share tokens",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20012429
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c3a546f6b656e73207573656420746f2073686f772077686174207368617265206f6620426561726f73536e61705661756c7420796f752068617665",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Tokens used to show what share of BearosSnapVault you have",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Tokens used to show what share of BearosSnapVault you have",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20012429
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1trwg7kc5jjw7sf83nx7sjq806mfgkephuh8efcf4cfztg6jznjxluw",
+                            "amount": "1",
+                            "last_updated_at_state_version": 20012429
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1tknagtg0rgefhvfc3dv3vzvwm5nrvkqgxhexyegnj5mtksphmn573e",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1d426561726f73536e61705661756c74206d616e61676572206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault manager badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault manager badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20012429
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c284261646765207573656420666f72206d616e6167696e6720426561726f73536e61705661756c742e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for managing BearosSnapVault.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for managing BearosSnapVault.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20012429
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tqcqae6y35ykf9glmpex8hx3ecxccektf8gvqqcg703n8kywkzjksl",
+                            "amount": "1",
+                            "last_updated_at_state_version": 20012093
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1tkxw46rnanxqg4rxcz7mrprpumm4k5gv3287c7k6n7dgkh9z2q9aek",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c14666964656e61726f2061646d696e206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "fidenaro admin badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "fidenaro admin badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20012093
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c1a4261646765207573656420666f722061646d696e207374756666",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for admin stuff",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for admin stuff",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20012093
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tpm4tk70k30tq97l9cvf8q8cfjnn9ldal0fvpkf9lhxzmtp4javs8g",
+                            "amount": "100",
+                            "last_updated_at_state_version": 20008429
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1tkqt07f2ag4uqw5uzddhgda5ql9qj4p7d4mksevqqyag9mztfsd3sa",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1c426561726f73536e61705661756c7420736861726520746f6b656e73",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault share tokens",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault share tokens",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20007910
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c3a546f6b656e73207573656420746f2073686f772077686174207368617265206f6620426561726f73536e61705661756c7420796f752068617665",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Tokens used to show what share of BearosSnapVault you have",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Tokens used to show what share of BearosSnapVault you have",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20007910
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tz06gdmeppyg2lxcweh7uqd4evz5zmqcz2kslp7hf5xyky3ycrzmn6",
+                            "amount": "1",
+                            "last_updated_at_state_version": 20007910
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1thvjn7h63fcjame8rwp5wsfq0hahen85kfcalw99kj92ru474qdrl8",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1d426561726f73536e61705661756c74206d616e61676572206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault manager badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault manager badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20007910
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c284261646765207573656420666f72206d616e6167696e6720426561726f73536e61705661756c742e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for managing BearosSnapVault.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for managing BearosSnapVault.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20007910
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tqqa84w4tzw2puvr52r8e2zrv47az5zlflyqcn4jzgs04mqdj5esm9",
+                            "amount": "1",
+                            "last_updated_at_state_version": 20007628
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t553q759sahm73cga4l5k92g30h9pjxxezca2kryw7g24mum25c4pk",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c14666964656e61726f2061646d696e206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "fidenaro admin badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "fidenaro admin badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20007628
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c1a4261646765207573656420666f722061646d696e207374756666",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for admin stuff",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for admin stuff",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 20007628
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tzje39pu7adhy0zyeneq4lxwdx97svtwrg7pj4k4nmcfxcwjatqf5h",
+                            "amount": "100",
+                            "last_updated_at_state_version": 19997446
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1thg3j0afdc4mjcw3kshuhvl23pmxd64rgkqfww2wyxjt2gsvun70s2",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1c426561726f73536e61705661756c7420736861726520746f6b656e73",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault share tokens",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault share tokens",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19996877
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c3a546f6b656e73207573656420746f2073686f772077686174207368617265206f6620426561726f73536e61705661756c7420796f752068617665",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Tokens used to show what share of BearosSnapVault you have",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Tokens used to show what share of BearosSnapVault you have",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19996877
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tp6k7lgn8amxtk3n7aut02gt9aqhcmqly95qjcjs5hxlph8tyk7vsx",
+                            "amount": "1",
+                            "last_updated_at_state_version": 19996877
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t57jrggscmgppegfs4s0eeth7xpe2a3mnjl6jlvy0uj2utuczq7dz3",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1d426561726f73536e61705661756c74206d616e61676572206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault manager badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault manager badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19996877
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c284261646765207573656420666f72206d616e6167696e6720426561726f73536e61705661756c742e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for managing BearosSnapVault.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for managing BearosSnapVault.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19996877
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tzk0k8eq03tp6764xl8smtvfhwx574m2u9g9tyvdr8zv4r90yytd4j",
+                            "amount": "1",
+                            "last_updated_at_state_version": 19996453
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t5ykx36m38pz693tykk6le798el9gwj4shslvzqwgxas82n0ptymx4",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c14666964656e61726f2061646d696e206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "fidenaro admin badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "fidenaro admin badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19996453
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c1a4261646765207573656420666f722061646d696e207374756666",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for admin stuff",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for admin stuff",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19996453
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tqwhtc3rajm6twphg3npgnpfhf7wrkxnqxy7g7jf3stmf5l98rw3sw",
+                            "amount": "704.101468904839114492",
+                            "last_updated_at_state_version": 19992402
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1thrn8vw7lrxpej7enxmhd84mqd9f3cp97rf5qyy8jxa7gpxcnxr5uu",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c11446578746572205465737420546f6b656e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Dexter Test Token",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Dexter Test Token",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 7019872
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c1941207465737420746f6b656e20666f722053544f4b454e4554",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "A test token for STOKENET",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "A test token for STOKENET",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 7019872
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1trzwjlc0345njqvnnllqu3jupszfdfr9g52lsvlvp8t6sfnp8wv08q",
+                            "amount": "100",
+                            "last_updated_at_state_version": 19987468
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1tknnqvnry6ydawsm0hm0d343khhcs37nqz9swf5lhejmtugrtu9k98",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1c426561726f73536e61705661756c7420736861726520746f6b656e73",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault share tokens",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault share tokens",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19986775
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c3a546f6b656e73207573656420746f2073686f772077686174207368617265206f6620426561726f73536e61705661756c7420796f752068617665",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Tokens used to show what share of BearosSnapVault you have",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Tokens used to show what share of BearosSnapVault you have",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19986775
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tqu4pn65w2duegcfyzxhf90e078ncmtke8pp2ug4rstd8herujh8uf",
+                            "amount": "1",
+                            "last_updated_at_state_version": 19986775
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1th3rcf26xpdyns8n5rzlj03x697mgr0843xzjlccr93403nyxrmvqf",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1d426561726f73536e61705661756c74206d616e61676572206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault manager badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault manager badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19986775
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c284261646765207573656420666f72206d616e6167696e6720426561726f73536e61705661756c742e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for managing BearosSnapVault.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for managing BearosSnapVault.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19986775
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tqumlc0twrtmc3awj05n0kzzak9v0ajfuyqcyytdvlsfuhagdzle03",
+                            "amount": "1",
+                            "last_updated_at_state_version": 19986417
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t4f8pu2zpmau88lral4xh6vzpgstru2wmxvwku7sf27202636z93fg",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c14666964656e61726f2061646d696e206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "fidenaro admin badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "fidenaro admin badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19986417
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c1a4261646765207573656420666f722061646d696e207374756666",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for admin stuff",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for admin stuff",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19986417
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tqap2meqd29rzvudjl3sg9kwwwvsh9hsvpa6009rnynm0z9w84xyv7",
+                            "amount": "100",
+                            "last_updated_at_state_version": 19981441
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t5jvlr4mfsft2u2l4j20cqc9q6zfxky4d9y7fzw63370hqej6z5sk9",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1c426561726f73536e61705661756c7420736861726520746f6b656e73",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault share tokens",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault share tokens",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19979632
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c3a546f6b656e73207573656420746f2073686f772077686174207368617265206f6620426561726f73536e61705661756c7420796f752068617665",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Tokens used to show what share of BearosSnapVault you have",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Tokens used to show what share of BearosSnapVault you have",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19979632
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tqlrn4fr0s2svl0f02945axe4eqpspgnwvuumllkypudqxnf0hagpm",
+                            "amount": "1",
+                            "last_updated_at_state_version": 19979632
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t4thyv4g5urc0l5sewgk7k9yrdgnr4vn2emegle9huhrscm8gjdwmc",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1d426561726f73536e61705661756c74206d616e61676572206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault manager badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault manager badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19979632
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c284261646765207573656420666f72206d616e6167696e6720426561726f73536e61705661756c742e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for managing BearosSnapVault.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for managing BearosSnapVault.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19979632
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tpzr7whuh5tra737n4ukd9rwcnghee0lgdf55se4mwx0sudw9amklk",
+                            "amount": "1",
+                            "last_updated_at_state_version": 19979013
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1thjhf5wre9khqr596pggdmuun47z0nmt7yz7f2qxgjf0rmyz3uk08q",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c14666964656e61726f2061646d696e206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "fidenaro admin badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "fidenaro admin badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19979013
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c1a4261646765207573656420666f722061646d696e207374756666",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for admin stuff",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for admin stuff",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 19979013
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tpkrxn3v2ghj0nyvxk52yugedfs6kwxvgaxd57umca4fns6pdhf29v",
+                            "amount": "200",
+                            "last_updated_at_state_version": 18886840
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t5704rlmvaze3y8nt09khdysk52urqzxr0f49t9yyxhyf6rwjs2l3e",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1c426561726f73536e61705661756c7420736861726520746f6b656e73",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault share tokens",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault share tokens",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 18854061
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c3a546f6b656e73207573656420746f2073686f772077686174207368617265206f6620426561726f73536e61705661756c7420796f752068617665",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Tokens used to show what share of BearosSnapVault you have",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Tokens used to show what share of BearosSnapVault you have",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 18854061
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1tzcavfua79w8z92ncq8079mgd7gvxcrkknvtyzlp7glzgsw9e3qzmp",
+                            "amount": "1",
+                            "last_updated_at_state_version": 18854061
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1thg4trgfu5gxl5d0hgl8jl80yf2wqd8pcj8ktf9wfcn9ft9yexp7v8",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1d426561726f73536e61705661756c74206d616e61676572206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "BearosSnapVault manager badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "BearosSnapVault manager badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 18854061
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c284261646765207573656420666f72206d616e6167696e6720426561726f73536e61705661756c742e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for managing BearosSnapVault.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for managing BearosSnapVault.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 18854061
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "vault_address": "internal_vault_tdx_2_1trzjjue3cqq2uqrqyfg0g700kyx8unkv4emd4lf3jwm4qemueudzm3",
+                            "amount": "1",
+                            "last_updated_at_state_version": 18852131
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1t5tg5ccfc4qyynm8c4dl9vc69auu4397se6s670lt4ycccy3swnt0f",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c14666964656e61726f2061646d696e206261646765",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "fidenaro admin badge",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "fidenaro admin badge",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 18852131
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c1a4261646765207573656420666f722061646d696e207374756666",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badge used for admin stuff",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badge used for admin stuff",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 18852131
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "non_fungible_resources": {
+        "total_count": 5,
+        "items": [
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "total_count": 2,
+                            "items": [
+                                "#0#",
+                                "#1#"
+                            ],
+                            "vault_address": "internal_vault_tdx_2_1nqkyd3rcequ7zxlrzk9wr098fwm09j3fhahtgj3puche0vcvjahvgr",
+                            "last_updated_at_state_version": 36173563
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1n2tw2nl3hjak8kyxv5reslrahrdqdu2qhhn839stjgtlrh40utt0zp",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c0d466964656e61726f2055736572",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Fidenaro User",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Fidenaro User",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": true,
+                            "last_updated_at_state_version": 36170647
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c1d412075736572204e465420666f7220466964656e61726f207573657273",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "A user NFT for Fidenaro users",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "A user NFT for Fidenaro users",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": true,
+                            "last_updated_at_state_version": 36170647
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "total_count": 9,
+                            "items": [
+                                "[0d2ec62ffb418ea4230ce30274df26dfc5db9255415d98c150222375b8ee]",
+                                "[0d97f4f2d01a1e64a85b5749f75a8de7d750cb55684d01f61e73f834494e]",
+                                "[0d910ddf4df44d9da33f57ba777f82bccc63a6635b4d0938311fa0e695f9]",
+                                "[0d617006fa7ebb18f70781b050ab54363e514a6945a6c424b63047c3fb40]",
+                                "[0d782230d953031f88bc6cc957e7eaadbdbb18ea7e7582d019b54675c9c0]",
+                                "[0d5efbee9e7fc6fabac1265914e539b03112b186444e8a312d82f51249cd]",
+                                "[0dc3fe4be16dbd9f43ee312e967cedfaca58c231c240f9644bde0276a876]",
+                                "[0d7ab54163abb6e6290536cb38a5909e99e7fb0ad41304bc3611d76892a8]",
+                                "[0de8edebec81491949b0516238ec75fe4799786e043f0e3812ba9dc48562]"
+                            ],
+                            "vault_address": "internal_vault_tdx_2_1nq4384czrzqpyntdjg87tq9qxvu5hwae0qpaq684kfl9krl2kgjygr",
+                            "last_updated_at_state_version": 25509257
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1nfxxxxxxxxxxpkgwnrxxxxxxxxx002558553505xxxxxxxxxfzgzzk",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c145061636b616765204f776e657220426164676573",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Package Owner Badges",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Package Owner Badges",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": true,
+                            "last_updated_at_state_version": 2
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c724261646765732063726561746564206279207468652052616469782073797374656d20746861742070726f7669646520696e646976696475616c20636f6e74726f6c206f76657220626c75657072696e74207061636b61676573206465706c6f79656420627920646576656c6f706572732e",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Badges created by the Radix system that provide individual control over blueprint packages deployed by developers.",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Badges created by the Radix system that provide individual control over blueprint packages deployed by developers.",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": true,
+                            "last_updated_at_state_version": 2
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "total_count": 7,
+                            "items": [
+                                "#116#",
+                                "#117#",
+                                "#118#",
+                                "#119#",
+                                "#120#",
+                                "#121#",
+                                "#123#"
+                            ],
+                            "vault_address": "internal_vault_tdx_2_1nzmlxyxcf4zvkdqnev0cxpjqnqtm6wncwagfm875u6a2gd24kc8hp7",
+                            "last_updated_at_state_version": 18893745
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1ng6vf9g4d30dw8h6h4t2t6e3mfxrhpw8d0n5dkpzh4xaqzqha57cd2",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1e416c7068614445582054332044455854522f585244207265636569707473",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "AlphaDEX T3 DEXTR/XRD receipts",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "AlphaDEX T3 DEXTR/XRD receipts",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 14186749
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c2d4f72646572207265636569707420666f7220416c70686144455820543320706169723a2044455854522f585244",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Order receipt for AlphaDEX T3 pair: DEXTR/XRD",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Order receipt for AlphaDEX T3 pair: DEXTR/XRD",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 14186749
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "total_count": 2,
+                            "items": [
+                                "#50#",
+                                "#51#"
+                            ],
+                            "vault_address": "internal_vault_tdx_2_1np7w092fg6l2slv7tg5fa8a0ufk5tlucsxqdcsn2ufv8jsslmhdcl8",
+                            "last_updated_at_state_version": 18888137
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1ng32esp95nmay5er9ycmgwwlf4yk8ef9kedfz3ap7myu0mxy3ayahv",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c1d416c706861444558205433205852442f54555344207265636569707473",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "AlphaDEX T3 XRD/TUSD receipts",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "AlphaDEX T3 XRD/TUSD receipts",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 14228164
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c2c4f72646572207265636569707420666f7220416c70686144455820543320706169723a205852442f54555344",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Order receipt for AlphaDEX T3 pair: XRD/TUSD",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Order receipt for AlphaDEX T3 pair: XRD/TUSD",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 14228164
+                        }
+                    ]
+                }
+            },
+            {
+                "vaults": {
+                    "total_count": 1,
+                    "items": [
+                        {
+                            "total_count": 5,
+                            "items": [
+                                "#102#",
+                                "#103#",
+                                "#104#",
+                                "#105#",
+                                "#106#"
+                            ],
+                            "vault_address": "internal_vault_tdx_2_1nzmv7pfzd3lnrn8ywcuuz9yyqpmhlz2u7ljfvzpa8cfensjjfu9ws4",
+                            "last_updated_at_state_version": 12788026
+                        }
+                    ]
+                },
+                "aggregation_level": "Vault",
+                "resource_address": "resource_tdx_2_1n2w8d3cg6c4vcldg0yddhwcu7ku4pc6q60pqfc58kgdkxglan243ts",
+                "explicit_metadata": {
+                    "total_count": 2,
+                    "items": [
+                        {
+                            "key": "name",
+                            "value": {
+                                "raw_hex": "5c2200010c20416c70686144455820544553542044455854522f585244207265636569707473",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "AlphaDEX TEST DEXTR/XRD receipts",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "AlphaDEX TEST DEXTR/XRD receipts",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 7023141
+                        },
+                        {
+                            "key": "description",
+                            "value": {
+                                "raw_hex": "5c2200010c2f4f72646572207265636569707420666f7220416c706861444558205445535420706169723a2044455854522f585244",
+                                "programmatic_json": {
+                                    "variant_id": 0,
+                                    "fields": [
+                                        {
+                                            "value": "Order receipt for AlphaDEX TEST pair: DEXTR/XRD",
+                                            "kind": "String"
+                                        }
+                                    ],
+                                    "kind": "Enum"
+                                },
+                                "typed": {
+                                    "value": "Order receipt for AlphaDEX TEST pair: DEXTR/XRD",
+                                    "type": "String"
+                                }
+                            },
+                            "is_locked": false,
+                            "last_updated_at_state_version": 7023141
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "total_count": 3,
+        "items": [
+            {
+                "key": "account_type",
+                "value": {
+                    "raw_hex": "5c2200010c0f6461707020646566696e6974696f6e",
+                    "programmatic_json": {
+                        "variant_id": 0,
+                        "fields": [
+                            {
+                                "value": "dapp definition",
+                                "kind": "String"
+                            }
+                        ],
+                        "kind": "Enum"
+                    },
+                    "typed": {
+                        "value": "dapp definition",
+                        "type": "String"
+                    }
+                },
+                "is_locked": false,
+                "last_updated_at_state_version": 18849611
+            },
+            {
+                "key": "owner_keys",
+                "value": {
+                    "raw_hex": "5c228f01202201010120071db6e6529d0aa6aa705f2dc8e0f3c4590570951fd0b054cc511c212abe6c",
+                    "programmatic_json": {
+                        "variant_id": 143,
+                        "fields": [
+                            {
+                                "element_kind": "Enum",
+                                "elements": [
+                                    {
+                                        "variant_id": 1,
+                                        "fields": [
+                                            {
+                                                "element_kind": "U8",
+                                                "hex": "b6e6529d0aa6aa705f2dc8e0f3c4590570951fd0b054cc511c212abe6c",
+                                                "kind": "Bytes"
+                                            }
+                                        ],
+                                        "kind": "Enum"
+                                    }
+                                ],
+                                "kind": "Array"
+                            }
+                        ],
+                        "kind": "Enum"
+                    },
+                    "typed": {
+                        "values": [
+                            {
+                                "hash_hex": "b6e6529d0aa6aa705f2dc8e0f3c4590570951fd0b054cc511c212abe6c",
+                                "key_hash_type": "EddsaEd25519"
+                            }
+                        ],
+                        "type": "PublicKeyHashArray"
+                    }
+                },
+                "is_locked": false,
+                "last_updated_at_state_version": 12781787
+            },
+            {
+                "key": "owner_badge",
+                "value": {
+                    "raw_hex": "5c220b01c0021e51b6e6529d0aa6aa705f2dc8e0f3c4590570951fd0b054cc511c212abe6c",
+                    "programmatic_json": {
+                        "variant_id": 11,
+                        "fields": [
+                            {
+                                "value": "[51b6e6529d0aa6aa705f2dc8e0f3c4590570951fd0b054cc511c212abe6c]",
+                                "kind": "NonFungibleLocalId"
+                            }
+                        ],
+                        "kind": "Enum"
+                    },
+                    "typed": {
+                        "value": "[51b6e6529d0aa6aa705f2dc8e0f3c4590570951fd0b054cc511c212abe6c]",
+                        "type": "NonFungibleLocalId"
+                    }
+                },
+                "is_locked": true,
+                "last_updated_at_state_version": 12781787
+            }
+        ]
+    },
+    "explicit_metadata": {
+        "total_count": 0,
+        "items": []
+    },
+    "details": {
+        "package_address": "package_tdx_2_1pkgxxxxxxxxxaccntxxxxxxxxxx000929625493xxxxxxxxx9jat20",
+        "blueprint_name": "Account",
+        "blueprint_version": "1.0.0",
+        "state": {
+            "default_deposit_rule": "Accept"
+        },
+        "role_assignments": {
+            "owner": {
+                "rule": {
+                    "type": "Protected",
+                    "access_rule": {
+                        "type": "ProofRule",
+                        "proof_rule": {
+                            "type": "Require",
+                            "requirement": {
+                                "type": "NonFungible",
+                                "non_fungible": {
+                                    "local_id": {
+                                        "id_type": "Bytes",
+                                        "sbor_hex": "5cc0021db6e6529d0aa6aa705f2dc8e0f3c4590570951fd0b054cc511c212abe6c",
+                                        "simple_rep": "[b6e6529d0aa6aa705f2dc8e0f3c4590570951fd0b054cc511c212abe6c]"
+                                    },
+                                    "resource_address": "resource_tdx_2_1nfxxxxxxxxxxed25sgxxxxxxxxx002236757237xxxxxxxxx3e2cpa"
+                                }
+                            }
+                        }
+                    }
+                },
+                "updater": "Object"
+            },
+            "entries": [
+                {
+                    "role_key": {
+                        "module": "Main",
+                        "name": "securify"
+                    },
+                    "assignment": {
+                        "resolution": "Explicit",
+                        "explicit_rule": {
+                            "type": "Protected",
+                            "access_rule": {
+                                "type": "ProofRule",
+                                "proof_rule": {
+                                    "type": "Require",
+                                    "requirement": {
+                                        "type": "NonFungible",
+                                        "non_fungible": {
+                                            "local_id": {
+                                                "id_type": "Bytes",
+                                                "sbor_hex": "5cc0021db6e6529d0aa6aa705f2dc8e0f3c4590570951fd0b054cc511c212abe6c",
+                                                "simple_rep": "[b6e6529d0aa6aa705f2dc8e0f3c4590570951fd0b054cc511c212abe6c]"
+                                            },
+                                            "resource_address": "resource_tdx_2_1nfxxxxxxxxxxed25sgxxxxxxxxx002236757237xxxxxxxxx3e2cpa"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "updater_roles": [
+                        {
+                            "module": "Main",
+                            "name": "_self_"
+                        }
+                    ]
+                },
+                {
+                    "role_key": {
+                        "module": "Metadata",
+                        "name": "metadata_locker"
+                    },
+                    "assignment": {
+                        "resolution": "Owner"
+                    },
+                    "updater_roles": [
+                        {
+                            "module": "Metadata",
+                            "name": "metadata_locker_updater"
+                        }
+                    ]
+                },
+                {
+                    "role_key": {
+                        "module": "Metadata",
+                        "name": "metadata_locker_updater"
+                    },
+                    "assignment": {
+                        "resolution": "Owner"
+                    },
+                    "updater_roles": [
+                        {
+                            "module": "Metadata",
+                            "name": "metadata_locker_updater"
+                        }
+                    ]
+                },
+                {
+                    "role_key": {
+                        "module": "Metadata",
+                        "name": "metadata_setter"
+                    },
+                    "assignment": {
+                        "resolution": "Owner"
+                    },
+                    "updater_roles": [
+                        {
+                            "module": "Metadata",
+                            "name": "metadata_setter_updater"
+                        }
+                    ]
+                },
+                {
+                    "role_key": {
+                        "module": "Metadata",
+                        "name": "metadata_setter_updater"
+                    },
+                    "assignment": {
+                        "resolution": "Owner"
+                    },
+                    "updater_roles": [
+                        {
+                            "module": "Metadata",
+                            "name": "metadata_setter_updater"
+                        }
+                    ]
+                },
+                {
+                    "role_key": {
+                        "module": "Royalty",
+                        "name": "royalty_setter"
+                    },
+                    "assignment": {
+                        "resolution": "Owner"
+                    },
+                    "updater_roles": [
+                        {
+                            "module": "Royalty",
+                            "name": "royalty_setter_updater"
+                        }
+                    ]
+                },
+                {
+                    "role_key": {
+                        "module": "Royalty",
+                        "name": "royalty_setter_updater"
+                    },
+                    "assignment": {
+                        "resolution": "Owner"
+                    },
+                    "updater_roles": [
+                        {
+                            "module": "Royalty",
+                            "name": "royalty_setter_updater"
+                        }
+                    ]
+                },
+                {
+                    "role_key": {
+                        "module": "Royalty",
+                        "name": "royalty_locker"
+                    },
+                    "assignment": {
+                        "resolution": "Owner"
+                    },
+                    "updater_roles": [
+                        {
+                            "module": "Royalty",
+                            "name": "royalty_locker_updater"
+                        }
+                    ]
+                },
+                {
+                    "role_key": {
+                        "module": "Royalty",
+                        "name": "royalty_locker_updater"
+                    },
+                    "assignment": {
+                        "resolution": "Owner"
+                    },
+                    "updater_roles": [
+                        {
+                            "module": "Royalty",
+                            "name": "royalty_locker_updater"
+                        }
+                    ]
+                },
+                {
+                    "role_key": {
+                        "module": "Royalty",
+                        "name": "royalty_claimer"
+                    },
+                    "assignment": {
+                        "resolution": "Owner"
+                    },
+                    "updater_roles": [
+                        {
+                            "module": "Royalty",
+                            "name": "royalty_claimer_updater"
+                        }
+                    ]
+                },
+                {
+                    "role_key": {
+                        "module": "Royalty",
+                        "name": "royalty_claimer_updater"
+                    },
+                    "assignment": {
+                        "resolution": "Owner"
+                    },
+                    "updater_roles": [
+                        {
+                            "module": "Royalty",
+                            "name": "royalty_claimer_updater"
+                        }
+                    ]
+                }
+            ]
+        },
+        "type": "Component"
+    }
+}

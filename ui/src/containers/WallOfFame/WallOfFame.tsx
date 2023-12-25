@@ -3,18 +3,13 @@ import {
     Box, Center, VStack,
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
-import Podium from '../../components/Podium/Podium';
 import { useQuery } from '@tanstack/react-query';
 import { fetchVaultList } from '../../libs/vault/VaultDataService';
-import { FidenaroCircularProgress } from '../../components/Loading/FidenaroCircularProgress/FidenaroCircularProgress';
 import { CardCarousel } from '../../components/Carousel/CardCarousel';
 import { PrimerCard } from '../../components/Card/PrimerCard';
 import { VaultRankingTable } from '../../components/Table/VaultRankingTable';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
-
-
-
 
 interface WallOfFameProps {
     isMinimized: boolean;
@@ -24,9 +19,6 @@ const WallOfFame: React.FC<WallOfFameProps> = ({ isMinimized }) => {
     const { data: vaults, isLoading, isError } = useQuery({ queryKey: ['vault_list'], queryFn: fetchVaultList });
     // Get data to check if wallet is connected
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
-    // Get Wallet Data and Personas
-    //const queryClient = useQueryClient();
-    //const walletData = queryClient.getQueryData<WalletDataState>(['wallet_data'])
 
     if (isLoading) {
         return (

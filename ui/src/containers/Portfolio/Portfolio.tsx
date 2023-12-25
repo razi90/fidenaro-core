@@ -10,7 +10,7 @@ import { FidenaroCircularProgress } from '../../components/Loading/FidenaroCircu
 import { useQuery } from '@tanstack/react-query';
 import { fetchVaultList } from '../../libs/vault/VaultDataService';
 import VaultTable from '../../components/Table/VaultTable/VaultTable';
-import { AppUser } from '../../libs/entities/User';
+import { User } from '../../libs/entities/User';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { PrimerCard } from '../../components/Card/PrimerCard';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
@@ -23,12 +23,9 @@ interface PortfolioProps {
 const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
 
     const { data: vaults, isLoading, isError } = useQuery({ queryKey: ['vault_list'], queryFn: fetchVaultList });
-    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<AppUser>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
     // Get data to check if wallet is connected
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
-    // Get Wallet Data and Personas
-    //const queryClient = useQueryClient();
-    //const walletData = queryClient.getQueryData<WalletDataState>(['wallet_data'])
 
     if (wallet?.persona == undefined) {
         return (
@@ -45,7 +42,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
         );
     }
 
-    if (isLoading || isUserFetchLoading) {
+    if (isLoading || isUserFetchLoading || isWalletFetchLoading) {
         return (
             <Box sx={routePageBoxStyle(isMinimized)} p={'8'}>
                 <Center>
@@ -69,9 +66,9 @@ const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
         return <Box sx={routePageBoxStyle(isMinimized)}>Error loading data</Box>;
     }
 
-    const my_vaults = vaults.filter((vault) => vault.manager === user?.account);
+    const my_vaults = vaults.filter((vault) => vault.manager.id === user?.id);
     const following_faults = vaults.filter((vault) =>
-        vault.followerList.includes(user!.account)
+        vault.followerList.includes(user!.id)
     );
 
 

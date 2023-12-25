@@ -3,7 +3,7 @@ import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody,
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { fetchUserInfo } from "../../../libs/user/UserDataService";
-import { AppUser } from "../../../libs/entities/User";
+import { User } from "../../../libs/entities/User";
 
 import ConfirmButton from "../../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
@@ -24,8 +24,8 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vaultName,
     const [isBalanceError, setIsBalanceError] = useState(false);
 
     // read user data
-    const { data: user, isError: isUserFetchError } = useQuery<AppUser>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
-    const userUsdAmount = user?.assets.USD;
+    const { data: user, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    const userUsdAmount = 0;
 
     if (isUserFetchError) {
         return <Box>Error loading user data</Box>;
