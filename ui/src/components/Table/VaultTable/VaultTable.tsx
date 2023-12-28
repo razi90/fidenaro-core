@@ -133,7 +133,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
 
             // Apply filtering based on the filter criteria
             filteredEntries = filteredEntries.filter((entry) => {
-                const nameMatch = entry.vault.toLowerCase().includes(nameFilter.toLowerCase());
+                const nameMatch = entry.name.toLowerCase().includes(nameFilter.toLowerCase());
                 const totalMatch = entry.total >= totalFilter;
                 const todayMatch = entry.today >= todayFilter;
                 const activeDaysMatch = entry.activeDays >= activeDaysFilter;
@@ -277,9 +277,9 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                                         as={Link}
                                                         href={`/vault/${entry.id}`}
                                                         sx={defaultLinkButtonStyle}
-                                                        title={entry.vault}
+                                                        title={entry.name}
                                                     >
-                                                        <IoEnterOutline /><Text pl={"10px"}>{entry.vault}</Text>
+                                                        <IoEnterOutline /><Text pl={"10px"}>{entry.name}</Text>
                                                     </Button>
                                                 </Tooltip>
                                             </Td>
@@ -308,7 +308,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                                 {
                                                     user?.id === entry.manager.id ?
                                                         (
-                                                            <TradeButton vaultName={entry.vault} vaultID={entry.id} vaultFee={entry.profitShare} isConnected={isConnected} />
+                                                            <TradeButton vaultName={entry.name} vaultID={entry.id} vaultFee={entry.profitShare} isConnected={isConnected} />
                                                         ) : (
                                                             <FollowButton vault={entry} isConnected={isConnected} />
                                                         )

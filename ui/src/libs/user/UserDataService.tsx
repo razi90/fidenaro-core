@@ -1,7 +1,7 @@
 import { User } from '../entities/User';
 import { rdt } from '../radix-dapp-toolkit/rdt';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
-import { USDollar } from '../entities/Asset';
+import { AssetMap } from '../entities/Asset';
 
 interface NonFungibleData {
     data: {
@@ -42,7 +42,6 @@ export const fetchUserInfo = async (): Promise<User> => {
 
         let userLedgerData = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(user.account);
 
-
         user.id = getId(userLedgerData)
 
         if (user.id === '') {
@@ -51,7 +50,7 @@ export const fetchUserInfo = async (): Promise<User> => {
 
         user = await getUserDataFromNft(user)
 
-        user.assets[USDollar.address] = getAssetAmount(userLedgerData, USDollar.address)
+        user.assets = getUserAssets(userLedgerData)
 
         return user;
     } catch (error) {
@@ -123,16 +122,12 @@ function getMetaData(userTokenData: any, key: string): string {
     return metaData
 }
 
-function getAssetAmount(userLedgerData: any, asset_address: string): number {
-    let amount = 0
-
+function getUserAssets(userLedgerData: any) {
+    let assets: AssetMap = {}
     for (const item of userLedgerData.fungible_resources.items) {
-        if (item.resource_address === asset_address) {
-            amount = item.vaults.items[0].amount;
-            break;
-        }
+        let address = item.resource_address
+        let amount = item.vaults.items[0].amount;
+        assets[address] = amount
     }
-    console.log(amount)
-    return amount;
-
+    return assets;
 }

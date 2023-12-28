@@ -34,6 +34,7 @@ export const getVaultById = async (address: string): Promise<Vault> => {
         let description = getMetaData(vaultLedgerData, "description")
 
         let vault_fields = vaultLedgerData.details.state.fields
+        let share_token_address = getFieldValueByKey(vault_fields, "share_token_manager")
         let fee = parseFloat(getFieldValueByKey(vault_fields, "fee"))
 
         let followers = getFollowerIds(vault_fields)
@@ -47,9 +48,10 @@ export const getVaultById = async (address: string): Promise<Vault> => {
         let manager = await fetchUserInfoById(manager_id);
 
         let vault: Vault = {
-            vault: name,
+            name: name,
             id: address,
             description,
+            share_token_address,
             total: 0,
             today: 0,
             activeDays: 0,

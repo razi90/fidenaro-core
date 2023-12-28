@@ -3,8 +3,9 @@ import { User } from "./User";
 
 export interface Vault {
     id: string;
-    vault: string;
+    name: string;
     description: string;
+    share_token_address: string;
     total: number;
     today: number;
     activeDays: number;
