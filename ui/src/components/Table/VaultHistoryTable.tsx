@@ -54,7 +54,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                         <Table size="sm">
                             <Thead>
                                 <Tr>
-                                    <Th isNumeric>Epoch</Th>
+                                    <Th>Time</Th>
                                     <Th>Action</Th>
                                     <Th>From</Th>
                                     <Th isNumeric> Amount</Th>
@@ -87,7 +87,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                             </Tbody>
                             <Tfoot>
                                 <Tr>
-                                    <Th isNumeric>Epoch</Th>
+                                    <Th>Time</Th>
                                     <Th>Action</Th>
                                     <Th>From</Th>
                                     <Th isNumeric> Amount</Th>
@@ -105,7 +105,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                         <Table size="sm">
                             <Thead>
                                 <Tr>
-                                    <Th isNumeric>Epoch</Th>
+                                    <Th>Time</Th>
                                     <Th>Action</Th>
                                     <Th>From</Th>
                                     <Th isNumeric> Amount</Th>
@@ -117,7 +117,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                             <Tbody>
                                 {data?.map((item, index) => (
                                     <Tr sx={tableStyle} key={index}>
-                                        <Td isNumeric>{item.epoch}</Td>
+                                        <Td>{item.timestamp}</Td>
                                         <Td>{item.action}</Td>
                                         <Td>{item.from.ticker}</Td>
                                         <Td isNumeric>{item.from_amount}</Td>
@@ -132,7 +132,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                             </Tbody>
                             <Tfoot>
                                 <Tr>
-                                    <Th isNumeric>Epoch</Th>
+                                    <Th>Time</Th>
                                     <Th>Action</Th>
                                     <Th>From</Th>
                                     <Th isNumeric> Amount</Th>

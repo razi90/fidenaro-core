@@ -1,5 +1,4 @@
 import {
-    Link,
     Button,
     Tooltip,
 } from '@chakra-ui/react';
@@ -8,16 +7,15 @@ import { useState } from 'react';
 
 import { followButtonStyle } from './Styled';
 import TradeDialog from '../../Dialog/TradeDialog/TradeDialog';
+import { Vault } from '../../../libs/entities/Vault';
 
 
 interface TradeButtonProps {
-    vaultName: string;
-    vaultID: string;
-    vaultFee: number;
+    vault: Vault | undefined;
     isConnected: boolean;
 }
 
-export const TradeButton: React.FC<TradeButtonProps> = ({ vaultID, vaultName, vaultFee, isConnected }) => {
+export const TradeButton: React.FC<TradeButtonProps> = ({ vault, isConnected }) => {
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -47,7 +45,7 @@ export const TradeButton: React.FC<TradeButtonProps> = ({ vaultID, vaultName, va
                     </Button>
                 </Tooltip>
             )}
-            <TradeDialog isOpen={isOpen} setIsOpen={setIsOpen} vaultName={vaultName} vaultFee={vaultFee} />
+            <TradeDialog isOpen={isOpen} setIsOpen={setIsOpen} vault={vault} />
         </>
     );
 };
