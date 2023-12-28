@@ -1,5 +1,5 @@
 export const followButtonStyle = {
-    size: "sm",
+    minW: "80px",
     color: "gray.100",
     borderRadius: "3",
     bg: "pElementTransparent.810",

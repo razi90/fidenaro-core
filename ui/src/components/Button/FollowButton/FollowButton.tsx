@@ -1,5 +1,4 @@
 import {
-    Link,
     Button,
     Tooltip,
 } from '@chakra-ui/react';
@@ -27,9 +26,7 @@ export const FollowButton: React.FC<FollowButtonProps> = ({ vault, isConnected }
                     <Button
                         onClick={() => setIsOpen(true)}
                         sx={followButtonStyle}
-                        size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
                         title="Follow the Vault"
-
                     >
                         Follow
                     </Button>
@@ -39,7 +36,6 @@ export const FollowButton: React.FC<FollowButtonProps> = ({ vault, isConnected }
                     <Button
                         onClick={() => setIsOpen(true)}
                         sx={followButtonStyle}
-                        size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
                         title="Follow the Vault"
                         isDisabled={true}
                     >

@@ -26,7 +26,6 @@ export const TradeButton: React.FC<TradeButtonProps> = ({ vault, isConnected }) 
                     <Button
                         onClick={() => setIsOpen(true)}
                         sx={followButtonStyle}
-                        size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
                         title="Trade on this Vault"
                     >
                         Trade
@@ -37,7 +36,6 @@ export const TradeButton: React.FC<TradeButtonProps> = ({ vault, isConnected }) 
                     <Button
                         onClick={() => setIsOpen(true)}
                         sx={followButtonStyle}
-                        size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
                         title="Trade on this Vault"
                         isDisabled={true}
                     >
