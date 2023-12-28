@@ -30,7 +30,7 @@ const Explore: React.FC<ExploreProps> = ({ isMinimized }) => {
                 <Center>
                     <Box maxW="6xl" minH="xl" width="100vw" >
                         <PrimerCard cardTitle={"Explore"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                            <VaultTable smallHeader='Become part of the community' tableData={undefined} isLoading={isLoading} user={user} isConnected={user?.persona == undefined ? false : true} />
+                            <VaultTable smallHeader='Become part of the community' tableData={undefined} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
                         </PrimerCard>
                     </Box >
                 </Center>

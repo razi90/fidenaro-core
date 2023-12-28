@@ -1,16 +1,21 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage } from "@chakra-ui/react";
-import { useQuery } from "@tanstack/react-query";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage, Stepper, StepIndicator, Step, StepStatus, StepIcon, StepSeparator, useSteps, Divider, Progress, Button } from "@chakra-ui/react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { USER_NFT_RESOURCE_ADDRESS, fetchUserInfo } from "../../../libs/user/UserDataService";
 import { User } from "../../../libs/entities/User";
 
-import ConfirmButton from "../../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
 import { USDollar } from "../../../libs/entities/Asset";
 import { Vault } from "../../../libs/entities/Vault";
 import { enqueueSnackbar } from "notistack";
+import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
+import { cancelButtonStyle } from "../../Button/Dialog/CancelButton.tsx/Styled";
+import { TruncatedNumberValue } from "../../Text/TruncatedValue";
+
+
+
 
 interface FollowDialogProps {
     isOpen: boolean,
@@ -20,11 +25,35 @@ interface FollowDialogProps {
 
 
 const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault }) => {
-    const onClose = () => setIsOpen(false);
+
+    // Stepper
+    const steps = [
+        { title: 'First', description: 'Select deposit amount' },
+        { title: 'Second', description: 'Confirm your transaction' },
+        { title: 'Third', description: 'Transaction completed' },
+    ]
+
+    const { activeStep, setActiveStep } = useSteps({
+        index: 0,
+        count: steps.length,
+    })
+
+    const activeStepText = steps[activeStep].description
+
+    // Loading on confirmation
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Modal
     const initialRef = useRef(null)
     const [inputValue, setInputValue] = useState('');
     const [isBalanceError, setIsBalanceError] = useState(false);
+    const onClose = () => {
+        setIsOpen(false);
+        setActiveStep(0);
 
+    }
+
+    const queryClient = useQueryClient();
     // read user data
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
 
@@ -45,7 +74,30 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
         setIsBalanceError(Number(value) > userUsdAmount!);
     };
 
+
     const deposit = async () => {
+
+        // mark the action is in loading state
+        setIsLoading(true);
+        setActiveStep(1);
+
+        // check if name is too short
+        if (inputValue.trim().length <= 0) {
+            setIsLoading(false);
+            setActiveStep(0);
+            enqueueSnackbar('Sorry, no deposit amount is defined.', { variant: 'error' });
+            return
+        }
+
+        // check if value is 0
+        if (parseFloat(inputValue) <= 0) {
+            setIsLoading(false);
+            setActiveStep(0);
+            enqueueSnackbar('Sorry, the amount of the transaction is not valid.', { variant: 'error' });
+            return
+        }
+
+
         // build manifast to create a trade vault
         let manifest = `
             CALL_METHOD
@@ -100,12 +152,19 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
         if (result.isOk()) {
             enqueueSnackbar(`Successfully deposited into vault "${vault?.name}".`, { variant: 'success' });
             console.log(`Successfully deposited into vault "${vault?.name}". Value ${result.value}`)
+
+            queryClient.invalidateQueries({ queryKey: ['user_info'] })
+            setActiveStep(2);
         }
 
         if (result.isErr()) {
             enqueueSnackbar(`Failed to deposit into vault "${vault?.name}"`, { variant: 'error' });
             console.log("Failed to deposit: ", result.error)
+            setActiveStep(0);
+
         }
+
+        setIsLoading(false);
     };
 
     return (
@@ -113,51 +172,116 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
             <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl" initialFocusRef={initialRef}>
                 <ModalOverlay />
                 <ModalContent >
-                    <ModalHeader>New Following</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <Text>You are about to Follow the Strategy <b>{vault?.name}</b>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
-                        <Box my={4}>
-                            <Text>Wallet balance {userUsdAmount} USD</Text>
-                            <Text><b>Deposit</b></Text>
-                            <FormControl isInvalid={isBalanceError}>
-                                <Input
-                                    ref={initialRef}
-                                    placeholder="0"
-                                    type="number"
-                                    min="0"
-                                    step="0.1"
-                                    value={inputValue}
-                                    onChange={handleChange}
-                                />
-                                {isBalanceError && (
-                                    <FormErrorMessage>Insufficient funds</FormErrorMessage>
-                                )}
-                            </FormControl>
-
-                        </Box>
-                        {/* <Box my={4}>
-                            <Text>Your profit share: {100 - vault?.profitShare}%</Text>
-                        </Box> */}
-                        <Box my={4} color="orange.400">
-                            <Text>⚠️ Please be informed that following a strategy using Covesting Copy-trading Module involves risk of capital loss. Following a strategy could result in a partial or complete loss of your funds, therefore, you should not operate with funds you cannot afford to lose.</Text>
-                        </Box>
-                    </ModalBody>
-
-                    <ModalFooter>
+                    <ModalHeader>New Following
                         <Stack>
-                            <Box>
-                                <Checkbox>I confirm that I have read and agreed to the <Link>Terms and Conditions</Link> and fully understand all the associated risks.</Checkbox>
-                            </Box>
-                            <Box display="flex" alignItems="center" justifyContent="center">
-                                <CancelButton onClick={onClose} />
-                                <ConfirmButton onClick={deposit} />
-                            </Box>
+                            <Divider />
+
+
+                            <Text fontSize='md'>
+                                Action: <b>{activeStepText}</b>
+                            </Text>
+                            <Progress
+                                borderRadius={7}
+                                colorScheme='purple'
+                                value={activeStep * 45 + 10}
+                                height='10px'
+                                width='full'
+                                top='10px'
+
+                            />
                         </Stack>
-                    </ModalFooter>
+
+
+                    </ModalHeader>
+                    <ModalCloseButton />
+
+                    {(activeStep == 0 || activeStep == 1) ?
+                        (
+                            <>
+                                <ModalBody>
+                                    <Text>You are about to Follow the Strategy <b>{vault?.name}</b>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
+                                    <Box my={4}>
+                                        <Text>Wallet balance <Text as='b'><TruncatedNumberValue content={userUsdAmount + ""} /> USD</Text></Text>
+                                        <Text><b>Deposit</b></Text>
+                                        <FormControl isInvalid={isBalanceError}>
+                                            <Input
+                                                ref={initialRef}
+                                                placeholder="0"
+                                                type="number"
+                                                min="0"
+                                                step="0.1"
+                                                value={inputValue}
+                                                onChange={handleChange}
+                                            />
+                                            {isBalanceError && (
+                                                <FormErrorMessage>Insufficient funds</FormErrorMessage>
+                                            )}
+                                        </FormControl>
+
+                                    </Box>
+                                    {/* <Box my={4}>
+<Text>Your profit share: {100 - vault?.profitShare}%</Text>
+</Box> */}
+                                    <Box my={4} color="orange.400">
+                                        <Text fontSize='xs'>⚠️ Please be informed that following a strategy using Covesting Copy-trading Module involves risk of capital loss. Following a strategy could result in a partial or complete loss of your funds, therefore, you should not operate with funds you cannot afford to lose.</Text>
+                                    </Box>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Stack>
+                                        <Box>
+                                            <Checkbox>I confirm that I have read and agreed to the <Link>Terms and Conditions</Link> and fully understand all the associated risks.</Checkbox>
+                                        </Box>
+                                        <Box display="flex" justifyContent='flex-end'>
+                                            <CancelButton onClick={onClose} />
+
+                                            {isLoading ? (
+                                                <Button
+                                                    isLoading
+                                                    loadingText='Confirm on your mobile wallet!'
+                                                    sx={defaultHighlightedLinkButtonStyle}
+                                                >
+                                                    Confirm
+                                                </Button >
+                                            ) : (
+                                                <Button
+                                                    sx={defaultHighlightedLinkButtonStyle}
+                                                    onClick={deposit}
+                                                >
+                                                    Confirm
+                                                </Button >
+                                            )
+                                            }
+                                        </Box>
+                                    </Stack>
+                                </ModalFooter>
+                            </>
+                        ) : (
+                            <>
+                                <ModalBody>
+                                    <Text>You followed successfully the Strategy of <b>{vault?.name}</b>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
+                                    <Box my={4}>
+                                        <Text>Wallet balance <Text as='b'><TruncatedNumberValue content={userUsdAmount + ""} /> USD</Text></Text>
+                                    </Box>
+                                </ModalBody>
+                                <ModalFooter>
+                                    <Stack>
+                                        <Box display="flex" justifyContent='flex-end'>
+                                            <Button
+                                                sx={cancelButtonStyle}
+                                                onClick={onClose}
+                                            >
+                                                Close
+                                            </Button >
+                                        </Box>
+                                    </Stack>
+                                </ModalFooter>
+                            </>
+                        )
+                    }
+
                 </ModalContent>
             </Modal>
-        </Box>
+        </Box >
     );
 }
 
