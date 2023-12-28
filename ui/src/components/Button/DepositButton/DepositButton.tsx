@@ -8,16 +8,16 @@ import { useState } from 'react';
 
 import { followButtonStyle } from './Styled';
 import FollowDialog from '../../Dialog/FollowDialog/FollowDialog';
+import { Vault } from '../../../libs/entities/Vault';
 
 
 
 interface DepositButtonProps {
-    vaultName: string;
-    vaultFee: number;
+    vault: Vault | undefined;
     isConnected: boolean;
 }
 
-export const DepositButton: React.FC<DepositButtonProps> = ({ vaultName, vaultFee, isConnected }) => {
+export const DepositButton: React.FC<DepositButtonProps> = ({ vault, isConnected }) => {
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -48,7 +48,7 @@ export const DepositButton: React.FC<DepositButtonProps> = ({ vaultName, vaultFe
                 </Tooltip>
             )}
 
-            <FollowDialog isOpen={isOpen} setIsOpen={setIsOpen} vaultName={vaultName} vaultFee={vaultFee} />
+            <FollowDialog isOpen={isOpen} setIsOpen={setIsOpen} vault={vault} />
         </>
     );
 };

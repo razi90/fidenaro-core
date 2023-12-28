@@ -27,7 +27,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
     // Get data to check if wallet is connected
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
-    if (wallet?.persona == undefined) {
+    if (user?.persona == undefined) {
         return (
             <Box sx={routePageBoxStyle(isMinimized)}>
                 <Center>
@@ -44,21 +44,10 @@ const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
 
     if (isLoading || isUserFetchLoading || isWalletFetchLoading) {
         return (
-            <Box sx={routePageBoxStyle(isMinimized)} p={'8'}>
-                <Center>
-                    <Box maxW="6xl" minH="xl" width="100vw" >
-                        <VStack spacing={4}>
-                            <PrimerCard cardTitle={"My Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                                <VaultTable smallHeader='' tableData={undefined} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
-                            </PrimerCard>
-                            <PrimerCard cardTitle={"Following Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                                <VaultTable smallHeader='' tableData={undefined} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
-                            </PrimerCard>
-                        </VStack>
-                    </Box >
-                </Center >
-            </Box >
-        );
+            <Box sx={routePageBoxStyle(isMinimized)}>
+                <FidenaroCircularProgress circleSize="30vh" circleBorderThickness="2px" circleImageSize="20vh" />
+            </Box>
+        )
     }
 
     if (isError || isUserFetchError) {
@@ -68,7 +57,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
 
     const my_vaults = vaults.filter((vault) => vault.manager.id === user?.id);
     const following_faults = vaults.filter((vault) =>
-        vault.followerList.includes(user!.id)
+        vault.followers.includes(user!.id)
     );
 
 
@@ -78,10 +67,10 @@ const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
                 <Box maxW="6xl" minH="xl" width="100vw" >
                     <VStack spacing={4}>
                         <PrimerCard cardTitle={"My Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                            <VaultTable smallHeader='' tableData={my_vaults} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
+                            <VaultTable smallHeader='' tableData={my_vaults} isLoading={isLoading} user={user} isConnected={user?.persona == undefined ? false : true} />
                         </PrimerCard>
                         <PrimerCard cardTitle={"Following Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                            <VaultTable smallHeader='' tableData={following_faults} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
+                            <VaultTable smallHeader='' tableData={following_faults} isLoading={isLoading} user={user} isConnected={user?.persona == undefined ? false : true} />
                         </PrimerCard>
                     </VStack>
                 </Box >

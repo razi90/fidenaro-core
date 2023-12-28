@@ -13,9 +13,6 @@ interface CarouselCardProps {
 
 export const CarouselCard: React.FC<CarouselCardProps> = ({ children, index, cardWidth, cardHeight, isLoading }) => {
 
-    console.log("cindex")
-    console.log(index)
-
     return (
         <>
             {index == 0 ? (

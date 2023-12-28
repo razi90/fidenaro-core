@@ -1,30 +1,25 @@
-
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { fetchUserInfo } from "../../../libs/user/UserDataService";
+import { USER_NFT_RESOURCE_ADDRESS, fetchUserInfo } from "../../../libs/user/UserDataService";
 import { User } from "../../../libs/entities/User";
 
 import ConfirmButton from "../../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
-// import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
-
-
-// TODO: use from user
-let componentAddress = "component_tdx_2_1cplgxw6675ss8atu5l8rm2pq77flpqn93aqjl99rveqtnw7w253s0t"
-let usdResource = "resource_tdx_2_1tkk467s802k4r44jltc5c5np7e53lurekcs2cxu5jja5xcs7mk64ld"
+import { USDollar } from "../../../libs/entities/Asset";
+import { Vault } from "../../../libs/entities/Vault";
+import { enqueueSnackbar } from "notistack";
 
 interface FollowDialogProps {
     isOpen: boolean,
     setIsOpen: (isOpen: boolean) => void,
-    vaultName: string
-    vaultFee: number
+    vault: Vault | undefined
 }
 
 
-const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultName, vaultFee }) => {
+const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault }) => {
     const onClose = () => setIsOpen(false);
     const initialRef = useRef(null)
     const [inputValue, setInputValue] = useState('');
@@ -32,11 +27,12 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
 
     // read user data
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
-    const userUsdAmount = 0;
 
     if (isUserFetchError) {
         return <Box>Error loading user data</Box>;
     }
+
+    let userUsdAmount = user?.assets[USDollar.address]
 
     // balance error handling
     const handleChange = (e: { target: { value: any; }; }) => {
@@ -55,19 +51,42 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
             CALL_METHOD
                 Address("${user?.account}")
                 "withdraw"
-                Address("${usdResource}")
-                Decimal("100");
+                Address("${USER_NFT_RESOURCE_ADDRESS}")
+                Decimal("1")
+                ;
             TAKE_ALL_FROM_WORKTOP
-                Address("${usdResource}")
-                Bucket("usdf");
+                Address("${USER_NFT_RESOURCE_ADDRESS}")
+                Bucket("user_token")
+                ;
+            CREATE_PROOF_FROM_BUCKET_OF_NON_FUNGIBLES
+                Bucket("user_token")
+                Array<NonFungibleLocalId>(NonFungibleLocalId("${user?.id}"))
+                Proof("user_token_proof")
+                ;
             CALL_METHOD
-                Address("${componentAddress}")
+                Address("${user?.account}")
+                "withdraw"
+                Address("${USDollar.address}")
+                Decimal("${inputValue}")
+                ;
+            TAKE_ALL_FROM_WORKTOP
+                Address("${USDollar.address}")
+                Bucket("usd")
+                ;
+            CALL_METHOD
+                Address("${vault?.id}")
                 "deposit"
-                Bucket("usdf");
+                Proof("user_token_proof")
+                Bucket("usd")
+                ;
+            RETURN_TO_WORKTOP
+                Bucket("user_token");
             CALL_METHOD
                 Address("${user?.account}")
                 "deposit_batch"
-                Expression("ENTIRE_WORKTOP");`
+                Expression("ENTIRE_WORKTOP")
+                ;
+            `
 
         console.log('deposit manifest: ', manifest)
 
@@ -78,8 +97,15 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
                 version: 1,
             })
 
-        // if (result.isErr()) throw result.error
-        // console.log("Intantiate WalletSDK Result: ", result.value)
+        if (result.isOk()) {
+            enqueueSnackbar(`Successfully deposited into vault "${vault?.vault}".`, { variant: 'success' });
+            console.log(`Successfully deposited into vault "${vault?.vault}". Value ${result.value}`)
+        }
+
+        if (result.isErr()) {
+            enqueueSnackbar(`Failed to deposit into vault "${vault?.vault}"`, { variant: 'error' });
+            console.log("Failed to deposit: ", result.error)
+        }
     };
 
     return (
@@ -90,7 +116,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
                     <ModalHeader>New Following</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <Text>You are about to Follow the Strategy <b>{vaultName}</b>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
+                        <Text>You are about to Follow the Strategy <b>{vault?.vault}</b>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
                         <Box my={4}>
                             <Text>Wallet balance {userUsdAmount} USD</Text>
                             <Text><b>Deposit</b></Text>
@@ -110,9 +136,9 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vaultNam
                             </FormControl>
 
                         </Box>
-                        <Box my={4}>
-                            <Text>Your profit share: {100 - vaultFee}%</Text>
-                        </Box>
+                        {/* <Box my={4}>
+                            <Text>Your profit share: {100 - vault?.profitShare}%</Text>
+                        </Box> */}
                         <Box my={4} color="orange.400">
                             <Text>⚠️ Please be informed that following a strategy using Covesting Copy-trading Module involves risk of capital loss. Following a strategy could result in a partial or complete loss of your funds, therefore, you should not operate with funds you cannot afford to lose.</Text>
                         </Box>

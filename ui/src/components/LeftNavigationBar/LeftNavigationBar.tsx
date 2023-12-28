@@ -5,7 +5,7 @@ import {
     Text,
     VStack,
     Icon,
-
+    Center,
 } from '@chakra-ui/react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 import { FaMedal, FaQuestion, FaBookOpen, FaChartPie, FaChartBar, FaUserCircle } from "react-icons/fa";
@@ -24,6 +24,7 @@ import { User } from '../../libs/entities/User';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
+import CreateUserButton from '../Button/CreateUser/CreateUserButton';
 
 interface LeftNavigationBarProps {
     isMinimized: boolean;
@@ -46,12 +47,8 @@ const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setI
             width={isMinimized ? "60px" : "200px"}
         >
             <VStack align="stretch" sx={leftNavigationMainVStackStyle}>
-                { /* <LeftNavigationButton link="/profile" title="Profile" icon={FaUserCircle} navIsMinimized={isMinimized} /> */}
-                {wallet?.persona == undefined ? (
-                    <LeftNavigationButton
-                        link="/profile"
-                        title={'Profile'}
-                        icon={FaUserCircle}
+                {user?.id == '' ? (
+                    <CreateUserButton
                         navIsMinimized={isMinimized}
                     />
                 ) : (
@@ -98,3 +95,7 @@ const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setI
 };
 
 export default LeftNavigationBar;
+
+function setIsOpen(arg0: boolean) {
+    throw new Error('Function not implemented.');
+}

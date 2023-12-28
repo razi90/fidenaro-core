@@ -1,241 +1,474 @@
-use crate::fidenaro_treasury::fidenaro_treasury::*;
+use crate::fidenaro::fidenaro::Fidenaro;
 use scrypto::prelude::*;
 
-// Define the methods on instantiated components
-external_component! {
-    RadiswapComponentTarget {
-        fn add_liquidity(&mut self, a_tokens: Bucket, b_tokens: Bucket) -> (Bucket, Bucket);
-        fn remove_liquidity(&mut self, lp_tokens: Bucket) -> (Bucket, Bucket);
-        fn swap(&mut self, input_tokens: Bucket) -> Bucket;
-        fn get_pair(&self) -> (ResourceAddress, ResourceAddress);
-    }
+#[derive(ScryptoSbor, PartialEq)]
+pub enum Action {
+    Buy,
+    Sell,
+    Deposit,
+    Withdrawal,
 }
 
 #[derive(ScryptoSbor)]
-enum TradeStatus {
-    Open,
-    Closed,
+pub struct Trade {
+    pub epoch: Epoch,
+    pub timestamp: Instant,
+    pub trade_action: Action,
+    pub from: ResourceAddress,
+    pub from_amount: Decimal,
+    pub to: ResourceAddress,
+    pub to_amount: Decimal,
+    pub price: Decimal,
 }
 
-#[derive(ScryptoSbor, NonFungibleData)]
-struct Trade {
-    stable_coin_amount: Decimal,
-    bought_asset_amount: Decimal,
-    status: TradeStatus,
-    profit: Decimal,
+#[derive(ScryptoSbor)]
+pub struct Transaction {
+    pub action: Action,
+    pub epoch: Epoch,
+    pub timestamp: Instant,
+    pub amount: Decimal,
+    pub user_id: String,
 }
-
-impl Trade {}
 
 #[blueprint]
 mod trade_vault {
+
+    extern_blueprint! {
+        "package_sim1pk2hfv5krdg668ukjdsuzcwgg0vjaraw5xdrntz57dqv30kg3jp504",
+        // "package_tdx_2_1p4at2str4wmwv2g9xm9n3fvsn6v707c26sfsf0pkz8tk3y4gjaan2c",
+        Radiswap {
+            fn swap(&mut self, input_bucket: Bucket) -> Bucket;
+            fn vault_reserves(&self) -> IndexMap<ResourceAddress, Decimal>;
+        }
+    }
+
+    enable_method_auth! {
+        roles {
+            fund_manager => updatable_by: [fund_manager, OWNER];
+        },
+        methods {
+            // Methods with public access
+            deposit => PUBLIC;
+            withdraw => PUBLIC;
+
+            // Methods with admin access
+            swap => restrict_to: [fund_manager, OWNER];
+            withdraw_collected_fee_fund_manager => restrict_to: [fund_manager, OWNER];
+            change_short_description => restrict_to: [fund_manager, OWNER];
+        }
+    }
+
     struct TradeVault {
-        manager: ComponentAddress,
-        radswap: RadiswapComponentTarget,
-        stable_coin_address: ResourceAddress,
-        investment_asset_address: ResourceAddress,
-        stable_coin_pool: Vault,
-        investment_asset_pool: Vault,
-        share_mint_badge: Vault,
-        share_address: ResourceAddress,
-        performance_fee: Decimal,
-        fidenaro_treasury: FidenaroTreasuryComponent,
-        fidenaro_fee: Decimal,
+        fund_name: String,
+        short_description: String,
+        manager_user_id: String,
+        pools: HashMap<ResourceAddress, Vault>,
+        fund_manager_badge: ResourceAddress,
+        share_token_manager: ResourceManager,
+        total_share_tokens: Decimal,
+        fees_fund_manager_vault: Vault,
+        fidenaro: Global<Fidenaro>,
         trades: Vec<Trade>,
+        deposits: Vec<Transaction>,
+        withdrawals: Vec<Transaction>,
+        followers: HashMap<String, Decimal>,
     }
 
     impl TradeVault {
-        pub fn init_trade_vault(
-            manager_wallet_address: ComponentAddress,
-            performance_fee: Decimal,
-            swap_pool_component_address: ComponentAddress,
-        ) -> ComponentAddress {
-            // This is kept in a bucket in self, for automatic minting
-            // and burning of share tokens.
-            let share_mint_badge = ResourceBuilder::new_fungible()
+        pub fn instantiate_trade_vault(
+            user_token: NonFungibleBucket,
+            fund_name: String,
+            fidenaro: ComponentAddress,
+            short_description: String,
+        ) -> (
+            Global<TradeVault>,
+            FungibleBucket,
+            ResourceAddress,
+            NonFungibleBucket,
+        ) {
+            let (address_reservation, component_address) =
+                Runtime::allocate_component_address(TradeVault::blueprint_id());
+
+            let fund_manager_badge: FungibleBucket = ResourceBuilder::new_fungible(OwnerRole::None)
                 .divisibility(DIVISIBILITY_NONE)
-                .metadata("name", "Shares mint badge".to_string())
+                .metadata(metadata! {
+                    init {
+                        "name" => format!("{} Vault Manager Badge", &fund_name), updatable;
+                        "description" => format!("Manager badge for the Fidenaro {} vault.", &fund_name), updatable;
+                        "icon_url" => Url::of("https://fidenaro.com/images/LogoFidenaro.png"), locked;
+                        "tags" => ["manager", "Fidenaro"], locked;
+                    }
+                })
                 .mint_initial_supply(1);
 
-            // These token represent one's share on the capital locked into the vault
-            let share_address = ResourceBuilder::new_fungible()
-                .mintable(rule!(require(share_mint_badge.resource_address())), LOCKED)
-                .burnable(rule!(require(share_mint_badge.resource_address())), LOCKED)
-                .metadata("name", "Trading fund share tokens".to_string())
+            let share_token_manager = ResourceBuilder::new_fungible(OwnerRole::None)
+                .divisibility(DIVISIBILITY_MAXIMUM)
+                .metadata(metadata! {
+                    init {
+                        "name" => format!("{} Share Tokens", &fund_name), updatable;
+                        "description" => format!("Represents investor shares of the Fidenaro {} vault.", &fund_name), updatable;
+                        "icon_url" => Url::of("https://fidenaro.com/images/LogoFidenaro.png"), locked;
+                        "tags" => ["share", "Fidenaro"], locked;
+                    }
+                })
+                .mint_roles(mint_roles! (
+                    minter => rule!(require(global_caller(component_address)));
+                    minter_updater => rule!(deny_all);
+                ))
+                .burn_roles(burn_roles! {
+                    burner => rule!(require(global_caller(component_address)));
+                    burner_updater => rule!(deny_all);
+                })
                 .create_with_no_initial_supply();
 
-            let fidenaro_fee = Decimal::from_str("0.05").unwrap();
+            let fidenaro: Global<Fidenaro> = Global::from(fidenaro);
+            let manager_user_id = user_token.non_fungible_local_id().to_string();
 
-            let trade_vec: Vec<Trade> = Vec::new();
+            let fund_metadata_config = metadata! {
+                roles {
+                    metadata_locker => rule!(
+                        require(
+                        fund_manager_badge.resource_address()
+                        )
+                    );
+                    metadata_locker_updater => rule!(
+                        require(
+                        fund_manager_badge.resource_address()
+                        )
+                    );
+                    metadata_setter => rule!(
+                        require(
+                        fund_manager_badge.resource_address()
+                        )
+                    );
+                    metadata_setter_updater => rule!(
+                        require(
+                        fund_manager_badge.resource_address()
+                        )
+                    );
+                },
+                init {
+                    "name" => format!("{}", fund_name), updatable;
+                    "description" => format!("{}", short_description), updatable;
+                }
+            };
 
-            let radswap = RadiswapComponentTarget::at(swap_pool_component_address);
-            // get resource addresses from the swap pool
-            let (stable_coin_address, investment_asset_address) = radswap.get_pair();
-
-            Self {
-                manager: manager_wallet_address,
-                radswap,
-                stable_coin_address,
-                investment_asset_address,
-                stable_coin_pool: Vault::new(stable_coin_address),
-                investment_asset_pool: Vault::new(investment_asset_address),
-                share_mint_badge: Vault::with_bucket(share_mint_badge),
-                share_address,
-                performance_fee,
-                fidenaro_treasury: FidenaroTreasuryComponent::new(),
-                fidenaro_fee,
-                trades: trade_vec,
+            let component = Self {
+                fund_name,
+                short_description,
+                manager_user_id,
+                fund_manager_badge: fund_manager_badge.resource_address(),
+                pools: HashMap::new(),
+                total_share_tokens: dec!(0),
+                share_token_manager,
+                fees_fund_manager_vault: Vault::new(share_token_manager.address()),
+                fidenaro: fidenaro,
+                trades: Vec::new(),
+                deposits: Vec::new(),
+                withdrawals: Vec::new(),
+                followers: HashMap::new(),
             }
             .instantiate()
-            .globalize()
+            .prepare_to_globalize(OwnerRole::None)
+            .metadata(fund_metadata_config)
+            .roles(roles!(
+                fund_manager => rule!(
+                    require(
+                        fund_manager_badge.resource_address()
+                    )
+                );
+            ))
+            .with_address(address_reservation)
+            .globalize();
+
+            (
+                component,
+                fund_manager_badge,
+                share_token_manager.address(),
+                user_token,
+            )
         }
 
-        /**
-        Deposits a specified amount of stable coins into the vault.
+        //////////////////////////
+        ///methods for everyone///
+        //////////////////////////
 
-        # Arguments
+        pub fn deposit(&mut self, user_token_proof: Proof, deposit: Bucket) -> Bucket {
+            let checked_proof =
+                user_token_proof.check(self.fidenaro.get_user_token_resource_address());
 
-        * `deposit` - The stable coins to be deposited.
-
-        # Returns
-
-        A `Bucket` of newly minted share tokens, proportional in value to the amount of stable coins deposited.
-
-        # Errors
-
-        If the wrong type of stable coin is passed in, the function will fail with an error message.
-        */
-        pub fn deposit(&mut self, deposit: Bucket) -> Bucket {
             let address: ResourceAddress = deposit.resource_address();
             // Ensure that the type of stable coin passed in matches the type stored in the stable asset pool.
             assert!(
-                address == self.stable_coin_pool.resource_address(),
+                self.fidenaro.get_stable_coin_resource_address() == address,
                 "Wrong token type sent"
             );
 
+            // calculate value of all assets
+            let mut total_asset_value = Decimal::zero();
+
+            // we just assume stable coin value is 1$ for now
+            if self.pools.contains_key(&address) {
+                total_asset_value += self.pools.get(&address).unwrap().amount();
+            }
+
+            // calculate value of other assets based on their current price
+            for (asset_address, vault) in self.pools.iter() {
+                if asset_address != &address {
+                    let price = self.get_asset_price(*asset_address);
+                    info!("Price: {}", price);
+                    total_asset_value += vault.amount() * price;
+                }
+            }
+
+            info!("Total value of assets: {}", total_asset_value);
+            // calculate the ratio of deposit value to total value in vault
+            let mut amount_to_mint = Decimal::zero();
+            if !total_asset_value.is_zero() {
+                let ratio = deposit.amount() / total_asset_value;
+                info!("Deposit ratio is {}", ratio);
+                info!("Total shares amount is {}", self.total_share_tokens);
+                amount_to_mint += self.total_share_tokens * ratio;
+            } else {
+                amount_to_mint = deposit.amount();
+            }
+
             // Mint the new share tokens.
-            let shares = self
-                .share_mint_badge
-                .authorize(|| borrow_resource_manager!(self.share_address).mint(deposit.amount()));
 
-            // Store the deposited stable coins in the stable asset pool.
-            self.stable_coin_pool.put(deposit);
+            let resource_manager = self.share_token_manager;
+            let share_tokens = resource_manager.mint(amount_to_mint);
+            self.total_share_tokens += share_tokens.amount();
 
-            shares
-        }
+            let user_id = checked_proof
+                .as_non_fungible()
+                .non_fungible_local_id()
+                .to_string();
 
-        /**
-        Withdraws a specified number of share tokens and returns an equivalent value of stable coins.
-
-        # Arguments
-
-        * `share_tokens` - The share tokens to be withdrawn.
-
-        # Returns
-
-        A `Bucket` of stable coins, equivalent in value to the number of share tokens withdrawn.
-
-        # Errors
-
-        If the wrong type of share token is passed in, the function will fail with an error message.
-        */
-        pub fn withdraw(&mut self, share_tokens: Bucket) -> Bucket {
-            // Ensure that the correct type of share token is being withdrawn
-            assert!(
-                share_tokens.resource_address() == self.share_address,
-                "Wrong share token type"
-            );
-
-            // Get the number of share tokens being withdrawn
-            let share_token_amount = share_tokens.amount();
-
-            // Take the calculated amount of stable coins from the pool
-            let bucket_out = self.stable_coin_pool.take(share_token_amount);
-
-            // Burn the share tokens being withdrawn
-            self.share_mint_badge.authorize(|| {
-                share_tokens.burn();
-            });
-
-            // Return the withdrawn stable coins
-            bucket_out
-        }
-
-        pub fn open_trade(&mut self, input_amount: Decimal) {
-            // get funds from the stable asset pool in the specified amount
-            let input_funds = self.stable_coin_pool.take(input_amount);
-
-            // perform swap from stable coin to the target asset
-            let output_funds = self.radswap.swap(input_funds);
-
-            // calculate the price at which the trade was performed
-            let output_amount = output_funds.amount();
-            // let opening_price = input_amount / output_amount;
-
-            // put bought assets into the investment pool
-            self.investment_asset_pool.put(output_funds);
-
-            // safe the trade meta data
-            self.trades.push(Trade {
-                stable_coin_amount: input_amount,
-                bought_asset_amount: output_amount,
-                status: TradeStatus::Open,
-                profit: Decimal::zero(),
-            });
-
-            let price = input_amount / output_amount;
-
-            info!("Bought BTC for the avg price of {} USD", price);
-        }
-
-        pub fn close_trade(&mut self, trade_index: u32) -> Bucket {
-            // get trade with the specified index
-            let trade = &mut self.trades[trade_index.to_usize().unwrap()];
-            let asset = self.investment_asset_pool.take(trade.bought_asset_amount);
-
-            // swap assets from the trade back to stable coins
-            let mut output_stable_coins = self.radswap.swap(asset);
-            let absolute_output_amount = output_stable_coins.amount();
+            self.followers
+                .entry(user_id.clone())
+                .and_modify(|existing_amount| {
+                    *existing_amount += share_tokens.amount();
+                })
+                .or_insert(share_tokens.amount());
 
             info!(
-                "Sold BTC for the avg price of {} USD",
-                absolute_output_amount / trade.bought_asset_amount
+                "Minted {} share tokens after a deposit amount of {}",
+                share_tokens.amount(),
+                deposit.amount()
             );
 
-            // calculate profit
-            let profit = absolute_output_amount - trade.stable_coin_amount;
-
-            info!("Make {} of profit.", profit);
-
-            // calculate absolute performance fees
-            let absolute_performance_fee = if profit > Decimal::zero() {
-                profit * self.performance_fee
-            } else {
-                Decimal::zero()
+            let deposit_transaction = Transaction {
+                action: Action::Deposit,
+                epoch: Runtime::current_epoch(),
+                timestamp: Clock::current_time(TimePrecision::Minute),
+                amount: deposit.amount(),
+                user_id: user_id.clone(),
             };
 
-            // take fidenaro fees
-            let absolute_fidenaro_fee = absolute_performance_fee * self.fidenaro_fee;
-            let fidenaro_share_bucket = output_stable_coins.take(absolute_fidenaro_fee);
-            info!("{} of profit goes to fidenaro.", absolute_fidenaro_fee);
+            self.deposits.push(deposit_transaction);
 
-            // send fidenaro fee to the treasury
-            self.fidenaro_treasury.deposit(fidenaro_share_bucket);
+            let pool = self
+                .pools
+                .entry(address)
+                .or_insert_with(|| Vault::new(address));
 
-            // take trader fees
-            let absolute_trader_fee = absolute_performance_fee - absolute_fidenaro_fee;
-            let trader_share_bucket = output_stable_coins.take(absolute_trader_fee);
-            info!("{} of profit goes to the trader.", absolute_trader_fee);
+            pool.put(deposit);
 
-            // send rest of stable coins back to the vault
-            self.stable_coin_pool.put(output_stable_coins);
+            share_tokens
+        }
 
-            // close the trade
-            trade.status = TradeStatus::Closed;
-            trade.profit = profit;
+        //method that withdraw tokens from the fund relative to how much sharetokens you put into the method.
+        pub fn withdraw(&mut self, user_token_proof: Proof, share_tokens: Bucket) -> Vec<Bucket> {
+            let checked_proof =
+                user_token_proof.check(self.fidenaro.get_user_token_resource_address());
 
-            // give trader the bucket with his performance fee
-            trader_share_bucket
+            assert!(
+                share_tokens.resource_address() == self.share_token_manager.address(),
+                "Wrong tokens sent. You need to send share tokens."
+            );
+
+            //take fund from pools and put into a Vec<Bucket> called tokens
+            let mut tokens = Vec::new();
+            let your_share = share_tokens.amount() / self.total_share_tokens;
+            for value in self.pools.values_mut() {
+                let amount = your_share * value.amount();
+                tokens.push(value.take(amount));
+            }
+
+            // update total amount
+            self.total_share_tokens -= share_tokens.amount();
+
+            // update follower values
+            let user_id = checked_proof
+                .as_non_fungible()
+                .non_fungible_local_id()
+                .to_string();
+
+            let mut remove_entry = false;
+
+            self.followers
+                .entry(user_id.clone())
+                .and_modify(|existing_amount| {
+                    *existing_amount -= share_tokens.amount();
+                    if existing_amount.is_zero() {
+                        remove_entry = true;
+                    }
+                });
+
+            if remove_entry {
+                self.followers.remove(&user_id);
+            }
+
+            // calculate value of all assets
+            let mut total_asset_value = Decimal::zero();
+
+            // we just assume stable coin value is 1$ for now
+            if self
+                .pools
+                .contains_key(&self.fidenaro.get_stable_coin_resource_address())
+            {
+                total_asset_value += self
+                    .pools
+                    .get(&self.fidenaro.get_stable_coin_resource_address())
+                    .unwrap()
+                    .amount();
+            }
+
+            // calculate value of assets based on their current price
+            for (asset_address, vault) in self.pools.iter() {
+                if asset_address != &self.fidenaro.get_stable_coin_resource_address() {
+                    let price = self.get_asset_price(*asset_address);
+                    info!("Price: {}", price);
+                    total_asset_value += vault.amount() * price;
+                }
+            }
+
+            let withdrawal_transaction = Transaction {
+                action: Action::Withdrawal,
+                epoch: Runtime::current_epoch(),
+                timestamp: Clock::current_time(TimePrecision::Minute),
+                amount: total_asset_value,
+                user_id: user_id.clone(),
+            };
+
+            self.withdrawals.push(withdrawal_transaction);
+
+            // burn sharetokens
+            let resource_manager = self.share_token_manager;
+            resource_manager.burn(share_tokens);
+
+            tokens
+        }
+
+        //////////////////////////////
+        ///methods for fund manager///
+        //////////////////////////////
+
+        pub fn swap(
+            &mut self,
+            from_token_address: ResourceAddress,
+            from_token_amount: Decimal,
+            pool_address: ComponentAddress,
+        ) {
+            assert!(
+                self.fidenaro
+                    .get_whitelisted_pool_addresses()
+                    .contains(&pool_address),
+                "This pool is not whitelisted!"
+            );
+
+            assert!(
+                self.pools.contains_key(&from_token_address),
+                "There is no token in this vault with this address!"
+            );
+
+            let from_pool = self.pools.get_mut(&from_token_address).unwrap();
+            let from_token = from_pool.take(from_token_amount).as_fungible();
+
+            let mut radiswap: Global<Radiswap> = pool_address.into();
+
+            let to_tokens = radiswap.swap(from_token.into());
+            let to_token_address = to_tokens.resource_address();
+            let to_token_amount = to_tokens.amount();
+
+            let pool = self
+                .pools
+                .entry(to_tokens.resource_address())
+                .or_insert_with(|| Vault::new(to_tokens.resource_address()));
+
+            pool.put(to_tokens.into());
+
+            // log transaction and trade data
+
+            let mut trade_action = Action::Sell;
+
+            if self.fidenaro.get_stable_coin_resource_address() == from_token_address {
+                trade_action = Action::Buy;
+            };
+
+            let price;
+            if trade_action == Action::Buy {
+                price = self.get_asset_price(to_token_address);
+            } else {
+                price = self.get_asset_price(from_token_address);
+            };
+
+            let trade = Trade {
+                epoch: Runtime::current_epoch(),
+                timestamp: Clock::current_time(TimePrecision::Minute),
+                trade_action,
+                from: from_token_address,
+                from_amount: from_token_amount,
+                to: to_token_address,
+                to_amount: to_token_amount,
+                price,
+            };
+
+            self.trades.push(trade);
+        }
+
+        pub fn withdraw_collected_fee_fund_manager(&mut self) -> Bucket {
+            self.fees_fund_manager_vault.take_all()
+        }
+
+        pub fn change_short_description(&mut self, short_description: String) {
+            self.short_description = short_description;
+        }
+
+        ///////////////////////
+        /// private methods ///
+        ///////////////////////
+
+        fn get_asset_price(&self, asset_address: ResourceAddress) -> Decimal {
+            assert!(!self.fidenaro.get_whitelisted_pool_addresses().is_empty());
+
+            let mut asset_amount = dec!(0);
+            let mut stable_coin_amount = dec!(0);
+
+            for pool_address in self.fidenaro.get_whitelisted_pool_addresses() {
+                let pool: Global<Radiswap> = pool_address.into();
+                let vault_reserves = pool.vault_reserves();
+                if vault_reserves.contains_key(&asset_address) {
+                    asset_amount += vault_reserves
+                        .get(&asset_address)
+                        .copied()
+                        .unwrap_or(dec!(0));
+                    stable_coin_amount += vault_reserves
+                        .get(&self.fidenaro.get_stable_coin_resource_address())
+                        .copied()
+                        .unwrap_or(dec!(0));
+                }
+            }
+            info!("Asset amount is {}", asset_amount);
+            info!("Stable coin amount is {}", stable_coin_amount);
+
+            if stable_coin_amount.is_zero() {
+                return dec!(0);
+            } else {
+                let price = stable_coin_amount / asset_amount;
+                info!("Asset price is {}", price);
+                return price;
+            }
         }
     }
 }

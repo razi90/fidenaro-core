@@ -1,2 +1,2 @@
-mod fidenaro_treasury;
+mod fidenaro;
 mod trade_vault;

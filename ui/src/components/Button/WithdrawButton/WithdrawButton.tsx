@@ -8,15 +8,15 @@ import { useState } from 'react';
 
 import { followButtonStyle } from './Styled';
 import FollowDialog from '../../Dialog/FollowDialog/FollowDialog';
+import { Vault } from '../../../libs/entities/Vault';
 
 
 interface WithdrawButtonProps {
-    vaultName: string;
-    vaultFee: number;
+    vault: Vault | undefined,
     isConnected: boolean;
 }
 
-export const WithdrawButton: React.FC<WithdrawButtonProps> = ({ vaultName, vaultFee, isConnected }) => {
+export const WithdrawButton: React.FC<WithdrawButtonProps> = ({ vault, isConnected }) => {
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -47,7 +47,7 @@ export const WithdrawButton: React.FC<WithdrawButtonProps> = ({ vaultName, vault
                     </Button>
                 </Tooltip>
             )}
-            <FollowDialog isOpen={isOpen} setIsOpen={setIsOpen} vaultName={vaultName} vaultFee={vaultFee} />
+            <FollowDialog isOpen={isOpen} setIsOpen={setIsOpen} vault={vault} />
         </>
     );
 };

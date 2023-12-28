@@ -29,7 +29,7 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({ rankedVaults, isConn
                             <ValueCard description={"Total profit and loss (PnL)"} value={<PnlText value={vault.pnl} />} isLoading={false} />
                         </Box>
                         <Flex justifyContent='flex-end' w={"100%"} mt={6} px={2}  >
-                            <FollowButton vaultName={vault.vault} vaultFee={vault.profitShare} isConnected={isConnected} />
+                            <FollowButton vault={vault} isConnected={isConnected} />
                         </Flex>
                     </VStack>
                 </CarouselCard>

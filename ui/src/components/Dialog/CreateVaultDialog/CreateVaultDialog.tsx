@@ -2,12 +2,13 @@ import { Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, Moda
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
-import { DataRequestBuilder, WalletDataState } from "@radixdlt/radix-dapp-toolkit";
 import { useQuery } from "@tanstack/react-query";
-import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
-import { componentAddress } from "../../../libs/fidenaro/Config";
+// import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
+import { FidenaroComponentAddress } from "../../../libs/fidenaro/Config";
 import { SetStateAction, useState } from "react";
 import { useSnackbar } from "notistack";
+import { User } from "../../../libs/entities/User";
+import { USER_NFT_RESOURCE_ADDRESS, fetchUserInfo } from "../../../libs/user/UserDataService";
 
 interface CreateVaultDialogProps {
     isOpen: boolean,
@@ -23,12 +24,13 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
     const { enqueueSnackbar } = useSnackbar();
 
     // Get data to check if wallet is connected
-    const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
+    // const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
+    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
 
     // error
 
     // is loading
-    if ((wallet?.persona) == undefined) {
+    if ((user?.persona) == undefined) {
         // Return error JSX if an error occurs during fetching
         return (
             <Box>
@@ -46,8 +48,6 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
             </Box>
         );
     }
-
-    //const accountAddress = wallet.accounts[0].address
     const accountAddress = ""
 
     const createVault = async () => {
@@ -70,17 +70,28 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
         // build manifast to create a trade vault
         let manifest = `
             CALL_METHOD
-                Address("${componentAddress}")
-                "new_vault"
-                "${vaultName}"
-                Decimal("10")
-                "${vaultDescription}"
-                "https://www.pngkey.com/png/full/73-730477_first-name-profile-image-placeholder-png.png"
-                "https://fidenaro.com";
+                Address("${user.account}")
+                "withdraw"
+                Address("${USER_NFT_RESOURCE_ADDRESS}")
+                Decimal("1")
+                ;
+            TAKE_ALL_FROM_WORKTOP
+                Address("${USER_NFT_RESOURCE_ADDRESS}")
+                Bucket("user_token")
+                ;
             CALL_METHOD
-                Address("${wallet.accounts[0].address}")
+                Address("${FidenaroComponentAddress}")
+                "new_vault"
+                Bucket("user_token")
+                "${vaultName}"
+                "${vaultDescription}"
+                ;
+            CALL_METHOD
+                Address("${user.account}")
                 "deposit_batch"
-                Expression("ENTIRE_WORKTOP");`
+                Expression("ENTIRE_WORKTOP")
+                ;
+            `
 
         console.log('new_vault manifest: ', manifest)
 

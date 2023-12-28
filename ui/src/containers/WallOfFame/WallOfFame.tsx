@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Box, Center, VStack,
 } from "@chakra-ui/react";
@@ -10,6 +10,8 @@ import { PrimerCard } from '../../components/Card/PrimerCard';
 import { VaultRankingTable } from '../../components/Table/VaultRankingTable';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
+import { User } from '../../libs/entities/User';
+import { fetchUserInfo } from '../../libs/user/UserDataService';
 
 interface WallOfFameProps {
     isMinimized: boolean;
@@ -27,7 +29,7 @@ const WallOfFame: React.FC<WallOfFameProps> = ({ isMinimized }) => {
                     <Box maxW="6xl" minH="xl" width="100vw" >
                         <VStack spacing={4}>
                             <PrimerCard cardTitle={"Wall of Fame"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                                <CardCarousel rankedVaults={undefined} isConnected={(wallet?.persona) == undefined ? false : true} />
+                                <CardCarousel rankedVaults={undefined} isConnected={(wallet?.persona) === undefined ? false : true} />
                             </PrimerCard>
                             <Box w={"100%"}>
                                 <VaultRankingTable title='Ranking' data={undefined} isLoading={isLoading} />
@@ -54,7 +56,7 @@ const WallOfFame: React.FC<WallOfFameProps> = ({ isMinimized }) => {
                 <Box maxW="6xl" minH="xl" width="100vw" >
                     <VStack spacing={4}>
                         <PrimerCard cardTitle={"Wall of Fame"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                            <CardCarousel rankedVaults={rankedVaults} isConnected={(wallet?.persona) == undefined ? false : true} />
+                            <CardCarousel rankedVaults={rankedVaults} isConnected={(wallet?.persona) === undefined ? false : true} />
                         </PrimerCard>
                         <Box w={"100%"}>
                             <VaultRankingTable title='Ranking' data={rankedVaults} isLoading={isLoading} />

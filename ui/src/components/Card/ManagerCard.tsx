@@ -2,8 +2,8 @@ import { Box, Flex, Heading, Text, Avatar, SkeletonCircle, SkeletonText } from '
 import { descriptionCardStyle } from './Styled';
 
 interface ManagerCardProps {
-    name: string;
-    imageLink: string;
+    name: string | undefined;
+    imageLink: string | undefined;
     isLoading: boolean;
 }
 
