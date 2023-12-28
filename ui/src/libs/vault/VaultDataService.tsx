@@ -35,12 +35,12 @@ export const getVaultById = async (address: string): Promise<Vault> => {
 
         let vault_fields = vaultLedgerData.details.state.fields
         let share_token_address = getFieldValueByKey(vault_fields, "share_token_manager")
+        let manager_badge_address = getFieldValueByKey(vault_fields, "fund_manager_badge")
         let fee = parseFloat(getFieldValueByKey(vault_fields, "fee"))
 
         let followers = getFollowerIds(vault_fields)
 
-        // let trades = getTrades(vault_fields)
-        let trades: Trade[] = []
+        let trades = getTrades(vault_fields)
 
         let assets = getAssets(vaultLedgerData.fungible_resources.items)
 
@@ -52,6 +52,7 @@ export const getVaultById = async (address: string): Promise<Vault> => {
             id: address,
             description,
             share_token_address,
+            manager_badge_address,
             total: 0,
             today: 0,
             activeDays: 0,
@@ -100,15 +101,19 @@ function getTrades(vault_fields: any): Trade[] {
     vault_fields.forEach((field: any) => {
         if (field.field_name == "trades") {
             field.elements.forEach((element: any) => {
+
                 let epoch: number = parseInt(getFieldValueByKey(element.fields, "epoch"));
+                let timestamp: string = formatUnixTimestampToUTC(parseInt(getFieldValueByKey(element.fields, "timestamp")));
                 let action: TradeAction = stringToTradeAction(getFieldVariantNameByKey(element.fields, "trade_action"));
                 let from: Asset = addressToAsset(getFieldValueByKey(element.fields, "from"));
                 let from_amount: number = parseFloat(getFieldValueByKey(element.fields, "from_amount"));
                 let to: Asset = addressToAsset(getFieldValueByKey(element.fields, "to"));
                 let to_amount: number = parseFloat(getFieldValueByKey(element.fields, "to_amount"));
                 let price: number = parseFloat(getFieldValueByKey(element.fields, "price"));
+
                 let trade: Trade = {
                     epoch,
+                    timestamp,
                     action,
                     from,
                     from_amount,
@@ -121,6 +126,11 @@ function getTrades(vault_fields: any): Trade[] {
         }
     })
     return trades;
+}
+
+function formatUnixTimestampToUTC(timestamp: number): string {
+    const date = new Date(timestamp * 1000); // Convert to milliseconds
+    return date.toISOString().replace('T', ' ').substr(0, 19) + ' UTC';
 }
 
 function getAssets(ledgerAssetData: any): AssetMap {

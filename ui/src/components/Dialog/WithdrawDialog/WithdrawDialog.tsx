@@ -31,7 +31,7 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({ isOpen, setIsOpen, vaul
         return <Box>Error loading user data</Box>;
     }
 
-    const userShareTokenAmount = user?.assets[vault!.share_token_address] ?? 0;
+    const userShareTokenAmount = vault ? user?.assets[vault.share_token_address] ?? 0 : 0;
 
     // balance error handling
     const handleChange = (e: { target: { value: any; }; }) => {

@@ -6,6 +6,7 @@ export interface Vault {
     name: string;
     description: string;
     share_token_address: string;
+    manager_badge_address: string;
     total: number;
     today: number;
     activeDays: number;
@@ -42,6 +43,7 @@ export interface VaultHistory {
 }
 export interface Trade {
     epoch: number;
+    timestamp: string;
     action: TradeAction;
     from: Asset;
     from_amount: number;

@@ -11,6 +11,7 @@ export interface Asset {
     ticker: string;
     symbol: JSX.Element;
     address: string;
+    swap_pool: string;
 }
 
 export const Bitcoin: Asset = {
@@ -18,6 +19,7 @@ export const Bitcoin: Asset = {
     ticker: "BTC",
     symbol: <FidenaroIcon icon={FaBitcoin} color="orange.400" />,
     address: "resource_tdx_2_1thl25uw98gzsjh6kwu6hygm04dmvxaf0yp07shd7knvsmxxhxhlqpy",
+    swap_pool: "component_tdx_2_1cqxn9mmsn7ws3f3gwynscmuatxch3cjurqfvgeg6mchlklplrh247p"
 };
 
 export const Ethereum: Asset = {
@@ -25,6 +27,7 @@ export const Ethereum: Asset = {
     ticker: "ETH",
     symbol: <FidenaroIcon icon={FaEthereum} color="pElement.200" />,
     address: "resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3",
+    swap_pool: "component_tdx_2_1cqwaea9esxdung38xuc67pdxvss0refpahnjmuk05jqaphcycse79j"
 };
 
 export const USDollar: Asset = {
@@ -32,6 +35,7 @@ export const USDollar: Asset = {
     ticker: "USD",
     symbol: <FidenaroIcon icon={FaDollarSign} color="green.600" />,
     address: "resource_tdx_2_1tkk467s802k4r44jltc5c5np7e53lurekcs2cxu5jja5xcs7mk64ld",
+    swap_pool: "Unknown"
 };
 
 export const Unknown: Asset = {
@@ -39,6 +43,7 @@ export const Unknown: Asset = {
     ticker: "Unknown",
     symbol: <FidenaroIcon icon={FaQuestion} color="pElement.200" />,
     address: "Unknown",
+    swap_pool: "Unknown"
 };
 
 export function addressToAsset(address: string): Asset {

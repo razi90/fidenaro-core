@@ -28,7 +28,7 @@ import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { useParams } from 'react-router-dom';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
-import SwapButton from '../../components/Button/SwapButton/SwapButton';
+import { TradeButton } from '../../components/Button/TradeButton/TradeButton';
 
 
 interface VaultProps {
@@ -101,9 +101,10 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
 
                             </Flex>
                             <Flex justifyContent='flex-end' w={"100%"} mt={6} px={2}  >
-
-                                <SwapButton />
-
+                                {
+                                    user?.id === vault?.manager.id &&
+                                    <TradeButton vault={vault} isConnected={wallet?.persona !== undefined} />
+                                }
                             </Flex>
 
                         </PrimerCard >
