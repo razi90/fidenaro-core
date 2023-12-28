@@ -13,7 +13,7 @@ import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 import { useQuery } from '@tanstack/react-query';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { User } from '../../libs/entities/User';
-import { FaDiscord, FaTelegram, FaTwitter } from 'react-icons/fa';
+import { FaDiscord, FaTelegram, FaTwitter, FaUserCircle } from 'react-icons/fa';
 import { fetchVaultList } from '../../libs/vault/VaultDataService';
 import ProfileEditButton from '../../components/Button/ProfileEditButton/ProfileEditButton';
 import { PrimerCard } from '../../components/Card/PrimerCard';
@@ -97,7 +97,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
     return (
         <>
             {
-                wallet?.persona == undefined ? (
+                user?.persona == undefined ? (
                     <Box sx={routePageBoxStyle(isMinimized)}>
                         <Center>
                             <Box maxW="6xl" minH="xl" width="100vw" >
@@ -116,7 +116,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                         <Flex flex='1' p={1} >
                                             <VStack pt={4} mr={0} >
                                                 <WrapItem>
-                                                    <Avatar size='2xl' name={user?.name} src={user?.avatar} />{' '}
+                                                    <Avatar size='2xl' name={user?.name} src={user?.avatar !== '' ? user?.avatar : ''} />{' '}
                                                 </WrapItem>
                                                 <Flex >
                                                     <Box flex='1' mx={2}>
@@ -125,7 +125,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                                         </SocialButton>
                                                     </Box>
                                                     <Box flex='1' mx={2}>
-                                                        <SocialButton label={'Telegram'} href={'#'}>
+                                                        <SocialButton label={'Telegram'} href={`https://t.me/@${user?.telegram}`}>
                                                             <FaTelegram />
                                                         </SocialButton>
                                                     </Box>
@@ -139,7 +139,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                             <Box flex='1'>
                                                 <DescriptionCard title='Description' isLoading={isLoading || isUserFetchLoading}>
                                                     {user?.bio}
-                                                </DescriptionCard>
+                                                </DescriptionCard >
                                                 <Flex>
                                                     <ValueCard value={totalFollowers?.toString() ?? ''} description={"Follower"} isLoading={isLoading || isUserFetchLoading} />
                                                     <ValueCard value={totalEquity?.toString() + " $"} description={"Equity"} isLoading={isLoading || isUserFetchLoading} />
@@ -151,15 +151,14 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                                     }} ></ProfileEditButton>
 
                                                 </Flex>
-                                            </Box>
-                                        </Flex>
+                                            </Box >
+                                        </Flex >
 
 
-                                    </PrimerCard>
+                                    </PrimerCard >
 
                                     <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto' isLoading={isLoading}>
                                         <Box p={'4'}>
-
                                             <Flex m={2} >
                                                 <ChartCard
                                                     cardTitle={""}
@@ -183,9 +182,9 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                             </HStack>
                                         </Box>
                                     </PrimerCard>
-                                </Flex>
+                                </Flex >
                             </Box >
-                        </Center>
+                        </Center >
                     </Box >
                 )
             }

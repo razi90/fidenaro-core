@@ -1,8 +1,7 @@
-import UserToken from './UserTokenResponse.json';
 import { User } from '../entities/User';
 import { rdt } from '../radix-dapp-toolkit/rdt';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
-import UserAccountResponse from './UserAccountResponse.json';
+import { USDollar } from '../entities/Asset';
 
 interface NonFungibleData {
     data: {
@@ -16,30 +15,43 @@ interface NonFungibleData {
     };
 }
 
-export const USER_NFT_RESOURCE_ADDRESS = "resource_tdx_2_1n2tw2nl3hjak8kyxv5reslrahrdqdu2qhhn839stjgtlrh40utt0zp"
+export const USER_NFT_RESOURCE_ADDRESS = "resource_tdx_2_1ntkcndzy2rujh6jyp2rgsn5fhuhp8t6ffp3pgv02hlwdegpngtr373"
 
 export const fetchUserInfo = async (): Promise<User> => {
     try {
         const walletData: WalletDataState = rdt.walletApi.getWalletData();
+        let user: User = {
+            account: undefined,
+            persona: undefined,
+            id: '',
+            name: '',
+            bio: '',
+            avatar: '',
+            twitter: '',
+            telegram: '',
+            discord: '',
+            assets: {},
+        }
+
         if (walletData.accounts.length === 0) {
-            throw new Error("Wallet not connected.");
+            return user
         }
 
-        let account = walletData.accounts[0].address;
-        let persona = walletData.persona?.label
+        user.account = walletData.accounts[0].address;
+        user.persona = walletData.persona?.label
 
-        // let userLedgerData = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(account);
-        let userLedgerData = UserAccountResponse
-        let id = getId(userLedgerData)
+        let userLedgerData = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(user.account);
 
-        // let userTokenLedgerData = await rdt.gatewayApi.state.getNonFungibleData(USER_NFT_RESOURCE_ADDRESS, id)
-        let userTokenLedgerData = UserToken
 
-        if (!userTokenLedgerData || !userTokenLedgerData.data) {
-            throw new Error('User has no token. User default.');
+        user.id = getId(userLedgerData)
+
+        if (user.id === '') {
+            return user;
         }
 
-        let user = getUserFromNft(account, persona!, id)
+        user = await getUserDataFromNft(user)
+
+        user.assets[USDollar.address] = getAssetAmount(userLedgerData, USDollar.address)
 
         return user;
     } catch (error) {
@@ -50,9 +62,21 @@ export const fetchUserInfo = async (): Promise<User> => {
 
 export const fetchUserInfoById = async (userId: string): Promise<User> => {
     try {
-        let account = "N/A";
-        let persona = "N/A"
-        let user = getUserFromNft(account, persona, userId)
+        let user: User = {
+            account: undefined,
+            persona: undefined,
+            id: userId,
+            name: '',
+            bio: '',
+            avatar: '',
+            twitter: '',
+            telegram: '',
+            discord: '',
+            assets: {},
+        }
+
+        user = await getUserDataFromNft(user)
+
         return user;
     } catch (error) {
         console.error('Error fetching user info:', error);
@@ -60,38 +84,25 @@ export const fetchUserInfoById = async (userId: string): Promise<User> => {
     }
 }
 
-function getUserFromNft(account: string, persona: string, id: string): User {
-    // let userTokenLedgerData = await rdt.gatewayApi.state.getNonFungibleData(USER_NFT_RESOURCE_ADDRESS, id)
-    let userTokenLedgerData = UserToken
+async function getUserDataFromNft(user: User): Promise<User> {
+    let userTokenLedgerData = await rdt.gatewayApi.state.getNonFungibleData(USER_NFT_RESOURCE_ADDRESS, user.id)
 
     const typedLedgerData = userTokenLedgerData as unknown as NonFungibleData;
 
     let userTokenData = typedLedgerData.data.programmatic_json.fields
-    let name = getMetaData(userTokenData, "user_name")
-    let bio = getMetaData(userTokenData, "bio")
-    let avatar = getMetaData(userTokenData, "pfp_url")
-    let twitter = getMetaData(userTokenData, "twitter")
-    let telegram = getMetaData(userTokenData, "telegram")
-    let discord = getMetaData(userTokenData, "discord")
-
-    let user: User = {
-        account,
-        persona,
-        id,
-        name,
-        bio,
-        avatar,
-        twitter,
-        telegram,
-        discord
-    }
+    user.name = getMetaData(userTokenData, "user_name")
+    user.bio = getMetaData(userTokenData, "bio")
+    user.avatar = getMetaData(userTokenData, "pfp_url")
+    user.twitter = getMetaData(userTokenData, "twitter")
+    user.telegram = getMetaData(userTokenData, "telegram")
+    user.discord = getMetaData(userTokenData, "discord")
 
     return user;
 }
 
 
 function getId(userLedgerData: any): string {
-    let id = "N/A"
+    let id = ''
 
     userLedgerData.non_fungible_resources.items.forEach((item: any) => {
         if (item.resource_address === USER_NFT_RESOURCE_ADDRESS) {
@@ -110,4 +121,18 @@ function getMetaData(userTokenData: any, key: string): string {
         }
     });
     return metaData
+}
+
+function getAssetAmount(userLedgerData: any, asset_address: string): number {
+    let amount = 0
+
+    for (const item of userLedgerData.fungible_resources.items) {
+        if (item.resource_address === asset_address) {
+            amount = item.vaults.items[0].amount;
+            break;
+        }
+    }
+    console.log(amount)
+    return amount;
+
 }

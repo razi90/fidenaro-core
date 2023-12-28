@@ -310,7 +310,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                                         (
                                                             <TradeButton vaultName={entry.vault} vaultID={entry.id} vaultFee={entry.profitShare} isConnected={isConnected} />
                                                         ) : (
-                                                            <FollowButton vaultName={entry.vault} vaultFee={entry.profitShare} isConnected={isConnected} />
+                                                            <FollowButton vault={entry} isConnected={isConnected} />
                                                         )
                                                 }
 

@@ -3,30 +3,24 @@ import { vaultAssetData } from './VaultAssetData';
 import { vaultHistoryData } from './VaultHistoryData';
 import { vaultPerformanceCandleChartData } from './VaultPerformanceData';
 import { vaultProfitabilityChartData } from './VaultProfitabilityData';
-
-import { Asset, addressToAsset } from '../entities/Asset';
+import { Asset, AssetMap, addressToAsset } from '../entities/Asset';
 import { rdt } from '../radix-dapp-toolkit/rdt';
-import { User } from '../entities/User';
-import { useQuery } from '@tanstack/react-query';
-
-const FidenaroComponentAddress: string = "component_tdx_2_1cqkpmaerr2qhkgyjr935g8hdls3x324cm24kvzvh25607kaxgf47r9"
+import { FidenaroComponentAddress } from '../fidenaro/Config';
+import { fetchUserInfoById } from '../user/UserDataService';
 
 export const fetchVaultList = async (): Promise<Vault[]> => {
     // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
     try {
         let tradeVaults: Vault[] = []
         let fidenaroComponentLedgerData = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(FidenaroComponentAddress)
-        // let fidenaroComponentLedgerData = FidenaroResponse
         let tradeVaultComponentAddresses: string[] = getAllTradeVaultAddresses(fidenaroComponentLedgerData)
         for (const address of tradeVaultComponentAddresses) {
             let vault = await getVaultById(address);
             tradeVaults.push(vault);
         }
-        // let tradeVaults = getAllTradeVaults(tradeVaultComponentAddresses)
-        // await new Promise((resolve) => setTimeout(resolve, 200)); // Delay for simulation
         return tradeVaults;
     } catch (error) {
-        console.log("featchVaultList error.")
+        console.log("fetchVaultList error.")
         throw error;
     }
 }
@@ -35,37 +29,22 @@ export const getVaultById = async (address: string): Promise<Vault> => {
     try {
 
         // fetch data from ledged by the address
-        let vaultLedgerData = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(address)
-        // let vaultLedgerData = RaziVaultResponse
-        // if (address == "component_tdx_2_1crdlauczwswuwh5x9h8trswh9pclty26pvy4lxr99vrvrq7fs9e8jt") {
-        //     vaultLedgerData = BitCoinMaxiVaultResponse
-        // }
+        let vaultLedgerData: any = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(address)
         let name = getMetaData(vaultLedgerData, "name")
         let description = getMetaData(vaultLedgerData, "description")
 
-        // let vault_fields = vaultLedgerData.details?.state.fields
-        let fee = parseFloat(getFieldValueByKey(vaultLedgerData, "fee"))
+        let vault_fields = vaultLedgerData.details.state.fields
+        let fee = parseFloat(getFieldValueByKey(vault_fields, "fee"))
 
-        // let manager_id = getFieldValueByKey(vault_fields, "manager_user_id")
-        // let manager = await fetchUserInfoById(manager_id);
-
-        // let followers = getFollowerIds(vault_fields)
-        let followers: string[] = []
+        let followers = getFollowerIds(vault_fields)
 
         // let trades = getTrades(vault_fields)
         let trades: Trade[] = []
 
-        let manager: User = {
-            account: "N/A",
-            persona: "N/A",
-            id: "#0#",
-            name: "BearosSnap",
-            bio: "Best trader in the world.",
-            avatar: "https://pbs.twimg.com/profile_images/1723034496251953152/w9qqFj0F_400x400.jpg",
-            twitter: "ThanosOfCrypto",
-            telegram: "my_telegram",
-            discord: "N/A"
-        }
+        let assets = getAssets(vaultLedgerData.fungible_resources.items)
+
+        let manager_id = getFieldValueByKey(vault_fields, "manager_user_id")
+        let manager = await fetchUserInfoById(manager_id);
 
         let vault: Vault = {
             vault: name,
@@ -80,7 +59,8 @@ export const getVaultById = async (address: string): Promise<Vault> => {
             pnl: 0,
             manager,
             followerList: [],
-            tradeHistory: trades
+            tradeHistory: trades,
+            assets
         }
 
         return vault
@@ -101,76 +81,6 @@ const getAllTradeVaultAddresses = (fidenaroComponentLedgerData: any): string[] =
     });
 
     return componentAddresses
-}
-
-
-const getAllTradeVaults = async (vaultAddresses: string[]): Promise<Vault[]> => {
-    let tradeVaults: Vault[] = []
-
-    try {
-
-        vaultAddresses.forEach(async (address: string) => {
-
-            // fetch data from ledged by the address
-            let vaultLedgerData = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(address)
-            // let vaultLedgerData = RaziVaultResponse
-            // if (address == "component_tdx_2_1crdlauczwswuwh5x9h8trswh9pclty26pvy4lxr99vrvrq7fs9e8jt") {
-            //     vaultLedgerData = BitCoinMaxiVaultResponse
-            // }
-            let name = getMetaData(vaultLedgerData, "name")
-            let description = getMetaData(vaultLedgerData, "description")
-
-            // let vault_fields = vaultLedgerData.details?.state.fields
-            let fee = parseFloat(getFieldValueByKey(vaultLedgerData, "fee"))
-
-            // let manager_id = getFieldValueByKey(vault_fields, "manager_user_id")
-            // let manager = await fetchUserInfoById(manager_id);
-
-            // let followers = getFollowerIds(vault_fields)
-            let followers: string[] = []
-
-            // let trades = getTrades(vault_fields)
-            let trades: Trade[] = []
-
-            let manager: User = {
-                account: "N/A",
-                persona: "N/A",
-                id: "#0#",
-                name: "BearosSnap",
-                bio: "Best trader in the world.",
-                avatar: "https://pbs.twimg.com/profile_images/1723034496251953152/w9qqFj0F_400x400.jpg",
-                twitter: "ThanosOfCrypto",
-                telegram: "my_telegram",
-                discord: "N/A"
-            }
-
-            let vault: Vault = {
-                vault: name,
-                id: address,
-                description,
-                total: 0,
-                today: 0,
-                activeDays: 0,
-                followers: followers,
-                equity: 0,
-                profitShare: fee,
-                pnl: 0,
-                manager,
-                followerList: [],
-                tradeHistory: trades
-            }
-
-            // let vaultPools: string[] = getResourcePools(vaultData)
-            // let assetData = TradeVaultComponent.items.at(0)?.fungible_resources.items
-            // let assets: Asset[] = getAssets(vaultPools, assetData)
-            tradeVaults.push(vault)
-        });
-        return tradeVaults
-    } catch (error) {
-        console.log("featchVaultList error.")
-        throw error;
-    }
-
 }
 
 const getMetaData = (vaultLedgerData: any, key: string): string => {
@@ -211,6 +121,20 @@ function getTrades(vault_fields: any): Trade[] {
     return trades;
 }
 
+function getAssets(ledgerAssetData: any): AssetMap {
+    let assets: AssetMap = {}
+
+    for (const asset_item of ledgerAssetData) {
+        let asset = addressToAsset(asset_item.resource_address)
+        let amount = asset_item.vaults.items[0].amount
+        if (amount != 0) { // Ignore entry for the share token of the vault
+            assets[asset.address] = amount
+        }
+    }
+
+    return assets
+}
+
 function stringToTradeAction(value: string): TradeAction {
     switch (value) {
         case "Buy":
@@ -222,13 +146,15 @@ function stringToTradeAction(value: string): TradeAction {
     }
 }
 
-function getFieldValueByKey(ladger_data: any, key: string): string {
+function getFieldValueByKey(fields: any, key: string): string {
     let fieldValue = 'N/A'
-    ladger_data.details.state.fields.forEach((field: any) => {
+
+    for (const field of fields) {
         if (field.field_name == key) {
             fieldValue = field.value
+            break;
         }
-    })
+    }
     return fieldValue
 }
 
@@ -246,8 +172,8 @@ function getFollowerIds(follower_field: any): string[] {
     let followers: string[] = []
     follower_field.forEach((field: any) => {
         if (field.field_name == "followers") {
-            field.elements.forEach((element: any) => {
-                followers.push(element.value)
+            field.entries.forEach((entry: any) => {
+                followers.push(entry.key.value)
             })
         }
     })

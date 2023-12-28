@@ -6,13 +6,8 @@ import {
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 import { ChartCard } from '../../components/Chart/ChartCard';
 import { ProfitBarChartCard } from '../../components/Chart/ProfitBarChartCard';
-import { FidenaroIcon } from '../../components/Icon/FidenaroIcon'
-import {
-    Text,
-} from "@chakra-ui/react";
 
 import { Flex } from '@chakra-ui/react';
-import { FaBitcoin, FaEthereum } from "react-icons/fa6";
 import { useQuery } from '@tanstack/react-query';
 import { useSnackbar } from "notistack";
 
@@ -27,14 +22,13 @@ import { DescriptionCard } from '../../components/Card/DescriptionCard';
 import { ManagerCard } from '../../components/Card/ManagerCard';
 import { DepositButton } from '../../components/Button/DepositButton/DepositButton';
 import { WithdrawButton } from '../../components/Button/WithdrawButton/WithdrawButton';
-import { fetchVaultAssetData, fetchVaultDummyChartData, fetchVaultHistoryData, fetchVaultList, fetchVaultPerformanceSeries, fetchVaultProfitabilityData, fetchVaultFollowerChartData, fetchVaultTotalChartData, fetchVaultTodayChartData } from '../../libs/vault/VaultDataService';
+import { fetchVaultDummyChartData, fetchVaultPerformanceSeries, fetchVaultProfitabilityData, fetchVaultFollowerChartData, fetchVaultTotalChartData, fetchVaultTodayChartData, getVaultById } from '../../libs/vault/VaultDataService';
 import { User } from '../../libs/entities/User';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
-import { Vault as VaultData, VaultHistory } from '../../libs/entities/Vault';
 import { useParams } from 'react-router-dom';
-import { FidenaroCircularProgress } from '../../components/Loading/FidenaroCircularProgress/FidenaroCircularProgress';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
+import SwapButton from '../../components/Button/SwapButton/SwapButton';
 
 
 interface VaultProps {
@@ -47,7 +41,10 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
 
     const { enqueueSnackbar } = useSnackbar();
 
-    const { data: vaults, isLoading: isVaultFetchLoading, isError } = useQuery({ queryKey: ['vault_list'], queryFn: fetchVaultList });
+    const { data: vault, isLoading: isVaultFetchLoading, isError } = useQuery({
+        queryKey: ['vault_list'],
+        queryFn: () => getVaultById(id!),
+    });
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
     const { data: candleChartData, isLoading: isCandleChartLoading, isError: isCandleChartFetchError } = useQuery({ queryKey: ['candle_chart'], queryFn: fetchVaultPerformanceSeries });
     const { data: dummyChartData, isLoading: isDummyChartLoading, isError: isDummyChartFetchError } = useQuery({ queryKey: ['dummy_chart'], queryFn: fetchVaultDummyChartData });
@@ -55,31 +52,12 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
     const { data: totalChartData, isLoading: isTotalChartLoading, isError: isTotalChartFetchError } = useQuery({ queryKey: ['total_chart'], queryFn: fetchVaultTotalChartData });
     const { data: todayChartData, isLoading: isTodayChartLoading, isError: isTodayChartFetchError } = useQuery({ queryKey: ['today_chart'], queryFn: fetchVaultTodayChartData });
     const { data: profitabilityChartData, isLoading: isProfitabilityChartLoading, isError: isProfitabilityChartFetchError } = useQuery({ queryKey: ['profitability_chart'], queryFn: fetchVaultProfitabilityData });
-    const { data: vaultAssetData, isLoading: isVaultAssetLoading, isError: isVaultAssetFetchError } = useQuery({ queryKey: ['vault_assets'], queryFn: fetchVaultAssetData });
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
-    if (isError || isUserFetchError || isCandleChartFetchError || isDummyChartFetchError || isProfitabilityChartFetchError || isVaultAssetFetchError) {
+    if (isError || isUserFetchError || isCandleChartFetchError || isDummyChartFetchError || isProfitabilityChartFetchError) {
         // Return error JSX if an error occurs during fetching
         enqueueSnackbar("Error loading user data", { variant: "error" });
     }
-
-    //if (!vaults || vaults.length === 0) {
-    //    return (
-    //        <Box sx={routePageBoxStyle(isMinimized)}>
-    //            <Text>No vaults yet</Text>
-    //        </Box>
-    //    );
-    //}
-    //else {
-    let vault = vaults?.find((vault) => vault.id === id);
-
-    //if (!vault) {
-    //    return (
-    //        <Box sx={routePageBoxStyle(isMinimized)}>
-    //            <Text>Vault not found</Text>
-    //        </Box>
-    //    );
-    //} else {
 
     return (
 
@@ -93,18 +71,11 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                     {vault?.vault}
                                 </DescriptionCard>
                                 <Box w={"60%"}>
-                                    <ManagerCard name='John Smith' imageLink='https://purepng.com/public/uploads/large/purepng.com-sapphire-gemsapphiregemstonemineral-corundumaluminium-oxideblue-in-colorfancysapphires-17015289803894slxg.png' isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                    <ManagerCard name={vault?.manager.name} imageLink={vault?.manager.avatar} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 </Box>
                             </Flex>
                             <DescriptionCard title='Description' isLoading={isVaultFetchLoading || isUserFetchLoading}>
-                                Bitcoin Trading with Expert Trader.
-                                Unleashing the Power of Copy Trading for Bitcoin.
-
-                                This unique trading vault is led by an expert trader
-                                with a proven track record in Bitcoin trading.
-                                With a focus solely on Bitcoin, the Crypto Vault offers a secure
-                                and dynamic environment for traders to tap into the potential
-                                of this booming cryptocurrency.
+                                {vault?.description}
                             </DescriptionCard>
 
                             <Flex >
@@ -121,16 +92,21 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                         chartSeries={followerChartData}
                                         isLoading={isFollowerChartLoading} />
                                 </Flex>
+                            </Flex >
+                            <Flex justifyContent='flex-end' w={"100%"} mt={6} px={2}  >
+
+                                <DepositButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
+                                <Box mx={1}></Box>
+                                <WithdrawButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
+
                             </Flex>
                             <Flex justifyContent='flex-end' w={"100%"} mt={6} px={2}  >
 
-                                <DepositButton vaultName='Horst' vaultFee={0.1} isConnected={(wallet?.persona) == undefined ? false : true} />
-                                <Box mx={1}></Box>
-                                <WithdrawButton vaultName='Horst' vaultFee={0.1} isConnected={(wallet?.persona) == undefined ? false : true} />
+                                <SwapButton />
 
                             </Flex>
 
-                        </PrimerCard>
+                        </PrimerCard >
 
                         <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto' isLoading={isVaultFetchLoading || isUserFetchLoading}>
                             <Flex >
@@ -171,7 +147,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             </Flex>
 
                         </PrimerCard>
-                    </Flex>
+                    </Flex >
                     <Flex p={4}>
                         <ChartCard
                             cardTitle={"Performance"}
@@ -195,13 +171,13 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             chartSeries={profitabilityChartData}
                             isLoading={isProfitabilityChartLoading}
                         />
-                        <VaultAssetTable title='Assets' data={vaultAssetData} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                    </Flex>
+                        <VaultAssetTable title='Assets' data={vault?.assets} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                    </Flex >
 
                     <Box p={4}>
-                        <VaultHistoryTable title='History' data={vault?.tradeHistory} isLoading={isVaultFetchLoading || isUserFetchLoading || isVaultAssetLoading} />
+                        <VaultHistoryTable title='History' data={vault?.tradeHistory} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                     </Box>
-                </Box>
+                </Box >
             </Center >
         </Box >
     )

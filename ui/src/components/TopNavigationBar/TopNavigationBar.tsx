@@ -19,9 +19,7 @@ import {
     topNavigationLogoStyle,
     topNavigationHamburgerMenuStyle,
 } from "./Styled";
-
 import FeedbackButton from "../Button/FeedbackButton/FeedbackButton";
-
 import { CreateVaultButton } from "../Button/CreateVault/CreateVault";
 
 

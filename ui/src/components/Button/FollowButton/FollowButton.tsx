@@ -8,15 +8,15 @@ import { useState } from 'react';
 
 import { followButtonStyle } from './Styled';
 import FollowDialog from '../../Dialog/FollowDialog/FollowDialog';
+import { Vault } from '../../../libs/entities/Vault';
 
 
 interface FollowButtonProps {
-    vaultName: string;
-    vaultFee: number;
+    vault: Vault
     isConnected: boolean;
 }
 
-export const FollowButton: React.FC<FollowButtonProps> = ({ vaultName, vaultFee, isConnected }) => {
+export const FollowButton: React.FC<FollowButtonProps> = ({ vault, isConnected }) => {
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -47,7 +47,7 @@ export const FollowButton: React.FC<FollowButtonProps> = ({ vaultName, vaultFee,
                     </Button>
                 </Tooltip>
             )}
-            <FollowDialog isOpen={isOpen} setIsOpen={setIsOpen} vaultName={vaultName} vaultFee={vaultFee} />
+            <FollowDialog isOpen={isOpen} setIsOpen={setIsOpen} vault={vault} />
         </>
     );
 };

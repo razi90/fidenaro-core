@@ -12,6 +12,7 @@ import {
 import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
+import { AssetMap, addressToAsset } from '../../libs/entities/Asset';
 
 
 
@@ -25,17 +26,12 @@ interface VaultAssetTable {
 
 interface VaultAssetTableProps {
     title: string;
-    data: VaultAssetTable[] | undefined;
+    data: AssetMap | undefined;
     isLoading: boolean;
 }
 
 export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, isLoading }) => {
-
     return (
-
-
-
-
         <>
             {
                 isLoading ? (
@@ -47,7 +43,7 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
                                 <Tr>
                                     <Th>Symbol</Th>
                                     <Th>Coin</Th>
-                                    <Th isNumeric>Percentage</Th>
+                                    <Th isNumeric>Amount</Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
@@ -67,7 +63,7 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
                                 <Tr>
                                     <Th>Symbol</Th>
                                     <Th>Coin</Th>
-                                    <Th isNumeric>Percentage</Th>
+                                    <Th isNumeric>Amount</Th>
                                 </Tr>
                             </Tfoot>
                         </Table>
@@ -81,29 +77,29 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
                                 <Tr>
                                     <Th>Symbol</Th>
                                     <Th>Coin</Th>
-                                    <Th isNumeric>Percentage</Th>
+                                    <Th isNumeric>Amount</Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
-                                {data?.map((item, index) => (
-                                    <Tr sx={tableStyle} key={index}>
-                                        <Td>{item.symbol}</Td>
-                                        <Td>
-                                            {item.coin}
-                                            {item.coinAbbreviation}
-                                        </Td>
-                                        <Td isNumeric>
-                                            {item.percentage}
-                                            {item.date}
-                                        </Td>
-                                    </Tr>
-                                ))}
+                                {Object.entries(data!).map(([key, value], index) => {
+                                    const asset = addressToAsset(key);
+                                    return (
+                                        <Tr sx={tableStyle} key={index}>
+                                            <Td>{asset.symbol}</Td>
+                                            <Td>
+                                                {asset.name} ({asset.ticker})
+                                            </Td>
+                                            <Td isNumeric>
+                                                {value}
+                                            </Td>
+                                        </Tr>
+                                    );
+                                })}
                             </Tbody>
                             <Tfoot>
                                 <Tr>
                                     <Th>Symbol</Th>
                                     <Th>Coin</Th>
-                                    <Th isNumeric>Percentage</Th>
                                 </Tr>
                             </Tfoot>
                         </Table>

@@ -25,8 +25,6 @@ const ProfileEditButton: React.FC<(ProfileEditButtonProps)> = () => {
                 </Button>
             </Tooltip>
 
-
-
             <ProfileEditDialog isOpen={isOpen} setIsOpen={setIsOpen} />
         </>
     );

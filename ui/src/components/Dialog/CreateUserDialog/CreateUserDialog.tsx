@@ -1,21 +1,22 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, InputGroup, InputLeftElement, Icon, Checkbox, Textarea, Button } from "@chakra-ui/react";
+import { Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, Textarea, Button, Icon, InputGroup, InputLeftElement } from "@chakra-ui/react";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
-import { FaDiscord, FaTelegram, FaTwitter } from "react-icons/fa";
-import { useQuery } from "@tanstack/react-query";
-import { User } from "../../../libs/entities/User";
-import { USER_NFT_RESOURCE_ADDRESS, fetchUserInfo } from "../../../libs/user/UserDataService";
-import { useEffect, useState } from "react";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
-import { enqueueSnackbar } from "notistack";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
+import { useQuery } from "@tanstack/react-query";
+import { FidenaroComponentAddress } from "../../../libs/fidenaro/Config";
+import { SetStateAction, useState } from "react";
+import { enqueueSnackbar, useSnackbar } from "notistack";
+import { WalletDataState } from "@radixdlt/radix-dapp-toolkit";
+import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
+import { FaTwitter, FaTelegram, FaDiscord } from "react-icons/fa6";
 
-interface ProfileEditDialogProps {
+interface CreateUserDialogProps {
     isOpen: boolean,
     setIsOpen: (isOpen: boolean) => void,
 }
 
 
-const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen }) => {
+const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }) => {
     const onClose = () => setIsOpen(false);
     const [isLoading, setIsLoading] = useState(false);
     const [userName, setUserName] = useState('');
@@ -25,20 +26,32 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
     const [telegram, setTelegram] = useState('');
     const [discord, setDiscord] = useState('');
 
-    useEffect(() => {
-        if (user) {
-            setUserName(user.name || '');
-            setUserBio(user.bio || '');
-            setPfpUrl(user.avatar || '');
-            setTwitter(user.twitter || '');
-            setTelegram(user.telegram || '');
-            setDiscord(user.discord || '');
-        }
-    }, []);
+    // Get data to check if wallet is connected
+    const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
-    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    // error
 
-    const changeProfileData = async () => {
+    // is loading
+    if ((wallet?.persona) == undefined) {
+        // Return error JSX if an error occurs during fetching
+        return (
+            <Box>
+                <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl">
+                    <ModalOverlay />
+                    <ModalContent >
+                        <ModalHeader>Wallet not connected!</ModalHeader>
+                        <ModalCloseButton />
+                        <ModalBody>
+                            <Text>Please connect your Radix DLT Wallet in order to create a Fidenaro Vault.</Text>
+                        </ModalBody>
+
+                    </ModalContent>
+                </Modal>
+            </Box>
+        );
+    }
+
+    const createUser = async () => {
         setIsLoading(true);
 
         // check if name is too short
@@ -83,31 +96,23 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
             return
         }
 
-        let manifest = ''
-
-        if (userName != user?.name) {
-            manifest += getManifestForMetadata("user_name", userName)
-        }
-        if (userBio != user?.bio) {
-            manifest += getManifestForMetadata("bio", userBio)
-        }
-        if (pfpUrl != user?.avatar) {
-            manifest += getManifestForMetadata("pfp_url", pfpUrl)
-        }
-        if (twitter != user?.twitter) {
-            manifest += getManifestForMetadata("twitter", twitter)
-        }
-        if (telegram != user?.telegram) {
-            manifest += getManifestForMetadata("telegram", telegram)
-        }
-        if (discord != user?.discord) {
-            manifest += getManifestForMetadata("discord", discord)
-        }
-
-        if (manifest === '') {
-            enqueueSnackbar('No fields were changed.', { variant: "warning" });
-            return
-        }
+        let manifest = `
+            CALL_METHOD
+                Address("${FidenaroComponentAddress}")
+                "new_user"
+                "${userName}"
+                "${userBio}"
+                "${pfpUrl}"
+                "${twitter}"
+                "${telegram}"
+                "${discord}"
+                ;
+            CALL_METHOD
+                Address("${wallet.accounts[0].address}")
+        "deposit_batch"
+        Expression("ENTIRE_WORKTOP")
+            ;
+        `
 
         console.log(manifest)
 
@@ -118,31 +123,16 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
             })
 
         if (result.isOk()) {
-            enqueueSnackbar(`Metadata successfully changed.`, { variant: 'success' });
-            console.log("Successfully edited profile data: ", result.value);
+            enqueueSnackbar(`Created user successfully.`, { variant: 'success' });
         }
 
         if (result.isErr()) {
-            enqueueSnackbar('Failed to change metadata.', { variant: 'error' });
-            console.log("Failed to create edit profile data: ", result.error);
+            enqueueSnackbar('Failed to create user.', { variant: 'error' });
         }
 
         onClose();
         setIsLoading(false);
-    }
-
-    function getManifestForMetadata(key: string, value: string): string {
-        let manifest = `
-            CALL_METHOD
-            Address("${USER_NFT_RESOURCE_ADDRESS}")
-            "update_non_fungible_data"
-            NonFungibleLocalId("${user?.id}")
-            "${key}"
-            "${value}"
-            ;
-        `
-        return manifest;
-    }
+    };
 
     const isValidUrl = (urlString: string | URL) => {
         try {
@@ -163,10 +153,12 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                     <ModalBody>
                         <Stack spacing={2}>
                             <Input
+                                placeholder="Enter Nickname"
                                 value={userName}
                                 onChange={(e) => setUserName(e.target.value)}
                             />
                             <Textarea
+                                placeholder="Enter Bio"
                                 value={userBio}
                                 onChange={(e) => setUserBio(e.target.value)}
                             />
@@ -224,7 +216,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                         ) : (
                             <Button
                                 sx={defaultHighlightedLinkButtonStyle}
-                                onClick={changeProfileData}
+                                onClick={createUser}
                             >
                                 Confirm
                             </Button >
@@ -240,4 +232,4 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
     );
 }
 
-export default ProfileEditDialog;
+export default CreateUserDialog;
