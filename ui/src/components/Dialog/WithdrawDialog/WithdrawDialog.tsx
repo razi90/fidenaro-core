@@ -8,18 +8,17 @@ import ConfirmButton from "../../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
-import { USDollar } from "../../../libs/entities/Asset";
 import { Vault } from "../../../libs/entities/Vault";
 import { enqueueSnackbar } from "notistack";
 
-interface FollowDialogProps {
+interface WithdrawDialogProps {
     isOpen: boolean,
     setIsOpen: (isOpen: boolean) => void,
     vault: Vault | undefined
 }
 
 
-const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault }) => {
+const WithdrawDialog: React.FC<WithdrawDialogProps> = ({ isOpen, setIsOpen, vault }) => {
     const onClose = () => setIsOpen(false);
     const initialRef = useRef(null)
     const [inputValue, setInputValue] = useState('');
@@ -32,7 +31,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
         return <Box>Error loading user data</Box>;
     }
 
-    let userUsdAmount = user?.assets[USDollar.address] ?? 0;
+    const userShareTokenAmount = user?.assets[vault!.share_token_address] ?? 0;
 
     // balance error handling
     const handleChange = (e: { target: { value: any; }; }) => {
@@ -42,7 +41,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
         if (value < 0) return;
 
         setInputValue(value);
-        setIsBalanceError(Number(value) > userUsdAmount!);
+        setIsBalanceError(Number(value) > userShareTokenAmount!);
     };
 
     const deposit = async () => {
@@ -66,18 +65,18 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
             CALL_METHOD
                 Address("${user?.account}")
                 "withdraw"
-                Address("${USDollar.address}")
+                Address("${vault?.share_token_address}")
                 Decimal("${inputValue}")
                 ;
             TAKE_ALL_FROM_WORKTOP
-                Address("${USDollar.address}")
-                Bucket("usd")
+                Address("${vault?.share_token_address}")
+                Bucket("shares")
                 ;
             CALL_METHOD
                 Address("${vault?.id}")
-                "deposit"
+                "withdraw"
                 Proof("user_token_proof")
-                Bucket("usd")
+                Bucket("shares")
                 ;
             RETURN_TO_WORKTOP
                 Bucket("user_token");
@@ -98,13 +97,13 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
             })
 
         if (result.isOk()) {
-            enqueueSnackbar(`Successfully deposited into vault "${vault?.name}".`, { variant: 'success' });
-            console.log(`Successfully deposited into vault "${vault?.name}". Value ${result.value}`)
+            enqueueSnackbar(`Successfully withdrew from vault "${vault?.name}".`, { variant: 'success' });
+            console.log(`Successfully withdrew from vault "${vault?.name}". Value ${result.value}`)
         }
 
         if (result.isErr()) {
-            enqueueSnackbar(`Failed to deposit into vault "${vault?.name}"`, { variant: 'error' });
-            console.log("Failed to deposit: ", result.error)
+            enqueueSnackbar(`Failed to withdraw from vault "${vault?.name}"`, { variant: 'error' });
+            console.log("Failed to withdraw: ", result.error)
         }
     };
 
@@ -113,13 +112,13 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
             <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl" initialFocusRef={initialRef}>
                 <ModalOverlay />
                 <ModalContent >
-                    <ModalHeader>New Following</ModalHeader>
+                    <ModalHeader>Withdraw</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
-                        <Text>You are about to Follow the Strategy <b>{vault?.name}</b>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
+                        <Text>You are about to withdraw your position from the vault <b>{vault?.name}</b>.</Text>
                         <Box my={4}>
-                            <Text>Wallet balance {userUsdAmount} USD</Text>
-                            <Text><b>Deposit</b></Text>
+                            <Text>Wallet balance {userShareTokenAmount} vault shares</Text>
+                            <Text><b>Withdraw</b></Text>
                             <FormControl isInvalid={isBalanceError}>
                                 <Input
                                     ref={initialRef}
@@ -135,12 +134,6 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
                                 )}
                             </FormControl>
 
-                        </Box>
-                        {/* <Box my={4}>
-                            <Text>Your profit share: {100 - vault?.profitShare}%</Text>
-                        </Box> */}
-                        <Box my={4} color="orange.400">
-                            <Text>⚠️ Please be informed that following a strategy using Covesting Copy-trading Module involves risk of capital loss. Following a strategy could result in a partial or complete loss of your funds, therefore, you should not operate with funds you cannot afford to lose.</Text>
                         </Box>
                     </ModalBody>
 
@@ -161,4 +154,4 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
     );
 }
 
-export default FollowDialog;
+export default WithdrawDialog;
