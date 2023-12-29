@@ -28,6 +28,7 @@ mod fidenaro {
             new_user => PUBLIC;
             new_vault => PUBLIC;
             get_vaults => PUBLIC;
+            update_user_data => PUBLIC;
             get_fidenaro_withdrawal_fee => PUBLIC;
             get_whitelisted_pool_addresses => PUBLIC;
             get_stable_coin_resource_address => PUBLIC;
@@ -58,7 +59,7 @@ mod fidenaro {
             let (address_reservation, component_address) =
                 Runtime::allocate_component_address(Fidenaro::blueprint_id());
 
-            let admin_badge: Bucket = ResourceBuilder::new_fungible(OwnerRole::None)
+            let admin_badge: Bucket = ResourceBuilder::new_fungible(owner_role.clone())
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata(metadata! {
                     init {
@@ -71,23 +72,28 @@ mod fidenaro {
                 .mint_initial_supply(1)
                 .into();
 
-            let user_token_manager =
-                ResourceBuilder::new_integer_non_fungible::<User>(OwnerRole::None)
-                    .metadata(metadata!(
-                        init {
-                            "name" => "Fidenaro User", locked;
-                            "description" => "A user NFT for Fidenaro users", locked;
-                        }
-                    ))
-                    .mint_roles(mint_roles! (
-                        minter => rule!(require(global_caller(component_address)));
-                        minter_updater => rule!(deny_all);
-                    ))
-                    .burn_roles(burn_roles! {
-                        burner => rule!(require(global_caller(component_address)));
-                        burner_updater => rule!(deny_all);
-                    })
-                    .create_with_no_initial_supply();
+            let user_token_manager = ResourceBuilder::new_integer_non_fungible::<User>(
+                owner_role.clone(),
+            )
+            .metadata(metadata!(
+                init {
+                    "name" => "Fidenaro User", updatable;
+                    "description" => "A user NFT for Fidenaro users", updatable;
+                }
+            ))
+            .mint_roles(mint_roles! (
+                minter => rule!(require(global_caller(component_address)));
+                minter_updater => rule!(deny_all);
+            ))
+            .burn_roles(burn_roles! {
+                burner => rule!(require(global_caller(component_address)));
+                burner_updater => rule!(deny_all);
+            })
+            .non_fungible_data_update_roles(non_fungible_data_update_roles! {
+                non_fungible_data_updater => rule!(require(global_caller(component_address)));
+                non_fungible_data_updater_updater => rule!(deny_all);
+            })
+            .create_with_no_initial_supply();
 
             let component: Global<Fidenaro> = Self {
                 vaults: HashMap::new(),
@@ -188,6 +194,24 @@ mod fidenaro {
             );
 
             (vault_manager_badge, user_token)
+        }
+
+        pub fn update_user_data(
+            &mut self,
+            user_token_proof: Proof,
+            data_map: HashMap<String, String>,
+        ) {
+            let checked_proof = user_token_proof.check(self.get_user_token_resource_address());
+            let user_token = checked_proof.as_non_fungible();
+            let non_fungible_local_id = user_token.non_fungible_local_id();
+
+            for (field_name, new_data) in data_map.iter() {
+                self.user_token_manager.update_non_fungible_data(
+                    &non_fungible_local_id,
+                    field_name,
+                    new_data,
+                );
+            }
         }
 
         pub fn get_vaults(
