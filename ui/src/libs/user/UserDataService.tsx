@@ -59,7 +59,33 @@ export const fetchUserInfo = async (): Promise<User> => {
     }
 }
 
+// TODO Andreas fragen, wie wir es mit dem Account lösen können.
+export const fetchUserInfoByAccount = async (account: string): Promise<User> => {
+    try {
+        let user: User = {
+            account: account,
+            persona: undefined,
+            id: '',
+            name: '',
+            bio: '',
+            avatar: '',
+            twitter: '',
+            telegram: '',
+            discord: '',
+            assets: {},
+        }
+
+        user = await getUserDataFromNft(user)
+
+        return user;
+    } catch (error) {
+        console.error('Error fetching user info:', error);
+        throw error;
+    }
+}
+
 export const fetchUserInfoById = async (userId: string): Promise<User> => {
+
     try {
         let user: User = {
             account: undefined,

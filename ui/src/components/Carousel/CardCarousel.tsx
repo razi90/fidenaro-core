@@ -20,7 +20,7 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({ rankedVaults, isConn
                 <CarouselCard index={index} cardWidth='100%' cardHeight='100%' isLoading={false}>
                     <VStack mt='4' spacing='0'>
                         <Box w={"100%"}>
-                            <ManagerCard name={vault.manager.name} imageLink={vault.manager.avatar} isLoading={false} />
+                            <ManagerCard name={vault.manager.name} imageLink={vault.manager.avatar} profileID={vault?.manager.id} isLoading={false} />
                         </Box>
                         <Box w={"100%"}>
                             <LinkCard name={vault.name} tooltip='Go to vault view' urlLink={`/vault/${vault.id}`} isLoading={false} />

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import CreateUserDialog from '../../Dialog/CreateUserDialog/CreateUserDialog';
 import { FaUserCircle } from "react-icons/fa";
-import { Box, Button, Text } from '@chakra-ui/react';
+import { Box, Button, Text, Link } from '@chakra-ui/react';
 import { LeftNavigationButtonIcon } from '../../LeftNavigationBar/LeftNavigationButtonIcon';
 import { leftNavigationButtonStyle } from '../../LeftNavigationBar/Styled';
 
@@ -15,6 +15,7 @@ export const CreateUserButton: React.FC<(CreateUserButtonProps)> = ({ navIsMinim
     return (
         <>
             <Button
+                as={Link}
                 onClick={() => setIsOpen(true)}
                 sx={leftNavigationButtonStyle}
                 title={'Create User'}

@@ -1,4 +1,4 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, InputGroup, InputLeftElement, Icon, Checkbox, Textarea, Button } from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, InputGroup, InputLeftElement, Icon, Checkbox, Textarea, Button, InputLeftAddon } from "@chakra-ui/react";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { FaDiscord, FaTelegram, FaTwitter } from "react-icons/fa";
 import { useQuery } from "@tanstack/react-query";
@@ -184,6 +184,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                                 <InputLeftElement pointerEvents='none'>
                                     <Icon as={FaTwitter} boxSize={5} />
                                 </InputLeftElement>
+                                <InputLeftAddon pl={10} children="https://twitter.com/" opacity={0.5} />
                                 <Input
                                     placeholder="Enter Your Twitter Handle"
                                     value={twitter}
@@ -194,6 +195,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                                 <InputLeftElement pointerEvents='none'>
                                     <Icon as={FaTelegram} boxSize={5} />
                                 </InputLeftElement>
+                                <InputLeftAddon pl={10} children="https://t.me/@" opacity={0.5} />
                                 <Input
                                     placeholder="Enter Your Telegram Handle"
                                     value={telegram}
@@ -204,6 +206,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                                 <InputLeftElement pointerEvents='none'>
                                     <Icon as={FaDiscord} boxSize={5} />
                                 </InputLeftElement>
+                                <InputLeftAddon pl={10} children="https://discord.gg/" opacity={0.5} />
                                 <Input
                                     placeholder="Enter Your Discord Handle"
                                     value={discord}

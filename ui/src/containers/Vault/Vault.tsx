@@ -71,7 +71,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                     {vault?.name}
                                 </DescriptionCard>
                                 <Box w={"60%"}>
-                                    <ManagerCard name={vault?.manager.name} imageLink={vault?.manager.avatar} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                    <ManagerCard name={vault?.manager.name} imageLink={vault?.manager.avatar} profileID={vault?.manager.id} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 </Box>
                             </Flex>
                             <DescriptionCard title='Description' isLoading={isVaultFetchLoading || isUserFetchLoading}>
