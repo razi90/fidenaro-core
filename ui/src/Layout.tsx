@@ -49,7 +49,7 @@ const Layout: React.FC = () => {
                         <Route path="/" element={<Explore isMinimized={isMinimized} />} />
                         <Route path="/portfolio" element={<Portfolio isMinimized={isMinimized} />} />
                         <Route path="/walloffame" element={<WallOfFame isMinimized={isMinimized} />} />
-                        <Route path="/profile" element={<Profile isMinimized={isMinimized} />} />
+                        <Route path="/profile/:id" element={<Profile isMinimized={isMinimized} />} />
                         <Route path="/vault/:id" element={<Vault isMinimized={isMinimized} />} />
                         <Route
                             path="*"

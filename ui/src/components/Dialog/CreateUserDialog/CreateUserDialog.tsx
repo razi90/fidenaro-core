@@ -1,4 +1,4 @@
-import { Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, Textarea, Button, Icon, InputGroup, InputLeftElement } from "@chakra-ui/react";
+import { Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, Textarea, Button, Icon, InputGroup, InputLeftElement, InputLeftAddon } from "@chakra-ui/react";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
@@ -29,9 +29,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
     // Get data to check if wallet is connected
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
-    // error
-
-    // is loading
+    // is not connected to the radix chain
     if ((wallet?.persona) == undefined) {
         // Return error JSX if an error occurs during fetching
         return (
@@ -42,7 +40,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
                         <ModalHeader>Wallet not connected!</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody>
-                            <Text>Please connect your Radix DLT Wallet in order to create a Fidenaro Vault.</Text>
+                            <Text>Please connect your Radix DLT Wallet in order to create a Fidenaro Profile.</Text>
                         </ModalBody>
 
                     </ModalContent>
@@ -176,6 +174,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
                                 <InputLeftElement pointerEvents='none'>
                                     <Icon as={FaTwitter} boxSize={5} />
                                 </InputLeftElement>
+                                <InputLeftAddon pl={10} children="https://twitter.com/" opacity={0.5} />
                                 <Input
                                     placeholder="Enter Your Twitter Handle"
                                     value={twitter}
@@ -186,6 +185,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
                                 <InputLeftElement pointerEvents='none'>
                                     <Icon as={FaTelegram} boxSize={5} />
                                 </InputLeftElement>
+                                <InputLeftAddon pl={10} children="https://t.me/@" opacity={0.5} />
                                 <Input
                                     placeholder="Enter Your Telegram Handle"
                                     value={telegram}
@@ -196,6 +196,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
                                 <InputLeftElement pointerEvents='none'>
                                     <Icon as={FaDiscord} boxSize={5} />
                                 </InputLeftElement>
+                                <InputLeftAddon pl={10} children="https://discord.gg/" opacity={0.5} />
                                 <Input
                                     placeholder="Enter Your Discord Handle"
                                     value={discord}

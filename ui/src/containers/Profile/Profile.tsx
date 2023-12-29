@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 import { useQuery } from '@tanstack/react-query';
-import { fetchUserInfo } from '../../libs/user/UserDataService';
+import { fetchUserInfo, fetchUserInfoById } from '../../libs/user/UserDataService';
 import { User } from '../../libs/entities/User';
 import { FaDiscord, FaTelegram, FaTwitter, FaUserCircle } from 'react-icons/fa';
 import { fetchVaultList } from '../../libs/vault/VaultDataService';
@@ -24,12 +24,18 @@ import { ProfileStatsTable } from '../../components/Table/ProfileStatsTable';
 import { ChartCard } from '../../components/Chart/ChartCard';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
+import { useParams } from 'react-router-dom';
 
 interface ProfileProps {
     isMinimized: boolean;
 }
 
 const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
+
+    // get user id from link
+    const { id } = useParams();
+
+
     const seriesData = [
         {
             name: 'X',
@@ -57,10 +63,10 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
     ];
 
 
-
-
     const { data: vaults, isLoading, isError } = useQuery({ queryKey: ['vault_list'], queryFn: fetchVaultList });
-    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    const { data: currentUser, isLoading: isCurrentUserFetchLoading, isError: isCurrentUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    // get user by id
+    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['ext_user_info'], queryFn: () => fetchUserInfoById(`#${id}#` ?? "") });
     // Get data to check if wallet is connected
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
@@ -97,7 +103,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
     return (
         <>
             {
-                user?.persona == undefined ? (
+                wallet?.persona == undefined ? (
                     <Box sx={routePageBoxStyle(isMinimized)}>
                         <Center>
                             <Box maxW="6xl" minH="xl" width="100vw" >
@@ -119,21 +125,33 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                                     <Avatar size='2xl' name={user?.name} src={user?.avatar !== '' ? user?.avatar : ''} />{' '}
                                                 </WrapItem>
                                                 <Flex >
-                                                    <Box flex='1' mx={2}>
-                                                        <SocialButton label={'Twitter'} href={`https://www.twitter.com/${user?.twitter}`}>
-                                                            <FaTwitter />
-                                                        </SocialButton>
-                                                    </Box>
-                                                    <Box flex='1' mx={2}>
-                                                        <SocialButton label={'Telegram'} href={`https://t.me/@${user?.telegram}`}>
-                                                            <FaTelegram />
-                                                        </SocialButton>
-                                                    </Box>
-                                                    <Box flex='1' mx={2}>
-                                                        <SocialButton label={'Discord'} href={'#'}>
-                                                            <FaDiscord />
-                                                        </SocialButton>
-                                                    </Box>
+                                                    {user?.twitter.length === 0 ? (
+                                                        null
+                                                    ) : (
+                                                        <Box flex='1' mx={2}>
+                                                            <SocialButton label={'Twitter'} href={`https://www.twitter.com/${user?.twitter}`}>
+                                                                <FaTwitter />
+                                                            </SocialButton>
+                                                        </Box>
+                                                    )}
+                                                    {user?.telegram.length === 0 ? (
+                                                        null
+                                                    ) : (
+                                                        <Box flex='1' mx={2}>
+                                                            <SocialButton label={'Telegram'} href={`https://t.me/@${user?.telegram}`}>
+                                                                <FaTelegram />
+                                                            </SocialButton>
+                                                        </Box>
+                                                    )}
+                                                    {user?.discord.length === 0 ? (
+                                                        null
+                                                    ) : (
+                                                        <Box flex='1' mx={2}>
+                                                            <SocialButton label={'Discord'} href={`https://discord.gg/${user?.discord}`}>
+                                                                <FaDiscord />
+                                                            </SocialButton>
+                                                        </Box>
+                                                    )}
                                                 </Flex>
                                             </VStack>
                                             <Box flex='1'>

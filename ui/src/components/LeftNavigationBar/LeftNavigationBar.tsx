@@ -41,19 +41,21 @@ const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setI
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
+    const filteredUserId = user?.id.replace(/#/g, "");
+
     return (
         <Box
             sx={leftNavigationMainBoxStyle}
             width={isMinimized ? "60px" : "200px"}
         >
             <VStack align="stretch" sx={leftNavigationMainVStackStyle}>
-                {user?.id == '' ? (
+                {user?.id == '' || wallet?.persona == undefined ? (
                     <CreateUserButton
                         navIsMinimized={isMinimized}
                     />
                 ) : (
                     <LeftNavigationButton
-                        link="/profile"
+                        link={`/profile/${filteredUserId}`}
                         title={user ? user.name : 'Profile'}
                         icon={user ? user.avatar : FaUserCircle}
                         navIsMinimized={isMinimized}
