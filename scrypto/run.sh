@@ -260,6 +260,46 @@ OP=$(resim run ./tmp/$manifest_name)
 
 export user_token_resource_address=resource_sim1n2wpeygqzaz4rsf0urhv6mf2m386dzr9ggemuqjw0ztnj7gqkvuyvn
 
+export manifest_name="{$counter}_update_user_data.rtm"
+counter=$((counter + 1))
+cat << EOF > ./tmp/$manifest_name
+CALL_METHOD
+    Address("$account")
+    "lock_fee"
+    Decimal("10")
+    ;
+CALL_METHOD Address("$account") "withdraw" Address("$user_token_resource_address") Decimal("1")
+    ;
+TAKE_NON_FUNGIBLES_FROM_WORKTOP
+    Address("$user_token_resource_address")
+    Array<NonFungibleLocalId>(NonFungibleLocalId("#0#"))
+    Bucket("user_token")
+    ;
+CREATE_PROOF_FROM_BUCKET_OF_NON_FUNGIBLES
+    Bucket("user_token")
+    Array<NonFungibleLocalId>(NonFungibleLocalId("#0#"))
+    Proof("proof1b")
+    ;
+CALL_METHOD
+    Address("$fidenaro_component")
+    "update_user_data"
+    Proof("proof1b")
+    Map<String, String>(
+        "user_name" => "Razi Corleone",
+        "twitter" => "ThanosOfCrypto",
+        "telegram" => ""
+    )
+    ;
+RETURN_TO_WORKTOP Bucket("user_token");
+CALL_METHOD
+    Address("$account")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+    ;
+EOF
+
+resim run ./tmp/$manifest_name
+
 export manifest_name="{$counter}_create_vault.rtm"
 counter=$((counter + 1))
 cat << EOF > ./tmp/$manifest_name

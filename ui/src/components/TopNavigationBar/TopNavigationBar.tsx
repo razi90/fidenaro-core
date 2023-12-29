@@ -21,6 +21,7 @@ import {
 } from "./Styled";
 import FeedbackButton from "../Button/FeedbackButton/FeedbackButton";
 import { CreateVaultButton } from "../Button/CreateVault/CreateVault";
+import GetFusdButton from "../Button/GetFUSD/GetFUSDButton";
 
 
 
@@ -47,6 +48,8 @@ export default function TopNavigationBar() {
                         <Spacer />
 
                         <FeedbackButton />
+
+                        <GetFusdButton />
 
                         <CreateVaultButton user="John Smith" />
 

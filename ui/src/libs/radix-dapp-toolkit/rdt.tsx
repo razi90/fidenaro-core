@@ -1,7 +1,6 @@
 import { DataRequestBuilder, RadixDappToolkit, RadixNetwork, WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchConnectedWallet } from '../wallet/WalletDataService';
-import UserAccountResponse from './UserAccountResponse.json';
 
 
 
