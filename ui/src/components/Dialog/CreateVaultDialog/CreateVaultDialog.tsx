@@ -9,6 +9,10 @@ import { SetStateAction, useState } from "react";
 import { useSnackbar } from "notistack";
 import { User } from "../../../libs/entities/User";
 import { USER_NFT_RESOURCE_ADDRESS, fetchUserInfo } from "../../../libs/user/UserDataService";
+import Filter from 'bad-words';
+import { WalletDataState } from "@radixdlt/radix-dapp-toolkit";
+import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
+
 
 interface CreateVaultDialogProps {
     isOpen: boolean,
@@ -23,14 +27,17 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
     const [isLoading, setIsLoading] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
 
+    // Bad word filter
+    const filter = new Filter();
+
     // Get data to check if wallet is connected
-    // const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
     // error
 
     // is loading
-    if ((user?.persona) == undefined) {
+    if ((wallet?.persona) == undefined) {
         // Return error JSX if an error occurs during fetching
         return (
             <Box>
@@ -48,7 +55,6 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
             </Box>
         );
     }
-    const accountAddress = ""
 
     const createVault = async () => {
         setIsLoading(true);
@@ -60,6 +66,13 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
             return
         }
 
+        // filter bad words in vault name
+        if (filter.clean(vaultName) != vaultName) {
+            setIsLoading(false);
+            enqueueSnackbar('Sorry, you used bad words.', { variant: 'error' });
+            return
+        }
+
         // check if description is too short
         if (vaultDescription.trim().length < 10) {
             setIsLoading(false);
@@ -67,10 +80,17 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
             return
         }
 
+        // filter bad words in vault description
+        if (filter.clean(vaultDescription) != vaultDescription) {
+            setIsLoading(false);
+            enqueueSnackbar('Sorry, you used bad words.', { variant: 'error' });
+            return
+        }
+
         // build manifast to create a trade vault
         let manifest = `
             CALL_METHOD
-                Address("${user.account}")
+                Address("${user?.account}")
                 "withdraw"
                 Address("${USER_NFT_RESOURCE_ADDRESS}")
                 Decimal("1")
@@ -87,7 +107,7 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
                 "${vaultDescription}"
                 ;
             CALL_METHOD
-                Address("${user.account}")
+                Address("${user?.account}")
                 "deposit_batch"
                 Expression("ENTIRE_WORKTOP")
                 ;
