@@ -69,7 +69,7 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
         // filter bad words in vault name
         if (filter.clean(vaultName) != vaultName) {
             setIsLoading(false);
-            enqueueSnackbar('Sorry, you used bad words.', { variant: 'error' });
+            enqueueSnackbar("Sorry, you've used bad words.", { variant: 'error' });
             return
         }
 
@@ -83,7 +83,7 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
         // filter bad words in vault description
         if (filter.clean(vaultDescription) != vaultDescription) {
             setIsLoading(false);
-            enqueueSnackbar('Sorry, you used bad words.', { variant: 'error' });
+            enqueueSnackbar("Sorry, you've used bad words.", { variant: 'error' });
             return
         }
 

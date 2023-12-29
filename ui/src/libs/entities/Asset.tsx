@@ -34,7 +34,7 @@ export const USDollar: Asset = {
     name: "US Dollar",
     ticker: "USD",
     symbol: <FidenaroIcon icon={FaDollarSign} color="green.600" />,
-    address: "resource_tdx_2_1tkk467s802k4r44jltc5c5np7e53lurekcs2cxu5jja5xcs7mk64ld",
+    address: "resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63",
     swap_pool: "Unknown"
 };
 
@@ -52,7 +52,7 @@ export function addressToAsset(address: string): Asset {
             return Bitcoin;
         case "resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3":
             return Ethereum;
-        case "resource_tdx_2_1tkk467s802k4r44jltc5c5np7e53lurekcs2cxu5jja5xcs7mk64ld":
+        case "resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63":
             return USDollar;
         default:
             return Unknown;
