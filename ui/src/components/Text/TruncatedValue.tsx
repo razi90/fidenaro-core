@@ -1,5 +1,5 @@
 import {
-    Text, Tooltip,
+    Tooltip,
 } from '@chakra-ui/react';
 
 interface TruncatedNumberValueProps {
@@ -7,19 +7,25 @@ interface TruncatedNumberValueProps {
 }
 
 export const TruncatedNumberValue: React.FC<TruncatedNumberValueProps> = ({ content }) => {
-    //const truncatedContent = content.substring(0, 8) + (content.length > 8 ? '...' : '');
-
     const delimiter = /[.,]/; // Regular expression to match period or comma
     const splitArray = content.split(delimiter);
-    const prevElement = splitArray[splitArray.length - 2];
-    const lastElement = splitArray[splitArray.length - 1];
-    const truncatedContent = lastElement.slice(0, 2);
+
+    let displayContent;
+
+    if (splitArray.length === 1) {
+        // No delimiter found, use the entire content
+        displayContent = content;
+    } else {
+        // Delimiter found, process to truncate
+        const prevElement = splitArray[splitArray.length - 2];
+        const lastElement = splitArray[splitArray.length - 1];
+        const truncatedContent = lastElement.slice(0, 2);
+        displayContent = `${prevElement}.${truncatedContent}`;
+    }
 
     return (
-        <>
-            <Tooltip label={content}>
-                {prevElement + "." + truncatedContent}
-            </Tooltip>
-        </>
+        <Tooltip label={content}>
+            {displayContent}
+        </Tooltip>
     );
 };
