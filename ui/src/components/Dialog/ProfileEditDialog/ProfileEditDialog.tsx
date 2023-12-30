@@ -12,10 +12,11 @@ import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
 interface ProfileEditDialogProps {
     isOpen: boolean,
     setIsOpen: (isOpen: boolean) => void,
+    user: User | undefined;
 }
 
 
-const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen }) => {
+const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen, user }) => {
     const onClose = () => setIsOpen(false);
     const [isLoading, setIsLoading] = useState(false);
     const [userName, setUserName] = useState('');
@@ -35,8 +36,6 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
             setDiscord(user.discord || '');
         }
     }, []);
-
-    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
 
     const changeProfileData = async () => {
         setIsLoading(true);

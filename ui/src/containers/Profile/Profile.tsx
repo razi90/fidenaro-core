@@ -164,9 +164,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                                 </Flex>
                                                 <Flex justifyContent='flex-end' w={"100%"} pr={3} mt={4} >
 
-                                                    <ProfileEditButton onClick={function (): void {
-                                                        throw new Error('Function not implemented.');
-                                                    }} ></ProfileEditButton>
+                                                    <ProfileEditButton user={user} isLoading={isLoading || isUserFetchLoading} />
 
                                                 </Flex>
                                             </Box >
