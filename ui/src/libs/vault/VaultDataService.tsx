@@ -50,11 +50,13 @@ export const getVaultById = async (address: string): Promise<Vault> => {
 
         let managerEquity = 0;
         let followerEquity = 0;
+        let pnl = 0
 
         if (totalShareTokenAmount !== 0) {
             const managerShareTokenAmount = getManagerShareTokenAmount(vault_fields, manager_id);
             managerEquity = totalEquity * (managerShareTokenAmount / totalShareTokenAmount);
             followerEquity = totalEquity - managerEquity;
+            pnl = totalEquity - calculateDeployedCapital(vault_fields)
         }
 
         let activeDays = calculateActiveDays(vault_fields)
@@ -73,7 +75,7 @@ export const getVaultById = async (address: string): Promise<Vault> => {
             managerEquity,
             followerEquity,
             profitShare: fee,
-            pnl: 0,
+            pnl,
             manager,
             followerList: [],
             tradeHistory,
@@ -326,7 +328,7 @@ function calculateTotalEquity(assets: Map<string, number>, priceList: Map<string
     let equity = 0
     assets.forEach((value, key) => {
         let price = priceList.get(key);
-        equity = value * price!;
+        equity += value * price!;
     });
 
     return equity
@@ -348,3 +350,26 @@ function getManagerShareTokenAmount(fields: any, manager_id: string): number {
 function calculateActiveDays(vault_fields: any): number {
     return daysSince(parseInt(getFieldValueByKey(vault_fields, "creation_date")))
 }
+function calculateDeployedCapital(vault_fields: any): number {
+    const totalDeposits = calculateTotalAmount(vault_fields, "deposits")
+    const totalWithdrawals = calculateTotalAmount(vault_fields, "withdrawals")
+
+    return (totalDeposits - totalWithdrawals)
+}
+function calculateTotalAmount(vault_fields: any, key: string): number {
+    let amount: number = 0
+    vault_fields.forEach((field: any) => {
+        if (field.field_name == key) {
+            field.elements.forEach((element: any) => {
+                element.fields.forEach((transaction_field: any) => {
+                    if (transaction_field.field_name === "amount") {
+                        amount += parseFloat(transaction_field.value)
+                    }
+                })
+            })
+        }
+    })
+    return amount;
+}
+
+

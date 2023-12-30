@@ -34,7 +34,7 @@ import { IoEnterOutline } from "react-icons/io5";
 import { User } from '../../../libs/entities/User';
 import { TradeButton } from '../../Button/TradeButton/TradeButton';
 import ResetButton from '../../Button/ResetButton/ResetButton';
-import { convertToDollarString } from '../../../libs/etc/StringOperations';
+import { convertToDollarString, convertToPercentPnl } from '../../../libs/etc/StringOperations';
 
 
 
@@ -254,7 +254,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                     <Tr>
                                         <Th>Name</Th>
                                         <SortableTh column="total" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Total</SortableTh>
-                                        <SortableTh column="today" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Today</SortableTh>
+                                        {/* <SortableTh column="today" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Today</SortableTh> */}
                                         <SortableTh column="activeDays" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >Active Days</SortableTh>
                                         <SortableTh column="followers" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Followers</SortableTh>
                                         <Th isNumeric>
@@ -281,12 +281,12 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                                     </Button>
                                                 </Tooltip>
                                             </Td>
-                                            <Td isNumeric color={entry.total >= 0 ? 'green.500' : 'red.500'}>
-                                                {entry.total} %
+                                            <Td isNumeric color={entry.pnl >= 0 ? 'green.500' : 'red.500'}>
+                                                {convertToPercentPnl(entry.totalEquity, entry.pnl)}
                                             </Td>
-                                            <Td isNumeric color={entry.today >= 0 ? 'green.500' : 'red.500'}>
+                                            {/* <Td isNumeric color={entry.today >= 0 ? 'green.500' : 'red.500'}>
                                                 {entry.today} %
-                                            </Td>
+                                            </Td> */}
                                             <Td isNumeric>{entry.activeDays}</Td>
                                             <Td isNumeric>{entry.followers.length}</Td>
                                             <Td width={performanceFieldWidth}>

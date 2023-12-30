@@ -14,7 +14,7 @@ interface NonFungibleData {
     };
 }
 
-export const USER_NFT_RESOURCE_ADDRESS = "resource_tdx_2_1nfpjap2macs6dfcm0lzq82n8pvzuqm2t85aynqw3hxfa0afl7rq8dx"
+export const USER_NFT_RESOURCE_ADDRESS = "resource_tdx_2_1nffmraradnf5wppe23s3ye9znumyslmw67aaxv7q403eprlhntpjxx"
 
 export const fetchUserInfo = async (): Promise<User> => {
     try {
