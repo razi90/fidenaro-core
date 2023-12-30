@@ -56,6 +56,25 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
         );
     }
 
+    if ((user?.id) === "") {
+        // Return error JSX if an error occurs during fetching
+        return (
+            <Box>
+                <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl">
+                    <ModalOverlay />
+                    <ModalContent >
+                        <ModalHeader>Missing user profile!</ModalHeader>
+                        <ModalCloseButton />
+                        <ModalBody>
+                            <Text>Please create a user profile.</Text>
+                        </ModalBody>
+
+                    </ModalContent>
+                </Modal>
+            </Box>
+        );
+    }
+
     const createVault = async () => {
         setIsLoading(true);
 

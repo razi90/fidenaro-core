@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { enqueueSnackbar } from "notistack";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
+import { FidenaroComponentAddress } from "../../../libs/fidenaro/Config";
 
 interface ProfileEditDialogProps {
     isOpen: boolean,
@@ -82,31 +83,64 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
             return
         }
 
-        let manifest = ''
+        let mapTuples = ""
 
         if (userName != user?.name) {
-            manifest += getManifestForMetadata("user_name", userName)
+            mapTuples += getMapTupleForMetadata("user_name", userName)
         }
         if (userBio != user?.bio) {
-            manifest += getManifestForMetadata("bio", userBio)
+            mapTuples += getMapTupleForMetadata("bio", userBio)
         }
         if (pfpUrl != user?.avatar) {
-            manifest += getManifestForMetadata("pfp_url", pfpUrl)
+            mapTuples += getMapTupleForMetadata("pfp_url", pfpUrl)
         }
         if (twitter != user?.twitter) {
-            manifest += getManifestForMetadata("twitter", twitter)
+            mapTuples += getMapTupleForMetadata("twitter", twitter)
         }
         if (telegram != user?.telegram) {
-            manifest += getManifestForMetadata("telegram", telegram)
+            mapTuples += getMapTupleForMetadata("telegram", telegram)
         }
         if (discord != user?.discord) {
-            manifest += getManifestForMetadata("discord", discord)
+            mapTuples += getMapTupleForMetadata("discord", discord)
         }
 
-        if (manifest === '') {
+        if (mapTuples === "") {
             enqueueSnackbar('No fields were changed.', { variant: "warning" });
             return
         }
+
+        let manifest = `
+            CALL_METHOD
+            Address("${user?.account}")
+            "withdraw"
+            Address("${USER_NFT_RESOURCE_ADDRESS}")
+            Decimal("1")
+                ;
+            TAKE_ALL_FROM_WORKTOP
+            Address("${USER_NFT_RESOURCE_ADDRESS}")
+            Bucket("user_token")
+                ;
+            CREATE_PROOF_FROM_BUCKET_OF_NON_FUNGIBLES
+            Bucket("user_token")
+            Array<NonFungibleLocalId>(NonFungibleLocalId("${user?.id}"))
+            Proof("user_token_proof")
+                ;
+            CALL_METHOD
+            Address("${FidenaroComponentAddress}")
+            "update_user_data"
+            Proof("user_token_proof")
+            Map<String, String>(
+                ${mapTuples}
+            )
+                ;
+            RETURN_TO_WORKTOP
+            Bucket("user_token");
+            CALL_METHOD
+            Address("${user?.account}")
+            "deposit_batch"
+            Expression("ENTIRE_WORKTOP")
+                ;
+        `
 
         console.log(manifest)
 
@@ -130,17 +164,11 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
         setIsLoading(false);
     }
 
-    function getManifestForMetadata(key: string, value: string): string {
-        let manifest = `
-            CALL_METHOD
-            Address("${USER_NFT_RESOURCE_ADDRESS}")
-            "update_non_fungible_data"
-            NonFungibleLocalId("${user?.id}")
-            "${key}"
-            "${value}"
-            ;
+    function getMapTupleForMetadata(key: string, value: string): string {
+        const tuple = `
+        "${key}" => "${value}",
         `
-        return manifest;
+        return tuple;
     }
 
     const isValidUrl = (urlString: string | URL) => {
