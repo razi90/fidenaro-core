@@ -12,7 +12,7 @@ import {
 import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
-import { AssetMap, addressToAsset } from '../../libs/entities/Asset';
+import { USDollar, addressToAsset } from '../../libs/entities/Asset';
 
 
 
@@ -26,7 +26,7 @@ interface VaultAssetTable {
 
 interface VaultAssetTableProps {
     title: string;
-    data: AssetMap | undefined;
+    data: Map<string, number> | undefined;
     isLoading: boolean;
 }
 
@@ -81,20 +81,30 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
                                 </Tr>
                             </Thead>
                             <Tbody>
-                                {Object.entries(data!).map(([key, value], index) => {
-                                    const asset = addressToAsset(key);
-                                    return (
-                                        <Tr sx={tableStyle} key={index}>
-                                            <Td>{asset.symbol}</Td>
-                                            <Td>
-                                                {asset.name} ({asset.ticker})
-                                            </Td>
-                                            <Td isNumeric>
-                                                {value}
-                                            </Td>
-                                        </Tr>
-                                    );
-                                })}
+                                {
+                                    Array.from(data!.entries()).map(([key, value]) => {
+                                        const asset = addressToAsset(key);
+                                        let displayValue: string = value.toString();
+
+                                        if (typeof value === 'number' && key === USDollar.address) {
+                                            displayValue = value.toFixed(2);
+                                        } else {
+                                            displayValue = value.toString();
+                                        }
+
+                                        return (
+                                            <Tr sx={tableStyle} key={key}>
+                                                <Td>{asset.symbol}</Td>
+                                                <Td>
+                                                    {asset.name} ({asset.ticker})
+                                                </Td>
+                                                <Td isNumeric>
+                                                    {displayValue}
+                                                </Td>
+                                            </Tr>
+                                        );
+                                    })
+                                }
                             </Tbody>
                             <Tfoot>
                                 <Tr>

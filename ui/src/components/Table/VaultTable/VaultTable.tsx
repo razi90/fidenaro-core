@@ -23,7 +23,6 @@ import {
 } from '@chakra-ui/react';
 import { FollowButton } from '../../Button/FollowButton/FollowButton';
 import SortableTh from './SortableTableHeader';
-import { explorerTableHeaderPerformanceTextStyle, explorerTableHeaderTextStyle } from './Styled';
 import FilterSelect from './Filter/FilterSelect';
 
 import FilterButton from '../../Button/FilterButton/FilterButton';
@@ -35,9 +34,8 @@ import { IoEnterOutline } from "react-icons/io5";
 import { User } from '../../../libs/entities/User';
 import { TradeButton } from '../../Button/TradeButton/TradeButton';
 import ResetButton from '../../Button/ResetButton/ResetButton';
-import { TableEntryKeys } from './TableEntryKeys';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchVaultList } from '../../../libs/vault/VaultDataService';
+import { convertToDollarString } from '../../../libs/etc/StringOperations';
+
 
 
 interface VaultTableProps {
@@ -262,7 +260,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                         <Th isNumeric>
                                             Performance
                                         </Th>
-                                        <SortableTh column="equity" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >Equity</SortableTh>
+                                        <SortableTh column="totalEquity" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >Equity</SortableTh>
                                         <Th></Th>
                                     </Tr>
                                 </Thead>
@@ -303,7 +301,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                                     chartData={entry.tradeHistory}
                                                     isLoading={false} />
                                             </Td>
-                                            <Td isNumeric>{entry.equity}</Td>
+                                            <Td isNumeric>{convertToDollarString(entry.totalEquity)}</Td>
                                             <Td>
                                                 {
                                                     user?.id === entry.manager.id ?

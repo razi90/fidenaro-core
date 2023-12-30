@@ -1,7 +1,6 @@
 import { User } from '../entities/User';
 import { rdt } from '../radix-dapp-toolkit/rdt';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
-import { AssetMap } from '../entities/Asset';
 
 interface NonFungibleData {
     data: {
@@ -30,7 +29,7 @@ export const fetchUserInfo = async (): Promise<User> => {
             twitter: '',
             telegram: '',
             discord: '',
-            assets: {},
+            assets: new Map<string, number>(),
         }
 
         if (walletData.accounts.length === 0) {
@@ -72,7 +71,7 @@ export const fetchUserInfoByAccount = async (account: string): Promise<User> => 
             twitter: '',
             telegram: '',
             discord: '',
-            assets: {},
+            assets: new Map<string, number>(),
         }
 
         user = await getUserDataFromNft(user)
@@ -97,7 +96,7 @@ export const fetchUserInfoById = async (userId: string): Promise<User> => {
             twitter: '',
             telegram: '',
             discord: '',
-            assets: {},
+            assets: new Map<string, number>(),
         }
 
         user = await getUserDataFromNft(user)
@@ -149,11 +148,11 @@ function getMetaData(userTokenData: any, key: string): string {
 }
 
 function getUserAssets(userLedgerData: any) {
-    let assets: AssetMap = {}
+    let assets = new Map<string, number>()
     for (const item of userLedgerData.fungible_resources.items) {
         let address = item.resource_address
         let amount = item.vaults.items[0].amount;
-        assets[address] = amount
+        assets.set(address, amount)
     }
     return assets;
 }

@@ -25,6 +25,7 @@ import { ChartCard } from '../../components/Chart/ChartCard';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 import { useParams } from 'react-router-dom';
+import { convertToDollarString } from '../../libs/etc/StringOperations';
 
 interface ProfileProps {
     isMinimized: boolean;
@@ -64,7 +65,6 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
 
     const { data: vaults, isLoading, isError } = useQuery({ queryKey: ['vault_list'], queryFn: fetchVaultList });
-    const { data: currentUser, isLoading: isCurrentUserFetchLoading, isError: isCurrentUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
     // get user by id
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['ext_user_info'], queryFn: () => fetchUserInfoById(`#${id}#` ?? "") });
     // Get data to check if wallet is connected
@@ -86,7 +86,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
     const totalFollowers = managedVaults?.reduce((total, vault) => total + vault.followers.length, 0);
 
     // Calculate the total equity from managed vaults
-    const totalEquity = managedVaults?.reduce((total, vault) => total + vault.equity, 0);
+    const totalEquity = managedVaults?.reduce((total, vault) => total + vault.totalEquity, 0);
 
     // Calculate the total PnL as manager
     const managerPnL = managedVaults?.reduce((total, vault) => total + vault.pnl, 0);
@@ -160,7 +160,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                                 </DescriptionCard >
                                                 <Flex>
                                                     <ValueCard value={totalFollowers?.toString() ?? ''} description={"Follower"} isLoading={isLoading || isUserFetchLoading} />
-                                                    <ValueCard value={totalEquity?.toString() + " $"} description={"Equity"} isLoading={isLoading || isUserFetchLoading} />
+                                                    <ValueCard value={convertToDollarString(totalEquity)} description={"Equity"} isLoading={isLoading || isUserFetchLoading} />
                                                 </Flex>
                                                 <Flex justifyContent='flex-end' w={"100%"} pr={3} mt={4} >
 

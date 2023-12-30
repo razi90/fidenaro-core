@@ -1,12 +1,11 @@
-import { Trade, TradeAction, Vault, VaultCandleChart, VaultHistory } from '../entities/Vault';
-import { vaultAssetData } from './VaultAssetData';
-import { vaultHistoryData } from './VaultHistoryData';
+import { Trade, TradeAction, Vault } from '../entities/Vault';
 import { vaultPerformanceCandleChartData } from './VaultPerformanceData';
 import { vaultProfitabilityChartData } from './VaultProfitabilityData';
-import { Asset, AssetMap, addressToAsset } from '../entities/Asset';
+import { Asset, addressToAsset } from '../entities/Asset';
 import { rdt } from '../radix-dapp-toolkit/rdt';
 import { FidenaroComponentAddress } from '../fidenaro/Config';
 import { fetchUserInfoById } from '../user/UserDataService';
+import { fetchPriceList } from '../price/PriceDataService';
 
 export const fetchVaultList = async (): Promise<Vault[]> => {
     // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
@@ -39,13 +38,24 @@ export const getVaultById = async (address: string): Promise<Vault> => {
         let fee = parseFloat(getFieldValueByKey(vault_fields, "fee"))
 
         let followers = getFollowerIds(vault_fields)
-
-        let trades = getTrades(vault_fields)
-
+        let tradeHistory = getTrades(vault_fields)
         let assets = getAssets(vaultLedgerData.fungible_resources.items)
-
         let manager_id = getFieldValueByKey(vault_fields, "manager_user_id")
-        let manager = await fetchUserInfoById(manager_id);
+        let manager = await fetchUserInfoById(manager_id)
+
+        const priceList = await fetchPriceList()
+        const totalEquity = calculateTotalEquity(assets, priceList)
+
+        const totalShareTokenAmount = parseFloat(getFieldValueByKey(vault_fields, "total_share_tokens"));
+
+        let managerEquity = 0;
+        let followerEquity = 0;
+
+        if (totalShareTokenAmount !== 0) {
+            const managerShareTokenAmount = getManagerShareTokenAmount(vault_fields, manager_id);
+            managerEquity = totalEquity * (managerShareTokenAmount / totalShareTokenAmount);
+            followerEquity = totalEquity - managerEquity;
+        }
 
         let vault: Vault = {
             name: name,
@@ -57,12 +67,14 @@ export const getVaultById = async (address: string): Promise<Vault> => {
             today: 0,
             activeDays: 0,
             followers: followers,
-            equity: 0,
+            totalEquity,
+            managerEquity,
+            followerEquity,
             profitShare: fee,
             pnl: 0,
             manager,
             followerList: [],
-            tradeHistory: trades,
+            tradeHistory,
             assets
         }
 
@@ -133,14 +145,14 @@ function formatUnixTimestampToUTC(timestamp: number): string {
     return date.toISOString().replace('T', ' ').substr(0, 19) + ' UTC';
 }
 
-function getAssets(ledgerAssetData: any): AssetMap {
-    let assets: AssetMap = {}
+function getAssets(ledgerAssetData: any): Map<string, number> {
+    let assets = new Map<string, number>()
 
     for (const asset_item of ledgerAssetData) {
         let asset = addressToAsset(asset_item.resource_address)
         let amount = asset_item.vaults.items[0].amount
         if (amount != 0) { // Ignore entry for the share token of the vault
-            assets[asset.address] = amount
+            assets.set(asset.address, amount)
         }
     }
 
@@ -206,35 +218,9 @@ function getResourcePools(item: any): string[] {
     return pools;
 }
 
-
-function getResourceName(item: any): string {
-    return item.explicit_metadata.items.at(0)?.value.typed.value;
-}
-
-function getResourceAddress(item: any): string {
-    return item.resource_address;
-}
-
-function getResourceAmount(item: any): number {
-    return item.vaults.items.at(0)?.amount
-}
-
 function getVaultComponentAddress(vault: any) {
     return vault.key.value
 }
-
-function getManagerBadgeAddress(vault: any) {
-    let address = vault.value.fields.at(0).value
-    return address
-}
-
-const getShareTokenAddress = (vault: any) => {
-    let address = vault.value.fields.at(1).value
-    return address
-}
-
-
-
 
 /* Dummy Functions have to be replaced by original data */
 
@@ -313,26 +299,6 @@ export const fetchVaultTodayChartData = async () => {
     }
 }
 
-export const fetchVaultDummyChartData = async () => {
-
-    const vaultDummyChartData = [
-        {
-            name: 'X',
-            data: [30, 0, 40, 45, 50, 49, 60, 70, 91, 80, 50, 30, 25, 20, 24, 40],
-        },
-    ];
-
-
-    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
-    try {
-        // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
-        // return response.data;
-        return vaultDummyChartData;
-    } catch (error) {
-        throw error;
-    }
-}
-
 export const fetchVaultProfitabilityData = async () => {
     // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
     try {
@@ -344,24 +310,25 @@ export const fetchVaultProfitabilityData = async () => {
     }
 }
 
-export const fetchVaultHistoryData = async () => {
-    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
-    try {
-        // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
-        // return response.data;
-        return vaultHistoryData as VaultHistory[];
-    } catch (error) {
-        throw error;
-    }
+function calculateTotalEquity(assets: Map<string, number>, priceList: Map<string, number>): number {
+    let equity = 0
+    assets.forEach((value, key) => {
+        let price = priceList.get(key);
+        equity = value * price!;
+    });
+
+    return equity
 }
 
-export const fetchVaultAssetData = async () => {
-    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
-    try {
-        // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
-        // return response.data;
-        return vaultAssetData;
-    } catch (error) {
-        throw error;
-    }
+function getManagerShareTokenAmount(fields: any, manager_id: string): number {
+    let amount = 0
+    fields.forEach((field: any) => {
+        if (field.field_name == "followers") {
+            field.entries.forEach((entry: any) => {
+                if (entry.key.value == manager_id)
+                    amount = entry.value.value
+            })
+        }
+    })
+    return amount;
 }

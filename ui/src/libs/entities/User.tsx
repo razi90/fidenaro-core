@@ -1,5 +1,3 @@
-import { AssetMap } from "./Asset";
-
 export interface User {
     account: string | undefined;
     persona: string | undefined;
@@ -10,5 +8,5 @@ export interface User {
     twitter: string;
     telegram: string;
     discord: string;
-    assets: AssetMap;
+    assets: Map<string, number>;
 }
