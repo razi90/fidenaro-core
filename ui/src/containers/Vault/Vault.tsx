@@ -79,7 +79,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             </DescriptionCard>
 
                             <Flex >
-                                <ValueCard value={"47"} description={"Active Days"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                <ValueCard value={vault?.activeDays} description={"Active Days"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={vault?.followers.length} description={"Follower"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <Flex m={2} >
                                     <ChartCard
