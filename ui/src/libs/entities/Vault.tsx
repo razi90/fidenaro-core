@@ -1,4 +1,4 @@
-import { Asset, AssetMap } from "./Asset";
+import { Asset } from "./Asset";
 import { User } from "./User";
 
 export interface Vault {
@@ -11,13 +11,15 @@ export interface Vault {
     today: number;
     activeDays: number;
     followers: string[];
-    equity: number;
+    totalEquity: number;
+    managerEquity: number;
+    followerEquity: number;
     profitShare: number;
     pnl: number;
     manager: User;
     followerList: string[];
     tradeHistory: Trade[];
-    assets: AssetMap;
+    assets: Map<string, number>;
 }
 
 export interface VaultPerformance {

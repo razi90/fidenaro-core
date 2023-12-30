@@ -15,6 +15,7 @@ import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
 import { Trade } from '../../libs/entities/Vault';
+import { convertToDollarString } from '../../libs/etc/StringOperations';
 
 interface VaultHistoryTableProps {
     title: string;
@@ -123,7 +124,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                         <Td isNumeric>{item.from_amount}</Td>
                                         <Td>{item.to.ticker}</Td>
                                         <Td isNumeric>{item.to_amount}</Td>
-                                        <Td isNumeric>{item.price}</Td>
+                                        <Td isNumeric>{convertToDollarString(item.price)}</Td>
                                         {/* <Td>
                                             <RadixTansactionLink content={item.transaction} />
                                         </Td> */}

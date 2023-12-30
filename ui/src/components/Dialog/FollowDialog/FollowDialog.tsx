@@ -61,7 +61,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
         return <Box>Error loading user data</Box>;
     }
 
-    let userUsdAmount = user?.assets[USDollar.address] ?? 0;
+    let userUsdAmount = user?.assets.get(USDollar.address) ?? 0;
 
     // balance error handling
     const handleChange = (e: { target: { value: any; }; }) => {

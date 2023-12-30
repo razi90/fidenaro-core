@@ -57,7 +57,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
         if (value < 0) return;
 
         setAmount(value);
-        setIsBalanceError(Number(value) > (vault?.assets[fromToken.address] || 0));
+        setIsBalanceError(Number(value) > (vault?.assets.get(fromToken.address) || 0));
     };
 
     const trade = async () => {
@@ -93,7 +93,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
         }
 
         // get the pool from the asset, which is not the stable coin
-        let poolAddress = addressToAsset((fromToken.address === USDollar.address ? toToken.address : fromToken.address)).swap_pool;
+        let poolAddress = addressToAsset((fromToken.address === USDollar.address ? toToken.address : fromToken.address)).radiswap_address;
 
         // build manifast to create a trade vault
         let manifest = `
@@ -153,7 +153,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
                                 <HStack>
                                     <Text mb={2}>From:</Text>
                                     <Spacer></Spacer>
-                                    <Text mb={2}>Available Amount: {vault?.assets[fromToken?.address] || 0}</Text>
+                                    <Text mb={2}>Available Amount: {vault?.assets.get(fromToken?.address) || 0}</Text>
                                 </HStack>
                                 <Select
                                     placeholder="Select token"
@@ -170,7 +170,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
                                 <HStack>
                                     <Text mb={2}>To:</Text>
                                     <Spacer></Spacer>
-                                    <Text mb={2}>Current Amount: {vault?.assets[toToken?.address] || 0}</Text>
+                                    <Text mb={2}>Current Amount: {vault?.assets.get(toToken?.address) || 0}</Text>
                                 </HStack>
                                 <Select
                                     placeholder="Select token"
