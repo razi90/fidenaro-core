@@ -1,4 +1,5 @@
-export const followButtonStyle = {
+export const tradeButtonStyle = {
+    size: "sm",
     minW: "80px",
     color: "gray.100",
     borderRadius: "3",

@@ -1,4 +1,4 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage, Stepper, StepIndicator, Step, StepStatus, StepIcon, StepSeparator, useSteps, Divider, Progress, Button } from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage, Stepper, StepIndicator, Step, StepStatus, StepIcon, StepSeparator, useSteps, Divider, Progress, Button, InputGroup, InputLeftElement, InputLeftAddon } from "@chakra-ui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { USER_NFT_RESOURCE_ADDRESS, fetchUserInfo } from "../../../libs/user/UserDataService";
@@ -202,21 +202,25 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
                                     <Text>You are about to Follow the Strategy <b>{vault?.name}</b>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
                                     <Box my={4}>
                                         <Text>Wallet balance <Text as='b'><TruncatedNumberValue content={userUsdAmount + ""} /> USD</Text></Text>
-                                        <Text><b>Deposit</b></Text>
-                                        <FormControl isInvalid={isBalanceError}>
-                                            <Input
-                                                ref={initialRef}
-                                                placeholder="0"
-                                                type="number"
-                                                min="0"
-                                                step="0.1"
-                                                value={inputValue}
-                                                onChange={handleChange}
-                                            />
-                                            {isBalanceError && (
-                                                <FormErrorMessage>Insufficient funds</FormErrorMessage>
-                                            )}
-                                        </FormControl>
+                                        <InputGroup>
+                                            <InputLeftAddon children="Deposit" opacity={0.7} />
+                                            <FormControl isInvalid={isBalanceError}>
+                                                <Input
+                                                    ref={initialRef}
+                                                    placeholder="0"
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.1"
+                                                    value={inputValue}
+                                                    onChange={handleChange}
+                                                />
+                                                {isBalanceError && (
+                                                    <FormErrorMessage>Insufficient funds</FormErrorMessage>
+                                                )}
+                                            </FormControl>
+                                        </InputGroup>
+
+
 
                                     </Box>
                                     {/* <Box my={4}>
