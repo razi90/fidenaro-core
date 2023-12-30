@@ -8,15 +8,112 @@ radiswap_usd_btc_pool: component_tdx_2_1cqxn9mmsn7ws3f3gwynscmuatxch3cjurqfvgeg6
 
 
 fidenaro_dapp_account: account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj
-fidenaro_package: package_tdx_2_1p4ghqx0dvurphekce8wkamzexq4sxf0xxu29nerjh42j22s0nlkxel
-fidenaro_component: component_tdx_2_1czhwtltv8wnywf6t8ylauvl42nfs0qykfjur7a0ukr025qltsy4agh
-fidenaro_component_admin_badge: resource_tdx_2_1t53jxzde7y6qttlzkxarwfrs9qz4t2mpyhruxhc2qpdlkwjvaj2fvj
-bearos_snap_component: component_tdx_2_1cplgxw6675ss8atu5l8rm2pq77flpqn93aqjl99rveqtnw7w253s0t
-bearos_manager_badge: resource_tdx_2_1tkf6sf86cc7wp57758cyfaea9thmmt3t8qg5n9zcw6qwdg9mdqf4pl
+fidenaro_package: package_tdx_2_1pk8aax4t4dzu4jj7queafau0ny7fhamzdvunfxtdx93vd3hx5x6fqa
+fidenaro_component: component_tdx_2_1cr2whmsx6z6zaeqsvht27yxvandeww92mmd0x8f0fcmyt5spgj05af
+fidenaro_component_admin_badge: resource_tdx_2_1t4f2rcdl8w9n3mtq70stwzupvdtj7jlucgreftn065ph2y0lag6cyq
+
+
+// create radiswap bitcoin pool
+CALL_FUNCTION
+    Address("package_tdx_2_1p4at2str4wmwv2g9xm9n3fvsn6v707c26sfsf0pkz8tk3y4gjaan2c")
+    "Radiswap"
+    "new"
+    Enum<0u8>()
+    Address("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63")
+    Address("resource_tdx_2_1thl25uw98gzsjh6kwu6hygm04dmvxaf0yp07shd7knvsmxxhxhlqpy")
+;
+CALL_METHOD
+    Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+
+
+// create radiswap ethereum pool
+CALL_FUNCTION
+    Address("package_tdx_2_1p4at2str4wmwv2g9xm9n3fvsn6v707c26sfsf0pkz8tk3y4gjaan2c")
+    "Radiswap"
+    "new"
+    Enum<0u8>()
+    Address("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63")
+    Address("resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3")
+;
+CALL_METHOD
+    Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;
+
+// provide liquidity BTC
+CALL_METHOD Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "withdraw"
+    Address("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63")
+    Decimal("41907");
+CALL_METHOD Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "withdraw"
+    Address("resource_tdx_2_1thl25uw98gzsjh6kwu6hygm04dmvxaf0yp07shd7knvsmxxhxhlqpy")
+    Decimal("1");
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63")
+    Bucket("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63");
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1thl25uw98gzsjh6kwu6hygm04dmvxaf0yp07shd7knvsmxxhxhlqpy")
+    Bucket("resource_tdx_2_1thl25uw98gzsjh6kwu6hygm04dmvxaf0yp07shd7knvsmxxhxhlqpy");
+CALL_METHOD
+    Address("component_tdx_2_1cp66u08j9f9zr4kafv6hfy8486ezu3zldgwd76s75t0yq62f2mcy89")
+    "add_liquidity"
+    Bucket("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63")
+    Bucket("resource_tdx_2_1thl25uw98gzsjh6kwu6hygm04dmvxaf0yp07shd7knvsmxxhxhlqpy");
+CALL_METHOD
+    Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");
+
+// provide liquidity ETH
+CALL_METHOD Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "withdraw"
+    Address("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63")
+    Decimal("22870");
+CALL_METHOD Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "withdraw"
+    Address("resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3")
+    Decimal("10");
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63")
+    Bucket("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63");
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3")
+    Bucket("resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3");
+CALL_METHOD
+    Address("component_tdx_2_1cp6ye55hvfz4mp33ys766qecg26rrtkrxvhex70nnax2eppf9ssued")
+    "add_liquidity"
+    Bucket("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63")
+    Bucket("resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3");
+CALL_METHOD
+    Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");
+
+// remove liquidity BTC
+CALL_METHOD Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "withdraw"
+    Address("resource_tdx_2_1tkvydle22v3rmwm6up8m5fjpkl6sar8vvep0smra8emurql7jd8znp")
+    Decimal("600");
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1tkvydle22v3rmwm6up8m5fjpkl6sar8vvep0smra8emurql7jd8znp")
+    Bucket("resource_tdx_2_1tkvydle22v3rmwm6up8m5fjpkl6sar8vvep0smra8emurql7jd8znp");
+CALL_METHOD
+    Address("component_tdx_2_1cp66u08j9f9zr4kafv6hfy8486ezu3zldgwd76s75t0yq62f2mcy89")
+    "remove_liquidity"
+    Bucket("resource_tdx_2_1tkvydle22v3rmwm6up8m5fjpkl6sar8vvep0smra8emurql7jd8znp");
+CALL_METHOD
+    Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");
 
 // instatiate fidenaro
 CALL_FUNCTION
-    Address("package_tdx_2_1p4ghqx0dvurphekce8wkamzexq4sxf0xxu29nerjh42j22s0nlkxel")
+    Address("package_tdx_2_1pk8aax4t4dzu4jj7queafau0ny7fhamzdvunfxtdx93vd3hx5x6fqa")
     "Fidenaro"
     "instantiate"
     Enum<OwnerRole::None>();
@@ -25,28 +122,14 @@ CALL_METHOD
     "deposit_batch"
     Expression("ENTIRE_WORKTOP");
 
-// create new vault
-<!-- CALL_METHOD
-    Address("component_tdx_2_1czhwtltv8wnywf6t8ylauvl42nfs0qykfjur7a0ukr025qltsy4agh")
-    "new_vault"
-    "Razi The Machine"
-    Decimal("10")
-    "This is the vault of Razi, the world best trader."
-    "https://pbs.twimg.com/profile_images/1723034496251953152/w9qqFj0F_400x400.jpg"
-    "https://fidenaro.com";
-CALL_METHOD
-    Address("account_tdx_2_12xmwv55ap2n25uzl9hywpu7ytyzhp9gl6zc9fnz3rssj40nv8pqmkn")
-    "deposit_batch"
-    Expression("ENTIRE_WORKTOP"); -->
-
 // set stable coin address
 CALL_METHOD
     Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
     "create_proof_of_amount"
-    Address("resource_tdx_2_1t53jxzde7y6qttlzkxarwfrs9qz4t2mpyhruxhc2qpdlkwjvaj2fvj")
+    Address("resource_tdx_2_1t4f2rcdl8w9n3mtq70stwzupvdtj7jlucgreftn065ph2y0lag6cyq")
     Decimal("1");
 CALL_METHOD
-    Address("component_tdx_2_1czhwtltv8wnywf6t8ylauvl42nfs0qykfjur7a0ukr025qltsy4agh")
+    Address("component_tdx_2_1cr2whmsx6z6zaeqsvht27yxvandeww92mmd0x8f0fcmyt5spgj05af")
     "add_stable_coin_resource_address"
     Address("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63");
 CALL_METHOD
@@ -58,12 +141,12 @@ CALL_METHOD
 CALL_METHOD
     Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
     "create_proof_of_amount"
-    Address("resource_tdx_2_1t53jxzde7y6qttlzkxarwfrs9qz4t2mpyhruxhc2qpdlkwjvaj2fvj")
+    Address("resource_tdx_2_1t4f2rcdl8w9n3mtq70stwzupvdtj7jlucgreftn065ph2y0lag6cyq")
     Decimal("1");
 CALL_METHOD
-    Address("component_tdx_2_1czhwtltv8wnywf6t8ylauvl42nfs0qykfjur7a0ukr025qltsy4agh")
+    Address("component_tdx_2_1cr2whmsx6z6zaeqsvht27yxvandeww92mmd0x8f0fcmyt5spgj05af")
     "new_pool_to_whitelist"
-    Address("component_tdx_2_1cqwaea9esxdung38xuc67pdxvss0refpahnjmuk05jqaphcycse79j");
+    Address("component_tdx_2_1cp66u08j9f9zr4kafv6hfy8486ezu3zldgwd76s75t0yq62f2mcy89");
 CALL_METHOD
     Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
     "deposit_batch"
@@ -72,66 +155,13 @@ CALL_METHOD
 CALL_METHOD
     Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
     "create_proof_of_amount"
-    Address("resource_tdx_2_1t53jxzde7y6qttlzkxarwfrs9qz4t2mpyhruxhc2qpdlkwjvaj2fvj")
+    Address("resource_tdx_2_1t4f2rcdl8w9n3mtq70stwzupvdtj7jlucgreftn065ph2y0lag6cyq")
     Decimal("1");
 CALL_METHOD
-    Address("component_tdx_2_1czhwtltv8wnywf6t8ylauvl42nfs0qykfjur7a0ukr025qltsy4agh")
+    Address("component_tdx_2_1cr2whmsx6z6zaeqsvht27yxvandeww92mmd0x8f0fcmyt5spgj05af")
     "new_pool_to_whitelist"
-    Address("component_tdx_2_1cqxn9mmsn7ws3f3gwynscmuatxch3cjurqfvgeg6mchlklplrh247p");
+    Address("component_tdx_2_1cp6ye55hvfz4mp33ys766qecg26rrtkrxvhex70nnax2eppf9ssued");
 CALL_METHOD
     Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
-    "deposit_batch"
-    Expression("ENTIRE_WORKTOP");
-
-
-// deposit
-CALL_METHOD
-    Address("account_tdx_2_12xmwv55ap2n25uzl9hywpu7ytyzhp9gl6zc9fnz3rssj40nv8pqmkn")
-    "withdraw"
-    Address("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63")
-    Decimal("10000");
-TAKE_ALL_FROM_WORKTOP
-    Address("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63")
-    Bucket("usdf");
-CALL_METHOD
-    Address("component_tdx_2_1cplgxw6675ss8atu5l8rm2pq77flpqn93aqjl99rveqtnw7w253s0t")
-    "deposit"
-    Bucket("usdf");
-CALL_METHOD
-    Address("account_tdx_2_12xmwv55ap2n25uzl9hywpu7ytyzhp9gl6zc9fnz3rssj40nv8pqmkn")
-    "deposit_batch"
-    Expression("ENTIRE_WORKTOP");
-
-// swap
-CALL_METHOD
-    Address("account_tdx_2_12xmwv55ap2n25uzl9hywpu7ytyzhp9gl6zc9fnz3rssj40nv8pqmkn")
-    "create_proof_of_amount"
-    Address("resource_tdx_2_1tkf6sf86cc7wp57758cyfaea9thmmt3t8qg5n9zcw6qwdg9mdqf4pl")
-    Decimal("1");
-CALL_METHOD
-    Address("component_tdx_2_1cplgxw6675ss8atu5l8rm2pq77flpqn93aqjl99rveqtnw7w253s0t")
-    "swap"
-    Address("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63")
-    Decimal("300")
-    Address("component_tdx_2_1cqwaea9esxdung38xuc67pdxvss0refpahnjmuk05jqaphcycse79j");
-CALL_METHOD
-    Address("account_tdx_2_12xmwv55ap2n25uzl9hywpu7ytyzhp9gl6zc9fnz3rssj40nv8pqmkn")
-    "deposit_batch"
-    Expression("ENTIRE_WORKTOP");
-
-
-// create user
-
-CALL_METHOD
-    Address("component_tdx_2_1czhwtltv8wnywf6t8ylauvl42nfs0qykfjur7a0ukr025qltsy4agh")
-    "new_user"
-    "BearosSnap"
-    "Best trader in the world."
-    "https://pbs.twimg.com/profile_images/1723034496251953152/w9qqFj0F_400x400.jpg"
-    "my_twitter"
-    "my_telegram"
-    "N/A";
-CALL_METHOD
-    Address("account_tdx_2_12xmwv55ap2n25uzl9hywpu7ytyzhp9gl6zc9fnz3rssj40nv8pqmkn")
     "deposit_batch"
     Expression("ENTIRE_WORKTOP");

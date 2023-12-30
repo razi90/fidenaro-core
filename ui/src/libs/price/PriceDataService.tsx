@@ -18,9 +18,7 @@ export const fetchPriceList = async (): Promise<Map<string, number>> => {
 }
 
 function calculatePrice(data: any): number {
-    // const dollarAddress = USDollar.address;
-    // workaround as long as the old dollar is still active
-    const dollarAddress = "resource_tdx_2_1tkk467s802k4r44jltc5c5np7e53lurekcs2cxu5jja5xcs7mk64ld";
+    const dollarAddress = USDollar.address;
     const resources = data.fungible_resources.items;
     const dollarResource = resources.find((item: { resource_address: any; }) => item.resource_address === dollarAddress);
     const otherResource = resources.find((item: { resource_address: any; }) => item.resource_address !== dollarAddress);

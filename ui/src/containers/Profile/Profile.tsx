@@ -65,8 +65,10 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
 
     const { data: vaults, isLoading, isError } = useQuery({ queryKey: ['vault_list'], queryFn: fetchVaultList });
+    // get current user
+    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: () => fetchUserInfo() });
     // get user by id
-    const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['ext_user_info'], queryFn: () => fetchUserInfoById(`#${id}#` ?? "") });
+    const { data: profile, isLoading: isProfileLoading, isError: isProfileFetchError } = useQuery<User>({ queryKey: ['ext_user_info'], queryFn: () => fetchUserInfoById(`#${id}#` ?? "") });
     // Get data to check if wallet is connected
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
@@ -118,36 +120,36 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                         <Center>
                             <Box maxW="6xl" minH="xl" width="100vw" >
                                 <Flex p={4} >
-                                    <PrimerCard cardTitle={user?.name} cardWidth='50%' cardHeight='100%' isLoading={isLoading || isUserFetchLoading}>
+                                    <PrimerCard cardTitle={profile?.name} cardWidth='50%' cardHeight='100%' isLoading={isLoading || isProfileLoading}>
                                         <Flex flex='1' p={1} >
                                             <VStack pt={4} mr={0} >
                                                 <WrapItem>
-                                                    <Avatar size='2xl' name={user?.name} src={user?.avatar !== '' ? user?.avatar : ''} />{' '}
+                                                    <Avatar size='2xl' name={profile?.name} src={profile?.avatar !== '' ? profile?.avatar : ''} />{' '}
                                                 </WrapItem>
                                                 <Flex >
-                                                    {user?.twitter.length === 0 ? (
+                                                    {profile?.twitter.length === 0 ? (
                                                         null
                                                     ) : (
                                                         <Box flex='1' mx={2}>
-                                                            <SocialButton label={'Twitter'} href={`https://www.twitter.com/${user?.twitter}`}>
+                                                            <SocialButton label={'Twitter'} href={`https://www.twitter.com/${profile?.twitter}`}>
                                                                 <FaTwitter />
                                                             </SocialButton>
                                                         </Box>
                                                     )}
-                                                    {user?.telegram.length === 0 ? (
+                                                    {profile?.telegram.length === 0 ? (
                                                         null
                                                     ) : (
                                                         <Box flex='1' mx={2}>
-                                                            <SocialButton label={'Telegram'} href={`https://t.me/@${user?.telegram}`}>
+                                                            <SocialButton label={'Telegram'} href={`https://t.me/@${profile?.telegram}`}>
                                                                 <FaTelegram />
                                                             </SocialButton>
                                                         </Box>
                                                     )}
-                                                    {user?.discord.length === 0 ? (
+                                                    {profile?.discord.length === 0 ? (
                                                         null
                                                     ) : (
                                                         <Box flex='1' mx={2}>
-                                                            <SocialButton label={'Discord'} href={`https://discord.gg/${user?.discord}`}>
+                                                            <SocialButton label={'Discord'} href={`https://discord.gg/${profile?.discord}`}>
                                                                 <FaDiscord />
                                                             </SocialButton>
                                                         </Box>
@@ -155,18 +157,20 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                                 </Flex>
                                             </VStack>
                                             <Box flex='1'>
-                                                <DescriptionCard title='Description' isLoading={isLoading || isUserFetchLoading}>
-                                                    {user?.bio}
+                                                <DescriptionCard title='Description' isLoading={isLoading || isProfileLoading}>
+                                                    {profile?.bio}
                                                 </DescriptionCard >
                                                 <Flex>
-                                                    <ValueCard value={totalFollowers?.toString() ?? ''} description={"Follower"} isLoading={isLoading || isUserFetchLoading} />
-                                                    <ValueCard value={convertToDollarString(totalEquity)} description={"Equity"} isLoading={isLoading || isUserFetchLoading} />
+                                                    <ValueCard value={totalFollowers?.toString() ?? ''} description={"Follower"} isLoading={isLoading || isProfileLoading} />
+                                                    <ValueCard value={convertToDollarString(totalEquity)} description={"Equity"} isLoading={isLoading || isProfileLoading} />
                                                 </Flex>
-                                                <Flex justifyContent='flex-end' w={"100%"} pr={3} mt={4} >
+                                                {user?.id === profile?.id && (
+                                                    <Flex justifyContent='flex-end' w={"100%"} pr={3} mt={4} >
 
-                                                    <ProfileEditButton user={user} isLoading={isLoading || isUserFetchLoading} />
+                                                        <ProfileEditButton user={user} isLoading={isLoading || isUserFetchLoading} />
 
-                                                </Flex>
+                                                    </Flex>
+                                                )}
                                             </Box >
                                         </Flex >
 
@@ -184,7 +188,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                                     chartHeight={"120"}
                                                     chartWidth={"100%"}
                                                     chartSeries={seriesData}
-                                                    isLoading={isLoading || isUserFetchLoading} />
+                                                    isLoading={isLoading || isProfileLoading} />
                                             </Flex>
 
                                             <HStack mt={8}>
@@ -193,7 +197,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                                     managerPnL={managerPnL}
                                                     investorPnL={investorPnL}
                                                     totalTrades={totalTrades}
-                                                    isLoading={isLoading || isUserFetchLoading}
+                                                    isLoading={isLoading || isProfileLoading}
                                                 />
                                             </HStack>
                                         </Box>

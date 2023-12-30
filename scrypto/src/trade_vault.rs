@@ -34,8 +34,8 @@ pub struct Transaction {
 mod trade_vault {
 
     extern_blueprint! {
-        "package_sim1pk2hfv5krdg668ukjdsuzcwgg0vjaraw5xdrntz57dqv30kg3jp504",
-        // "package_tdx_2_1p4at2str4wmwv2g9xm9n3fvsn6v707c26sfsf0pkz8tk3y4gjaan2c",
+        // "package_sim1pk2hfv5krdg668ukjdsuzcwgg0vjaraw5xdrntz57dqv30kg3jp504",
+        "package_tdx_2_1p4at2str4wmwv2g9xm9n3fvsn6v707c26sfsf0pkz8tk3y4gjaan2c",
         Radiswap {
             fn swap(&mut self, input_bucket: Bucket) -> Bucket;
             fn vault_reserves(&self) -> IndexMap<ResourceAddress, Decimal>;

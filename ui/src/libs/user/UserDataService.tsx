@@ -14,11 +14,11 @@ interface NonFungibleData {
     };
 }
 
-export const USER_NFT_RESOURCE_ADDRESS = "resource_tdx_2_1ntkcndzy2rujh6jyp2rgsn5fhuhp8t6ffp3pgv02hlwdegpngtr373"
+export const USER_NFT_RESOURCE_ADDRESS = "resource_tdx_2_1nfpjap2macs6dfcm0lzq82n8pvzuqm2t85aynqw3hxfa0afl7rq8dx"
 
 export const fetchUserInfo = async (): Promise<User> => {
     try {
-        const walletData: WalletDataState = rdt.walletApi.getWalletData();
+        const walletData: WalletDataState = await rdt.walletApi.getWalletData();
         let user: User = {
             account: undefined,
             persona: undefined,
