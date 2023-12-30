@@ -54,14 +54,12 @@ mod trade_vault {
             // Methods with admin access
             swap => restrict_to: [fund_manager, OWNER];
             withdraw_collected_fee_fund_manager => restrict_to: [fund_manager, OWNER];
-            change_short_description => restrict_to: [fund_manager, OWNER];
         }
     }
 
     struct TradeVault {
-        fund_name: String,
-        short_description: String,
         manager_user_id: String,
+        creation_date: Instant,
         pools: HashMap<ResourceAddress, Vault>,
         fund_manager_badge: ResourceAddress,
         share_token_manager: ResourceManager,
@@ -154,9 +152,8 @@ mod trade_vault {
             };
 
             let component = Self {
-                fund_name,
-                short_description,
                 manager_user_id,
+                creation_date: Clock::current_time(TimePrecision::Minute),
                 fund_manager_badge: fund_manager_badge.resource_address(),
                 pools: HashMap::new(),
                 total_share_tokens: dec!(0),
@@ -429,10 +426,6 @@ mod trade_vault {
 
         pub fn withdraw_collected_fee_fund_manager(&mut self) -> Bucket {
             self.fees_fund_manager_vault.take_all()
-        }
-
-        pub fn change_short_description(&mut self, short_description: String) {
-            self.short_description = short_description;
         }
 
         ///////////////////////
