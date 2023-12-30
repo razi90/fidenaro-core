@@ -316,27 +316,14 @@ mod trade_vault {
                 self.followers.remove(&user_id);
             }
 
-            // calculate value of all assets
-            let mut total_asset_value = Decimal::zero();
-
-            // we just assume stable coin value is 1$ for now
-            if self
-                .pools
-                .contains_key(&self.fidenaro.get_stable_coin_resource_address())
-            {
-                total_asset_value += self
-                    .pools
-                    .get(&self.fidenaro.get_stable_coin_resource_address())
-                    .unwrap()
-                    .amount();
-            }
-
-            // calculate value of assets based on their current price
-            for (asset_address, vault) in self.pools.iter() {
-                if asset_address != &self.fidenaro.get_stable_coin_resource_address() {
-                    let price = self.get_asset_price(*asset_address);
-                    info!("Price: {}", price);
-                    total_asset_value += vault.amount() * price;
+            // calculate total value of the withdrawn assets
+            let mut withdrawal_asset_value = Decimal::zero();
+            for token in &tokens {
+                if token.resource_address() == self.fidenaro.get_stable_coin_resource_address() {
+                    withdrawal_asset_value += token.amount();
+                } else {
+                    withdrawal_asset_value +=
+                        token.amount() * self.get_asset_price(token.resource_address());
                 }
             }
 
@@ -344,7 +331,7 @@ mod trade_vault {
                 action: Action::Withdrawal,
                 epoch: Runtime::current_epoch(),
                 timestamp: Clock::current_time(TimePrecision::Minute),
-                amount: total_asset_value,
+                amount: withdrawal_asset_value,
                 user_id: user_id.clone(),
             };
 

@@ -1,1 +1,1 @@
-export const FidenaroComponentAddress = "component_tdx_2_1cr2whmsx6z6zaeqsvht27yxvandeww92mmd0x8f0fcmyt5spgj05af";
+export const FidenaroComponentAddress = "component_tdx_2_1cp2yk0289jx060tnthh52rqm9lhr89ww595fmtvxdw3gkkev9ekhug";

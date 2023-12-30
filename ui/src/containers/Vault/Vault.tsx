@@ -29,7 +29,7 @@ import { useParams } from 'react-router-dom';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 import { TradeButton } from '../../components/Button/TradeButton/TradeButton';
-import { convertToDollarString } from '../../libs/etc/StringOperations';
+import { convertToDollarString, convertToPercentPnl } from '../../libs/etc/StringOperations';
 
 
 interface VaultProps {
@@ -111,7 +111,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
 
                         <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto' isLoading={isVaultFetchLoading || isUserFetchLoading}>
                             <Flex >
-                                <StatCard title="Total" value="10 %" isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                <StatCard title="Total" value={convertToPercentPnl(vault?.totalEquity, vault?.pnl)} isLoading={isVaultFetchLoading || isUserFetchLoading} />
 
                                 <Flex flex='1' m={2} >
                                     <ChartCard
@@ -126,7 +126,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
 
                                 </Flex>
                             </Flex>
-                            <Flex >
+                            {/* <Flex >
                                 <StatCard title="Today" value="57 %" isLoading={isVaultFetchLoading || isUserFetchLoading} />
 
                                 <Flex flex='1' m={2} >
@@ -140,7 +140,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                         chartSeries={todayChartData}
                                         isLoading={isTodayChartLoading} />
                                 </Flex>
-                            </Flex>
+                            </Flex> */}
                             <Flex >
                                 <ValueCard value={convertToDollarString(vault?.totalEquity)} description={"Equity"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={convertToDollarString(vault?.followerEquity)} description={"Equity Follower"} isLoading={isVaultFetchLoading || isUserFetchLoading} />

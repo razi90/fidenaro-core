@@ -8,9 +8,9 @@ radiswap_usd_btc_pool: component_tdx_2_1cqxn9mmsn7ws3f3gwynscmuatxch3cjurqfvgeg6
 
 
 fidenaro_dapp_account: account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj
-fidenaro_package: package_tdx_2_1pk8aax4t4dzu4jj7queafau0ny7fhamzdvunfxtdx93vd3hx5x6fqa
-fidenaro_component: component_tdx_2_1cr2whmsx6z6zaeqsvht27yxvandeww92mmd0x8f0fcmyt5spgj05af
-fidenaro_component_admin_badge: resource_tdx_2_1t4f2rcdl8w9n3mtq70stwzupvdtj7jlucgreftn065ph2y0lag6cyq
+fidenaro_package: package_tdx_2_1p4cv2npjtjjdtrcmqeuftdppws2fpzhcapqj9mmdqvwn8uqa43w5x8
+fidenaro_component: component_tdx_2_1cp2yk0289jx060tnthh52rqm9lhr89ww595fmtvxdw3gkkev9ekhug
+fidenaro_component_admin_badge: resource_tdx_2_1t4sax7h2az9tkpdg6yrmt6yeu4c04a04ujdfdu5ah5puvvaer8j36k
 
 
 // create radiswap bitcoin pool
@@ -113,7 +113,7 @@ CALL_METHOD
 
 // instatiate fidenaro
 CALL_FUNCTION
-    Address("package_tdx_2_1pk8aax4t4dzu4jj7queafau0ny7fhamzdvunfxtdx93vd3hx5x6fqa")
+    Address("package_tdx_2_1p4cv2npjtjjdtrcmqeuftdppws2fpzhcapqj9mmdqvwn8uqa43w5x8")
     "Fidenaro"
     "instantiate"
     Enum<OwnerRole::None>();
@@ -126,10 +126,10 @@ CALL_METHOD
 CALL_METHOD
     Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
     "create_proof_of_amount"
-    Address("resource_tdx_2_1t4f2rcdl8w9n3mtq70stwzupvdtj7jlucgreftn065ph2y0lag6cyq")
+    Address("resource_tdx_2_1t4sax7h2az9tkpdg6yrmt6yeu4c04a04ujdfdu5ah5puvvaer8j36k")
     Decimal("1");
 CALL_METHOD
-    Address("component_tdx_2_1cr2whmsx6z6zaeqsvht27yxvandeww92mmd0x8f0fcmyt5spgj05af")
+    Address("component_tdx_2_1cp2yk0289jx060tnthh52rqm9lhr89ww595fmtvxdw3gkkev9ekhug")
     "add_stable_coin_resource_address"
     Address("resource_tdx_2_1t4nzjg3hyce4setlykrpcn6uldnj3y94z0pme8wrtap9ktagv57h63");
 CALL_METHOD
@@ -141,10 +141,10 @@ CALL_METHOD
 CALL_METHOD
     Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
     "create_proof_of_amount"
-    Address("resource_tdx_2_1t4f2rcdl8w9n3mtq70stwzupvdtj7jlucgreftn065ph2y0lag6cyq")
+    Address("resource_tdx_2_1t4sax7h2az9tkpdg6yrmt6yeu4c04a04ujdfdu5ah5puvvaer8j36k")
     Decimal("1");
 CALL_METHOD
-    Address("component_tdx_2_1cr2whmsx6z6zaeqsvht27yxvandeww92mmd0x8f0fcmyt5spgj05af")
+    Address("component_tdx_2_1cp2yk0289jx060tnthh52rqm9lhr89ww595fmtvxdw3gkkev9ekhug")
     "new_pool_to_whitelist"
     Address("component_tdx_2_1cp66u08j9f9zr4kafv6hfy8486ezu3zldgwd76s75t0yq62f2mcy89");
 CALL_METHOD
@@ -155,10 +155,10 @@ CALL_METHOD
 CALL_METHOD
     Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
     "create_proof_of_amount"
-    Address("resource_tdx_2_1t4f2rcdl8w9n3mtq70stwzupvdtj7jlucgreftn065ph2y0lag6cyq")
+    Address("resource_tdx_2_1t4sax7h2az9tkpdg6yrmt6yeu4c04a04ujdfdu5ah5puvvaer8j36k")
     Decimal("1");
 CALL_METHOD
-    Address("component_tdx_2_1cr2whmsx6z6zaeqsvht27yxvandeww92mmd0x8f0fcmyt5spgj05af")
+    Address("component_tdx_2_1cp2yk0289jx060tnthh52rqm9lhr89ww595fmtvxdw3gkkev9ekhug")
     "new_pool_to_whitelist"
     Address("component_tdx_2_1cp6ye55hvfz4mp33ys766qecg26rrtkrxvhex70nnax2eppf9ssued");
 CALL_METHOD
