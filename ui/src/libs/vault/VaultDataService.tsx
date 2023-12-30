@@ -57,6 +57,8 @@ export const getVaultById = async (address: string): Promise<Vault> => {
             followerEquity = totalEquity - managerEquity;
         }
 
+        let activeDays = calculateActiveDays(vault_fields)
+
         let vault: Vault = {
             name,
             id: address,
@@ -65,7 +67,7 @@ export const getVaultById = async (address: string): Promise<Vault> => {
             manager_badge_address,
             total: 0,
             today: 0,
-            activeDays: 0,
+            activeDays,
             followers: followers,
             totalEquity,
             managerEquity,
@@ -143,6 +145,16 @@ function getTrades(vault_fields: any): Trade[] {
 function formatUnixTimestampToUTC(timestamp: number): string {
     const date = new Date(timestamp * 1000); // Convert to milliseconds
     return date.toISOString().replace('T', ' ').substr(0, 19) + ' UTC';
+}
+
+function daysSince(unixTimestamp: number): number {
+    const millisecondsPerDay = 24 * 60 * 60 * 1000; // 24 hours, 60 minutes, 60 seconds, 1000 milliseconds
+    const now = Date.now(); // Current time in milliseconds
+    const timestampInMilliseconds = unixTimestamp * 1000; // Convert Unix timestamp from seconds to milliseconds
+    const differenceInMilliseconds = now - timestampInMilliseconds;
+    const daysPassed = Math.ceil(differenceInMilliseconds / millisecondsPerDay);
+
+    return daysPassed;
 }
 
 function getAssets(ledgerAssetData: any): Map<string, number> {
@@ -331,4 +343,8 @@ function getManagerShareTokenAmount(fields: any, manager_id: string): number {
         }
     })
     return amount;
+}
+
+function calculateActiveDays(vault_fields: any): number {
+    return daysSince(parseInt(getFieldValueByKey(vault_fields, "creation_date")))
 }
