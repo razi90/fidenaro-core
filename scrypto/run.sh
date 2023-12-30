@@ -369,23 +369,6 @@ EOF
 
 resim run ./tmp/$manifest_name
 
-
-# change short description
-export manifest_name="{$counter}_change_short_description.rtm"
-counter=$((counter + 1))
-cat << EOF > ./tmp/$manifest_name
-CALL_METHOD Address("$account") "lock_fee" Decimal("10");
-CALL_METHOD
-    Address("$account")
-    "create_proof_of_amount"
-    Address("$trading_vault_badge")
-    Decimal("1")
-;
-CALL_METHOD Address("$trading_vault_component") "change_short_description" "New short description";
-EOF
-
-resim run ./tmp/$manifest_name
-
 # swap USDC to BTC
 export manifest_name="{$counter}_usdc_to_btc_swap.rtm"
 counter=$((counter + 1))

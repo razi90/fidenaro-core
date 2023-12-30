@@ -58,7 +58,7 @@ export const getVaultById = async (address: string): Promise<Vault> => {
         }
 
         let vault: Vault = {
-            name: name,
+            name,
             id: address,
             description,
             share_token_address,
