@@ -72,11 +72,11 @@ const Layout: React.FC = () => {
                         <FidenaroCircularProgress circleSize="30vh" circleBorderThickness="2px" circleImageSize="20vh" />
 
                     </Center>
-                    <Text w="100%"
+                    <Text
                         align={"center"}
                         alignItems="center"
-                        justifyContent="center" color={"grey"} fontSize={"14px"}>
-                        There is currently no support for a Mobile Version of Fidenaro. <br />
+                        justifyContent="center" color={"grey"} fontSize={"24px"} >
+                        There is currently no support for a Mobile Version of Fidenaro.
                         Please choose a Desktop environment in order to Test the Beta.
                     </Text>
                 </Box >

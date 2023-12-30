@@ -1,6 +1,7 @@
 import React from 'react';
 import {
     Box,
+    ButtonGroup,
     Center,
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
@@ -94,18 +95,18 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                 </Flex>
                             </Flex >
                             <Flex justifyContent='flex-end' w={"100%"} mt={6} px={2}  >
-
-                                <DepositButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
-                                <Box mx={1}></Box>
-                                <WithdrawButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
-
-                            </Flex>
-                            <Flex justifyContent='flex-end' w={"100%"} mt={6} px={2}  >
                                 {
                                     user?.id === vault?.manager.id &&
                                     <TradeButton vault={vault} isConnected={wallet?.persona !== undefined} />
                                 }
+                                <Box m={1}></Box>
+                                <DepositButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
+                                <Box m={1}></Box>
+                                <WithdrawButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
+
+
                             </Flex>
+
 
                         </PrimerCard >
 

@@ -49,18 +49,28 @@ const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setI
             width={isMinimized ? "60px" : "200px"}
         >
             <VStack align="stretch" sx={leftNavigationMainVStackStyle}>
-                {user?.id == '' || wallet?.persona == undefined ? (
-                    <CreateUserButton
-                        navIsMinimized={isMinimized}
-                    />
-                ) : (
-                    <LeftNavigationButton
-                        link={`/profile/${filteredUserId}`}
-                        title={user ? user.name : 'Profile'}
-                        icon={user ? user.avatar : FaUserCircle}
-                        navIsMinimized={isMinimized}
-                    />
-                )
+                {wallet?.persona == undefined ?
+                    (
+                        <CreateUserButton
+                            navIsMinimized={isMinimized}
+                        />
+                    ) : (
+                        <>
+                            {user?.id == '' ? (
+                                <CreateUserButton
+                                    navIsMinimized={isMinimized}
+                                />
+                            ) : (
+                                <LeftNavigationButton
+                                    link={`/profile/${filteredUserId}`}
+                                    title={user ? user.name : 'Profile'}
+                                    icon={user ? user.avatar : FaUserCircle}
+                                    navIsMinimized={isMinimized}
+                                />
+                            )
+                            }
+                        </>
+                    )
                 }
 
 
