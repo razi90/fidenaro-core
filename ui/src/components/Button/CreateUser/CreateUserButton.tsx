@@ -15,6 +15,7 @@ export const CreateUserButton: React.FC<(CreateUserButtonProps)> = ({ navIsMinim
     return (
         <>
             <Button
+                className='create-profile-button-first-step'
                 as={Link}
                 onClick={() => setIsOpen(true)}
                 sx={leftNavigationButtonStyle}

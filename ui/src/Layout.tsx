@@ -17,18 +17,18 @@ import {
     Center,
 } from "@chakra-ui/react";
 import { initRadixDappToolkit } from './libs/radix-dapp-toolkit/rdt';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { routePageBoxStyle } from './libs/styles/RoutePageBox';
 import { FidenaroCircularProgress } from './components/Loading/FidenaroCircularProgress/FidenaroCircularProgress';
+import { fetchLeftNavigationStatus } from './libs/navigation/LeftNavigationBarDataService';
 
 
 
 const Layout: React.FC = () => {
+
+
     // state for the left navigation bar width
-    const [isMinimized, setIsMinimized] = useState(() => {
-        const storedValue = localStorage.getItem("leftNavigationBarIsMinimized");
-        return storedValue ? JSON.parse(storedValue) : false;
-    });
+    const [isMinimized, setIsMinimized] = useState(fetchLeftNavigationStatus());
 
     // init subscription for wallet connection recognizer.
     const queryClient = useQueryClient()
