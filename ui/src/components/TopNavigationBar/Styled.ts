@@ -4,7 +4,7 @@ export const topNavigationBoxStyle = {
     textShadow: "sm",
     as: "header",
     position: "fixed",
-    zIndex: "1500",
+    zIndex: "10",
     w: "100%",
     px: "4",
     color: "black",

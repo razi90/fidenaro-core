@@ -71,6 +71,7 @@ const GetFusdButton: React.FC = () => {
         <>
             <Tooltip label='Money Printer Goes Brrr'>
                 <Button
+                    className='get-fusd-button-first-step'
                     onClick={sendToken}
                     sx={defaultLinkButtonStyle}
                     size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}

@@ -15,7 +15,7 @@ export const valueCardStyle = {
 export const statCardStyle = {
     color: "black",
     size: "lg",
-    minW: "100px",
+    minW: "130px",
     borderRadius: "md",
     bg: "pElementTransparent.890",
     p: "4",

@@ -7,6 +7,7 @@ import PnlText from '../Text/PnlText';
 import { ValueCard } from '../Card/ValueCard';
 import { LinkCard } from '../Card/LinkCard';
 import { FollowButton } from '../Button/FollowButton/FollowButton';
+import { TruncatedNumberValue } from '../Text/TruncatedValue';
 
 interface CardCarouselProps {
     rankedVaults: Vault[] | undefined;

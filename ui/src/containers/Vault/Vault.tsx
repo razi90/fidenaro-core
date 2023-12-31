@@ -103,10 +103,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                 <DepositButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
                                 <Box m={1}></Box>
                                 <WithdrawButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
-
-
                             </Flex>
-
 
                         </PrimerCard >
 

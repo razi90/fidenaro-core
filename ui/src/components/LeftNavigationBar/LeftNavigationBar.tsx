@@ -25,6 +25,7 @@ import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 import CreateUserButton from '../Button/CreateUser/CreateUserButton';
+import { fetchLeftNavigationStatus } from '../../libs/navigation/LeftNavigationBarDataService';
 
 interface LeftNavigationBarProps {
     isMinimized: boolean;
@@ -34,8 +35,11 @@ interface LeftNavigationBarProps {
 const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setIsMinimized }) => {
 
     const toggleMinimize = () => {
-        setIsMinimized(!isMinimized);
-        localStorage.setItem("leftNavigationBarIsMinimized", JSON.stringify(isMinimized));
+
+        const navi = fetchLeftNavigationStatus(); // queryClient.getQueryData(['left_navi_status']) ?? false
+
+        localStorage.setItem('leftNavigationBarIsMinimized', JSON.stringify(!navi));
+        setIsMinimized(!navi);
     };
 
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });

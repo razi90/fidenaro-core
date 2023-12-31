@@ -20,11 +20,19 @@ import { MdOutlineFeedback } from "react-icons/md";
 import { defaultHighlightedLinkButtonStyle } from '../DefaultHighlightedLinkButton/Styled';
 import CancelButton from '../Dialog/CancelButton.tsx/CancelButton';
 import { useSnackbar } from 'notistack';
+import Filter from 'bad-words';
+import { useQuery } from '@tanstack/react-query';
+import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
+import { fetchConnectedWallet } from '../../../libs/wallet/WalletDataService';
 
 
 function FeedbackDialog() {
     const [isOpen, setIsOpen] = useState(false);
     const [userInput, setUserInput] = useState('');
+
+
+    // Bad word filter
+    const filter = new Filter();
 
     const { enqueueSnackbar } = useSnackbar();
 
@@ -47,6 +55,12 @@ function FeedbackDialog() {
                 content: userInput,
             };
 
+            // filter bad words in profile name
+            if (filter.clean(userInput) != userInput) {
+                enqueueSnackbar("Sorry, you've used bad words.", { variant: 'error' });
+                return
+            }
+
             // Send a POST request to the Discord webhook
             const response = await axios.post(webhookUrl, payload);
 
@@ -67,6 +81,19 @@ function FeedbackDialog() {
             enqueueSnackbar('Request failed', { variant: 'error' });
         }
     };
+
+    // load wallet data
+    const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
+
+    // wallet not connected
+    if ((wallet?.persona) == undefined) {
+        // Return error JSX if an error occurs during fetching
+        return (
+            <>
+            </>
+        );
+    }
+
 
     return (
         <>

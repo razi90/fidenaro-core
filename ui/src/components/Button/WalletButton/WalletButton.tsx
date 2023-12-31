@@ -15,7 +15,7 @@ export const WalletButton: React.FC = () => {
     return (
         <>
             <Tooltip label='Connect to your Wallet'>
-                <Box sx={walletButtonBoxStyle}>
+                <Box className="wallet-first-step" sx={walletButtonBoxStyle}>
                     <style>{walletButtonStyle}</style>
                     <div className="connect-button-wrapper">
                         <radix-connect-button

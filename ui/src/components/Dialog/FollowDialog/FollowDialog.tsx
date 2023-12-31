@@ -175,8 +175,6 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
                     <ModalHeader>New Following
                         <Stack>
                             <Divider />
-
-
                             <Text fontSize='md'>
                                 Action: <b>{activeStepText}</b>
                             </Text>
@@ -187,11 +185,8 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
                                 height='10px'
                                 width='full'
                                 top='10px'
-
                             />
                         </Stack>
-
-
                     </ModalHeader>
                     <ModalCloseButton />
 

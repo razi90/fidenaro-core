@@ -23,11 +23,48 @@ import FeedbackButton from "../Button/FeedbackButton/FeedbackButton";
 import { CreateVaultButton } from "../Button/CreateVault/CreateVault";
 import GetFusdButton from "../Button/GetFUSD/GetFUSDButton";
 
+import React, { useState, useEffect } from 'react';
+import Joyride, { Step } from 'react-joyride';
+import { Button } from '@chakra-ui/react';
+
 
 
 export default function TopNavigationBar() {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
+    const [steps, setSteps] = useState<Step[]>([
+        {
+            target: '.wallet-first-step',
+            content: 'First of all connect the wallet on the testnet. [Settings -> App Settings -> Gateways and Development Mode ON]. Afterwards get virtual XRD to pay the test fees via [Wallet Account -> Account Settings -> Dev Preferences -> Get XRD Test Tokens].',
+        },
+        {
+            target: '.get-fusd-button-first-step',
+            content: 'No you can order hier the Fidenaro Test stable coin FUSD. This is required to invest and trade with vaults.',
+        },
+        {
+            target: '.create-profile-button-first-step',
+            content: 'Create your Fidenaro User Profile in order to use the Fidenaro plattform.',
+        },
+        {
+            target: '.create-vault-button-first-step',
+            content: 'Create your vaults via the plus! Have fun :)',
+        },
+    ]);
+
+    useEffect(() => {
+        const localStorageItem = localStorage.getItem('joyrideCompleted');
+        if (!localStorageItem) {
+            // Set the localStorage item with an initialization value
+            localStorage.setItem('joyrideCompleted', JSON.stringify(false));
+        }
+    }, []);
+
+    const handleJoyrideCallback = (data: any) => {
+        if (data.status === 'finished') {
+            // Update the localStorage item when the joyride is completed
+            localStorage.setItem('joyrideCompleted', JSON.stringify(true));
+        }
+    };
 
     return (
         <>
@@ -65,6 +102,20 @@ export default function TopNavigationBar() {
                 </Center>
             </Box>
             <Box sx={topNavigationHiddenBoxStyle} />
+            <Joyride
+                steps={steps}
+                continuous
+                run={!JSON.parse(localStorage.getItem('joyrideCompleted') || 'false')}
+                callback={handleJoyrideCallback}
+                styles={{
+                    options: {
+                        arrowColor: "#6B5EFF",
+                        backgroundColor: "white",
+                        primaryColor: "#6B5EFF",
+                        textColor: '#000',
+                    },
+                }}
+            />
         </>
     );
 }

@@ -1,7 +1,6 @@
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, InputGroup, InputLeftElement, Icon, Checkbox, Textarea, Button, InputLeftAddon } from "@chakra-ui/react";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { FaDiscord, FaTelegram, FaTwitter } from "react-icons/fa";
-import { useQuery } from "@tanstack/react-query";
 import { User } from "../../../libs/entities/User";
 import { USER_NFT_RESOURCE_ADDRESS, fetchUserInfo } from "../../../libs/user/UserDataService";
 import { useEffect, useState } from "react";
@@ -9,6 +8,7 @@ import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlight
 import { enqueueSnackbar } from "notistack";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
 import { FidenaroComponentAddress } from "../../../libs/fidenaro/Config";
+import Filter from 'bad-words';
 
 interface ProfileEditDialogProps {
     isOpen: boolean,
@@ -26,6 +26,9 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
     const [twitter, setTwitter] = useState('');
     const [telegram, setTelegram] = useState('');
     const [discord, setDiscord] = useState('');
+
+    // Bad word filter
+    const filter = new Filter();
 
     useEffect(() => {
         if (user) {
@@ -80,6 +83,20 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
         if (discord.trim().length > 32) {
             setIsLoading(false);
             enqueueSnackbar('Sorry, the discord handle is too long.', { variant: 'error' });
+            return
+        }
+
+        // filter bad words in profile name
+        if (filter.clean(userName) != userName) {
+            setIsLoading(false);
+            enqueueSnackbar("Sorry, you've used bad words.", { variant: 'error' });
+            return
+        }
+
+        // filter bad words in bio text
+        if (filter.clean(userBio) != userBio) {
+            setIsLoading(false);
+            enqueueSnackbar("Sorry, you've used bad words.", { variant: 'error' });
             return
         }
 
@@ -211,7 +228,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                                 <InputLeftElement pointerEvents='none'>
                                     <Icon as={FaTwitter} boxSize={5} />
                                 </InputLeftElement>
-                                <InputLeftAddon pl={10} children="https://twitter.com/" opacity={0.5} />
+                                <InputLeftAddon minW={"200px"} pl={10} children="https://twitter.com/" opacity={0.5} />
                                 <Input
                                     placeholder="Enter Your Twitter Handle"
                                     value={twitter}
@@ -222,7 +239,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                                 <InputLeftElement pointerEvents='none'>
                                     <Icon as={FaTelegram} boxSize={5} />
                                 </InputLeftElement>
-                                <InputLeftAddon pl={10} children="https://t.me/@" opacity={0.5} />
+                                <InputLeftAddon minW={"200px"} pl={10} children="https://t.me/@" opacity={0.5} />
                                 <Input
                                     placeholder="Enter Your Telegram Handle"
                                     value={telegram}
@@ -233,7 +250,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                                 <InputLeftElement pointerEvents='none'>
                                     <Icon as={FaDiscord} boxSize={5} />
                                 </InputLeftElement>
-                                <InputLeftAddon pl={10} children="https://discord.gg/" opacity={0.5} />
+                                <InputLeftAddon minW={"200px"} pl={10} children="https://discord.gg/" opacity={0.5} />
                                 <Input
                                     placeholder="Enter Your Discord Handle"
                                     value={discord}

@@ -22,6 +22,7 @@ export const CreateVaultButton: React.FC<CreateVaultButtonProps> = ({ user }) =>
         <>
             <Tooltip label='Create Vault'>
                 <Button
+                    className='create-vault-button-first-step'
                     onClick={() => setIsOpen(true)}
                     sx={defaultLinkButtonStyle}
                     title="Create Vault"
