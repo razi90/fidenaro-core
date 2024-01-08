@@ -67,13 +67,13 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
     // State variables for filter values
     const [nameFilter, setNameFilter] = useState('');
     const [totalFilter, setTotalFilter] = useState(Number.MIN_SAFE_INTEGER);
-    const [todayFilter, setTodayFilter] = useState(Number.MIN_SAFE_INTEGER);
+    // const [todayFilter, setTodayFilter] = useState(Number.MIN_SAFE_INTEGER);
     const [activeDaysFilter, setActiveDaysFilter] = useState(Number.MIN_SAFE_INTEGER);
     const [followersFilter, setFollowersFilter] = useState(Number.MIN_SAFE_INTEGER);
 
     // Filter options
     const totalOptions = [-50, 0, 50, 100, 200];
-    const todayOptions = [-10, 0, 10, 20];
+    // const todayOptions = [-10, 0, 10, 20];
     const activeDaysOptions = [30, 60, 90];
     const followersOptions = [10, 50, 100];
 
@@ -90,7 +90,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
     const resetFilters = () => {
         setNameFilter('');
         setTotalFilter(Number.MIN_SAFE_INTEGER);
-        setTodayFilter(Number.MIN_SAFE_INTEGER);
+        // setTodayFilter(Number.MIN_SAFE_INTEGER);
         setActiveDaysFilter(Number.MIN_SAFE_INTEGER);
         setFollowersFilter(Number.MIN_SAFE_INTEGER);
     };
@@ -132,19 +132,18 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
             // Apply filtering based on the filter criteria
             filteredEntries = filteredEntries.filter((entry) => {
                 const nameMatch = entry.name.toLowerCase().includes(nameFilter.toLowerCase());
-                const totalMatch = entry.total >= totalFilter;
-                const todayMatch = entry.today >= todayFilter;
+                const totalMatch = (entry.pnl / entry.totalEquity * 100) >= totalFilter;
+                // const todayMatch = entry.today >= todayFilter;
                 const activeDaysMatch = entry.activeDays >= activeDaysFilter;
                 const followersMatch = entry.followers.length >= followersFilter;
 
-                return nameMatch && totalMatch && todayMatch && activeDaysMatch && followersMatch;
+                return nameMatch && totalMatch && activeDaysMatch && followersMatch;
             });
             // Set the sorder and filtered data
             setFilteredData(filteredEntries);
 
         }
-    }, [nameFilter, totalFilter, todayFilter, activeDaysFilter, followersFilter, sortedColumn, sortOrder]);
-    //}, [nameFilter, totalFilter, todayFilter, activeDaysFilter, followersFilter, filteredData, sortedColumn, sortOrder]);
+    }, [nameFilter, totalFilter, activeDaysFilter, followersFilter, sortedColumn, sortOrder]);
 
     return (
         <Box mx={"0px"}>
@@ -184,14 +183,6 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                 />
 
                                 <FilterSelect
-                                    placeholder='Today'
-                                    value={todayFilter}
-                                    onChange={setTodayFilter}
-                                    options={todayOptions}
-                                    is_percent={true}
-                                />
-
-                                <FilterSelect
                                     placeholder='Active days'
                                     value={activeDaysFilter}
                                     onChange={setActiveDaysFilter}
@@ -220,10 +211,9 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                     <Tr>
                                         <Th>Name</Th>
                                         <Th>Total</Th>
-                                        <Th>Today</Th>
                                         <Th>Active Days</Th>
                                         <Th>Follower</Th>
-                                        <Th isNumeric>Performance</Th>
+                                        <Th>Performance</Th>
                                         <Th>Equity</Th>
                                         <Th></Th>
                                     </Tr>
@@ -235,12 +225,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                             <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
                                             <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
                                             <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
-                                            <Td>
-                                                <SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' />
-                                            </Td>
-                                            <Td isNumeric>
-                                                <SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' />
-                                            </Td>
+                                            <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
                                             <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
                                             <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
                                         </Tr>
