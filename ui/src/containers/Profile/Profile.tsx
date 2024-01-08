@@ -77,10 +77,10 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
         return <Box sx={routePageBoxStyle(isMinimized)}>Error loading data</Box>;
     }
 
-    const managedVaults = vaults?.filter((vault) => vault.manager.id === user?.id)
+    const managedVaults = vaults?.filter((vault) => vault.manager.id === profile?.id)
 
 
-    const investedVaults = vaults?.filter((vault) => vault.followerList.includes(user?.account ?? ''))
+    const investedVaults = vaults?.filter((vault) => vault.followerList.includes(profile?.account ?? ''))
 
 
 
