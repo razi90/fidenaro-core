@@ -59,7 +59,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
         }
 
         // check if url is valid
-        if (!isValidUrl(pfpUrl.trim())) {
+        if (pfpUrl.trim().length > 0 && !isValidUrl(pfpUrl.trim())) {
             setIsLoading(false);
             enqueueSnackbar('Sorry, the profile picture URL is invalid.', { variant: 'error' });
             return
@@ -215,7 +215,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                                 onChange={(e) => setUserBio(e.target.value)}
                             />
                             <Input
-                                placeholder="Enter URL to Profile Picture"
+                                placeholder="Enter URL to Profile Picture (Optional)"
                                 value={pfpUrl}
                                 onChange={(e) => setPfpUrl(e.target.value)}
                             />
@@ -230,7 +230,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                                 </InputLeftElement>
                                 <InputLeftAddon minW={"200px"} pl={10} children="https://twitter.com/" opacity={0.5} />
                                 <Input
-                                    placeholder="Enter Your Twitter Handle"
+                                    placeholder="Enter Your Twitter Handle (Optional)"
                                     value={twitter}
                                     onChange={(e) => setTwitter(e.target.value)}
                                 />
@@ -241,7 +241,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                                 </InputLeftElement>
                                 <InputLeftAddon minW={"200px"} pl={10} children="https://t.me/@" opacity={0.5} />
                                 <Input
-                                    placeholder="Enter Your Telegram Handle"
+                                    placeholder="Enter Your Telegram Handle (Optional)"
                                     value={telegram}
                                     onChange={(e) => setTelegram(e.target.value)}
                                 />
@@ -252,7 +252,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
                                 </InputLeftElement>
                                 <InputLeftAddon minW={"200px"} pl={10} children="https://discord.gg/" opacity={0.5} />
                                 <Input
-                                    placeholder="Enter Your Discord Handle"
+                                    placeholder="Enter Your Discord Handle (Optional)"
                                     value={discord}
                                     onChange={(e) => setDiscord(e.target.value)}
                                 />
