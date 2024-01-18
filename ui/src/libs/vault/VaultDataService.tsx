@@ -16,6 +16,7 @@ export const fetchVaultList = async (): Promise<Vault[]> => {
         for (const address of tradeVaultComponentAddresses) {
             let vault = await getVaultById(address);
             tradeVaults.push(vault);
+            break;
         }
         return tradeVaults;
     } catch (error) {
@@ -50,13 +51,15 @@ export const getVaultById = async (address: string): Promise<Vault> => {
 
         let managerEquity = 0;
         let followerEquity = 0;
-        let pnl = 0
+        let pnl = 0;
+        let pricePerShare = 0;
 
         if (totalShareTokenAmount !== 0) {
             const managerShareTokenAmount = getManagerShareTokenAmount(vault_fields, manager_id);
             managerEquity = totalEquity * (managerShareTokenAmount / totalShareTokenAmount);
             followerEquity = totalEquity - managerEquity;
             pnl = totalEquity - calculateDeployedCapital(vault_fields)
+            pricePerShare = totalEquity / totalShareTokenAmount
         }
 
         let activeDays = calculateActiveDays(vault_fields)
@@ -74,12 +77,13 @@ export const getVaultById = async (address: string): Promise<Vault> => {
             totalEquity,
             managerEquity,
             followerEquity,
+            pricePerShare,
             profitShare: fee,
             pnl,
             manager,
             followerList: [],
             tradeHistory,
-            assets
+            assets,
         }
 
         return vault

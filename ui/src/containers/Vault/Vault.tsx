@@ -51,7 +51,6 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
     const { data: candleChartData, isLoading: isCandleChartLoading, isError: isCandleChartFetchError } = useQuery({ queryKey: ['candle_chart'], queryFn: fetchVaultPerformanceSeries });
     const { data: followerChartData, isLoading: isFollowerChartLoading, isError: isFollowerChartFetchError } = useQuery({ queryKey: ['follower_chart'], queryFn: fetchVaultFollowerChartData });
     const { data: totalChartData, isLoading: isTotalChartLoading, isError: isTotalChartFetchError } = useQuery({ queryKey: ['total_chart'], queryFn: fetchVaultTotalChartData });
-    const { data: todayChartData, isLoading: isTodayChartLoading, isError: isTodayChartFetchError } = useQuery({ queryKey: ['today_chart'], queryFn: fetchVaultTodayChartData });
     const { data: profitabilityChartData, isLoading: isProfitabilityChartLoading, isError: isProfitabilityChartFetchError } = useQuery({ queryKey: ['profitability_chart'], queryFn: fetchVaultProfitabilityData });
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
@@ -59,6 +58,9 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
         // Return error JSX if an error occurs during fetching
         enqueueSnackbar("Error loading user data", { variant: "error" });
     }
+
+    let user_share_token_amount = vault?.share_token_address && user?.assets.has(vault?.share_token_address) ? user.assets.get(vault?.share_token_address) : 0;
+    let user_share_amount = vault?.pricePerShare ? vault.pricePerShare * user_share_token_amount! : 0;
 
     return (
 
@@ -143,6 +145,11 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                 <ValueCard value={convertToDollarString(vault?.totalEquity)} description={"Equity"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={convertToDollarString(vault?.followerEquity)} description={"Equity Follower"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={convertToDollarString(vault?.managerEquity)} description={"Equity Manager"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                {/* <ValueCard value={convertToDollarString(vault?.pricePerShare)} description={"Price per Share"} isLoading={isVaultFetchLoading || isUserFetchLoading} /> */}
+                            </Flex>
+                            <Flex >
+                                <StatCard title="Your PnL" value={convertToPercentPnl(vault?.totalEquity, vault?.pnl)} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                <ValueCard value={convertToDollarString(user_share_amount)} description={"Your Share"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                             </Flex>
 
                         </PrimerCard>

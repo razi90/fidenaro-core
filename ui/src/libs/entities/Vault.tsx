@@ -14,6 +14,7 @@ export interface Vault {
     totalEquity: number;
     managerEquity: number;
     followerEquity: number;
+    pricePerShare: number;
     profitShare: number;
     pnl: number;
     manager: User;
