@@ -79,10 +79,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
     const managedVaults = vaults?.filter((vault) => vault.manager.id === profile?.id)
 
-
     const investedVaults = vaults?.filter((vault) => vault.followerList.includes(profile?.account ?? ''))
-
-
 
     // Calculate the total followers from managed vaults
     const totalFollowers = managedVaults?.reduce((total, vault) => total + vault.followers.length, 0);
@@ -97,10 +94,26 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
     const investorPnL = investedVaults?.reduce((total: any, vault: any) => total + vault.pnl, 0);
 
-
-
     // Total number of trades from all managed vaults
     const totalTrades = managedVaults?.reduce((total, vault) => total + vault.tradeHistory.length, 0);
+
+    let managerPnLRankings = new Map();
+
+    // calculate rank of each manager
+    vaults?.forEach(vault => {
+        let managerId = vault.manager.id;
+        if (!managerPnLRankings.has(managerId)) {
+            managerPnLRankings.set(managerId, 0);
+        }
+        managerPnLRankings.set(managerId, managerPnLRankings.get(managerId) + vault.pnl);
+    });
+
+    let sortedManagersByRank = Array.from(managerPnLRankings).sort((a, b) => {
+        return b[1] - a[1]; // Sorting in descending order of PnL
+    });
+
+    // Find the rank of the specific manager
+    let managerRank = sortedManagersByRank.findIndex(manager => manager[0] === profile?.id) + 1; // +1 because array indices start at 0
 
     return (
         <>
@@ -193,6 +206,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
                                             <HStack mt={8}>
                                                 <ProfileStatsTable
+                                                    rank={managerRank}
                                                     totalEquity={totalEquity}
                                                     managerPnL={managerPnL}
                                                     investorPnL={investorPnL}

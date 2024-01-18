@@ -1,21 +1,18 @@
 import {
-    Card,
     Table,
     Text,
-    Th,
     Tr,
     Td,
     Tbody,
-    Tfoot,
     SkeletonText,
 } from '@chakra-ui/react';
 import React from 'react';
-import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
 
 
 
 interface ProfileStatsTableProps {
+    rank: any;
     totalEquity: any;
     managerPnL: any;
     investorPnL: any;
@@ -23,7 +20,7 @@ interface ProfileStatsTableProps {
     isLoading: boolean;
 }
 
-export const ProfileStatsTable: React.FC<ProfileStatsTableProps> = ({ totalEquity, managerPnL, investorPnL, totalTrades, isLoading }) => {
+export const ProfileStatsTable: React.FC<ProfileStatsTableProps> = ({ rank, totalEquity, managerPnL, investorPnL, totalTrades, isLoading }) => {
 
     return (
 
@@ -34,7 +31,7 @@ export const ProfileStatsTable: React.FC<ProfileStatsTableProps> = ({ totalEquit
                         <Tbody>
                             <Tr sx={tableStyle}>
                                 <Td><Text fontWeight="bold">Rank</Text></Td>
-                                <Td>10</Td>
+                                <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
                             </Tr>
                             <Tr sx={tableStyle}>
                                 <Td><Text fontWeight="bold">Total Raised</Text></Td>
@@ -59,7 +56,7 @@ export const ProfileStatsTable: React.FC<ProfileStatsTableProps> = ({ totalEquit
                         <Tbody>
                             <Tr sx={tableStyle}>
                                 <Td><Text fontWeight="bold">Rank</Text></Td>
-                                <Td>10</Td>
+                                <Td>{rank}</Td>
                             </Tr>
                             <Tr sx={tableStyle}>
                                 <Td><Text fontWeight="bold">Total Raised</Text></Td>
@@ -80,9 +77,8 @@ export const ProfileStatsTable: React.FC<ProfileStatsTableProps> = ({ totalEquit
                         </Tbody>
                     </Table>
 
-                )}
-
-
+                )
+            }
         </>
     );
 };
