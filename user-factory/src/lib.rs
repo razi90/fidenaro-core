@@ -25,7 +25,7 @@ mod user_factory {
 
     impl UserFactory {
         pub fn instantiate() -> Global<UserFactory> {
-            let (_address_reservation, component_address) =
+            let (address_reservation, component_address) =
                 Runtime::allocate_component_address(UserFactory::blueprint_id());
 
             let user_token_manager = ResourceBuilder::new_integer_non_fungible::<User>(
@@ -58,6 +58,7 @@ mod user_factory {
             }
             .instantiate()
             .prepare_to_globalize(OwnerRole::None)
+            .with_address(address_reservation)
             .globalize()
         }
 
@@ -69,7 +70,7 @@ mod user_factory {
             twitter: String,
             telegram: String,
             discord: String,
-        ) -> Bucket {
+        ) -> NonFungibleBucket {
             let new_user = User {
                 user_name,
                 bio,
@@ -85,7 +86,7 @@ mod user_factory {
 
             self.user_count += 1;
 
-            user_token
+            user_token.as_non_fungible()
         }
 
         pub fn update_user_data(
