@@ -1,0 +1,6 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./scrypto/Cargo.toml",
+        "./user-factory/Cargo.toml",
+    ]
+}
