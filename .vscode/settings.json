@@ -1,6 +1,7 @@
 {
     "rust-analyzer.linkedProjects": [
-        "./scrypto/Cargo.toml",
-        "./user-factory/Cargo.toml",
+        "./scrypto/fidenaro/Cargo.toml",
+        "./scrypto/trade-vault/Cargo.toml",
+        "./scrypto/user-factory/Cargo.toml",
     ]
 }
