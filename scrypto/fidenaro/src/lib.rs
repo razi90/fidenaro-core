@@ -134,37 +134,39 @@ mod fidenaro {
                 .put(token);
         }
 
+        pub fn register_vault(&mut self, vault_address: ComponentAddress) {}
+
         //////////////////////////
         ///methods for everyone///
         //////////////////////////
 
-        pub fn new_vault(
-            &mut self,
-            user_token: NonFungibleBucket,
-            vault_name: String,
-            short_description: String,
-        ) -> (FungibleBucket, NonFungibleBucket) {
-            assert!(
-                user_token.resource_address() == self.user_token_manager.address(),
-                "Wrong user token."
-            );
+        // pub fn new_vault(
+        //     &mut self,
+        //     user_token: NonFungibleBucket,
+        //     vault_name: String,
+        //     short_description: String,
+        // ) -> (FungibleBucket, NonFungibleBucket) {
+        //     assert!(
+        //         user_token.resource_address() == self.user_token_manager.address(),
+        //         "Wrong user token."
+        //     );
 
-            let (vault, vault_manager_badge, share_token_address, user_token) =
-                crate::trade_vault::trade_vault::TradeVault::instantiate_trade_vault(
-                    user_token,
-                    vault_name,
-                    Runtime::global_address(),
-                    short_description,
-                )
-                .into();
+        //     let (vault, vault_manager_badge, share_token_address, user_token) =
+        //         crate::trade_vault::trade_vault::TradeVault::instantiate_trade_vault(
+        //             user_token,
+        //             vault_name,
+        //             Runtime::global_address(),
+        //             short_description,
+        //         )
+        //         .into();
 
-            self.vaults.insert(
-                vault.address(),
-                (vault_manager_badge.resource_address(), share_token_address),
-            );
+        //     self.vaults.insert(
+        //         vault.address(),
+        //         (vault_manager_badge.resource_address(), share_token_address),
+        //     );
 
-            (vault_manager_badge, user_token)
-        }
+        //     (vault_manager_badge, user_token)
+        // }
 
         pub fn get_vaults(
             &mut self,
