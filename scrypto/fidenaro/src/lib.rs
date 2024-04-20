@@ -25,14 +25,11 @@ mod fidenaro {
         },
         methods {
             // Methods with public access
-            new_user => PUBLIC;
             new_vault => PUBLIC;
             get_vaults => PUBLIC;
-            update_user_data => PUBLIC;
             get_fidenaro_withdrawal_fee => PUBLIC;
             get_whitelisted_pool_addresses => PUBLIC;
             get_stable_coin_resource_address => PUBLIC;
-            get_user_token_resource_address => PUBLIC;
 
             // Methods with admin access
             add_token_to_fee_vaults => restrict_to: [admin, OWNER];
@@ -141,33 +138,6 @@ mod fidenaro {
         ///methods for everyone///
         //////////////////////////
 
-        pub fn new_user(
-            &mut self,
-            user_name: String,
-            bio: String,
-            pfp_url: String,
-            twitter: String,
-            telegram: String,
-            discord: String,
-        ) -> Bucket {
-            let new_user = User {
-                user_name,
-                bio,
-                pfp_url: Url::of(pfp_url),
-                twitter,
-                telegram,
-                discord,
-            };
-            let user_token = self.user_token_manager.mint_non_fungible(
-                &NonFungibleLocalId::Integer(self.user_count.into()),
-                new_user,
-            );
-
-            self.user_count += 1;
-
-            user_token
-        }
-
         pub fn new_vault(
             &mut self,
             user_token: NonFungibleBucket,
@@ -194,24 +164,6 @@ mod fidenaro {
             );
 
             (vault_manager_badge, user_token)
-        }
-
-        pub fn update_user_data(
-            &mut self,
-            user_token_proof: Proof,
-            data_map: HashMap<String, String>,
-        ) {
-            let checked_proof = user_token_proof.check(self.get_user_token_resource_address());
-            let user_token = checked_proof.as_non_fungible();
-            let non_fungible_local_id = user_token.non_fungible_local_id();
-
-            for (field_name, new_data) in data_map.iter() {
-                self.user_token_manager.update_non_fungible_data(
-                    &non_fungible_local_id,
-                    field_name,
-                    new_data,
-                );
-            }
         }
 
         pub fn get_vaults(
@@ -270,10 +222,6 @@ mod fidenaro {
                 tokens.push(vault.take_all());
             }
             tokens
-        }
-
-        pub fn get_user_token_resource_address(&self) -> ResourceAddress {
-            self.user_token_manager.address()
         }
     }
 }
