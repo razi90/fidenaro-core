@@ -9,8 +9,9 @@ sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.1" }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.1" }
 
 [dev-dependencies]
-fidenaro = { path = ".", features = ["test"] }
-user-factory = { path = "../../user-factory" }
+trade-vault = { path = ".", features = ["test"] }
+fidenaro = { path = "../fidenaro" }
+user-factory = { path = "../user-factory" }
 native-sdk = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.1" }
 transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.1" }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.1" }

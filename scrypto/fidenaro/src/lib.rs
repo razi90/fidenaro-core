@@ -107,11 +107,11 @@ mod fidenaro {
             self.vaults.clone()
         }
 
-        pub fn get_fidenaro_withdrawal_fee(&mut self) -> Decimal {
+        pub fn get_fidenaro_withdrawal_fee(&self) -> Decimal {
             self.fidenaro_withdrawal_fee
         }
 
-        pub fn get_whitelisted_pool_addresses(&mut self) -> Vec<ComponentAddress> {
+        pub fn get_whitelisted_pool_addresses(&self) -> Vec<ComponentAddress> {
             self.whitelisted_pool_addresses.clone()
         }
 
