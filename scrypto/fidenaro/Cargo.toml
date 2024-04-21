@@ -10,7 +10,6 @@ scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.1"
 
 [dev-dependencies]
 fidenaro = { path = ".", features = ["test"] }
-user-factory = { path = "../user-factory" }
 native-sdk = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.1" }
 transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.1" }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.0.1" }
@@ -32,9 +31,6 @@ test = []
 
 [lib]
 crate-type = ["cdylib", "lib"]
-
-[net]
-git-fetch-with-cli = true
 
 # [workspace]
 # # Set the package crate as its own empty workspace, to hide it from any potential ancestor workspace

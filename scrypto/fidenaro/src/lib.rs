@@ -35,7 +35,7 @@ mod fidenaro {
 
     impl Fidenaro {
         pub fn instantiate(owner_role: OwnerRole) -> (Global<Fidenaro>, Bucket) {
-            let (address_reservation, component_address) =
+            let (address_reservation, _component_address) =
                 Runtime::allocate_component_address(Fidenaro::blueprint_id());
 
             let admin_badge: Bucket = ResourceBuilder::new_fungible(owner_role.clone())
