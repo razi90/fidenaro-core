@@ -31,8 +31,6 @@ mod fidenaro {
         whitelisted_stable_coin_address: Option<ResourceAddress>,
         fidenaro_withdrawal_fee: Decimal,
         fee_vaults: HashMap<ResourceAddress, Vault>,
-        user_token_manager: ResourceManager,
-        user_count: u64,
     }
 
     impl Fidenaro {
@@ -53,37 +51,12 @@ mod fidenaro {
                 .mint_initial_supply(1)
                 .into();
 
-            let user_token_manager = ResourceBuilder::new_integer_non_fungible::<User>(
-                owner_role.clone(),
-            )
-            .metadata(metadata!(
-                init {
-                    "name" => "Fidenaro User", updatable;
-                    "description" => "A user NFT for Fidenaro users", updatable;
-                }
-            ))
-            .mint_roles(mint_roles! (
-                minter => rule!(require(global_caller(component_address)));
-                minter_updater => rule!(deny_all);
-            ))
-            .burn_roles(burn_roles! {
-                burner => rule!(require(global_caller(component_address)));
-                burner_updater => rule!(deny_all);
-            })
-            .non_fungible_data_update_roles(non_fungible_data_update_roles! {
-                non_fungible_data_updater => rule!(require(global_caller(component_address)));
-                non_fungible_data_updater_updater => rule!(deny_all);
-            })
-            .create_with_no_initial_supply();
-
             let component: Global<Fidenaro> = Self {
                 vaults: HashMap::new(),
                 whitelisted_pool_addresses: Vec::new(),
                 whitelisted_stable_coin_address: None,
                 fidenaro_withdrawal_fee: dec!(1),
                 fee_vaults: HashMap::new(),
-                user_token_manager,
-                user_count: u64::zero(),
             }
             .instantiate()
             .prepare_to_globalize(owner_role.clone())
