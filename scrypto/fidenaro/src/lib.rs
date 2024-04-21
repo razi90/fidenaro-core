@@ -1,21 +1,5 @@
 use scrypto::prelude::*;
 
-#[derive(ScryptoSbor, NonFungibleData)]
-pub struct User {
-    #[mutable]
-    pub user_name: String,
-    #[mutable]
-    pub bio: String,
-    #[mutable]
-    pub pfp_url: Url,
-    #[mutable]
-    pub twitter: String,
-    #[mutable]
-    pub telegram: String,
-    #[mutable]
-    pub discord: String,
-}
-
 #[blueprint]
 mod fidenaro {
 
@@ -25,7 +9,7 @@ mod fidenaro {
         },
         methods {
             // Methods with public access
-            new_vault => PUBLIC;
+            register_vault => PUBLIC;
             get_vaults => PUBLIC;
             get_fidenaro_withdrawal_fee => PUBLIC;
             get_whitelisted_pool_addresses => PUBLIC;
@@ -134,39 +118,15 @@ mod fidenaro {
                 .put(token);
         }
 
-        pub fn register_vault(&mut self, vault_address: ComponentAddress) {}
-
-        //////////////////////////
-        ///methods for everyone///
-        //////////////////////////
-
-        // pub fn new_vault(
-        //     &mut self,
-        //     user_token: NonFungibleBucket,
-        //     vault_name: String,
-        //     short_description: String,
-        // ) -> (FungibleBucket, NonFungibleBucket) {
-        //     assert!(
-        //         user_token.resource_address() == self.user_token_manager.address(),
-        //         "Wrong user token."
-        //     );
-
-        //     let (vault, vault_manager_badge, share_token_address, user_token) =
-        //         crate::trade_vault::trade_vault::TradeVault::instantiate_trade_vault(
-        //             user_token,
-        //             vault_name,
-        //             Runtime::global_address(),
-        //             short_description,
-        //         )
-        //         .into();
-
-        //     self.vaults.insert(
-        //         vault.address(),
-        //         (vault_manager_badge.resource_address(), share_token_address),
-        //     );
-
-        //     (vault_manager_badge, user_token)
-        // }
+        pub fn register_vault(
+            &mut self,
+            vault_address: ComponentAddress,
+            user_id: ResourceAddress,
+            share_token_address: ResourceAddress,
+        ) {
+            self.vaults
+                .insert(vault_address, (user_id, share_token_address));
+        }
 
         pub fn get_vaults(
             &mut self,
