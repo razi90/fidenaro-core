@@ -14,6 +14,7 @@ mod fidenaro {
             get_fidenaro_withdrawal_fee => PUBLIC;
             get_whitelisted_pool_addresses => PUBLIC;
             get_stable_coin_resource_address => PUBLIC;
+            get_user_token_resource_address => PUBLIC;
 
             // Methods with admin access
             add_token_to_fee_vaults => restrict_to: [admin, OWNER];
@@ -23,6 +24,7 @@ mod fidenaro {
             change_withdrawal_fee_fidenaro => restrict_to: [admin, OWNER];
             withdraw_collected_fee_fidenaro => restrict_to: [admin, OWNER];
             withdraw_collected_fee_fidenaro_all => restrict_to: [admin, OWNER];
+            set_user_token_resource_address => restrict_to: [admin, OWNER];
         }
     }
     struct Fidenaro {
@@ -31,6 +33,7 @@ mod fidenaro {
         whitelisted_stable_coin_address: Option<ResourceAddress>,
         fidenaro_withdrawal_fee: Decimal,
         fee_vaults: HashMap<ResourceAddress, Vault>,
+        user_token_address: Option<ResourceAddress>,
     }
 
     impl Fidenaro {
@@ -57,6 +60,7 @@ mod fidenaro {
                 whitelisted_stable_coin_address: None,
                 fidenaro_withdrawal_fee: dec!(1),
                 fee_vaults: HashMap::new(),
+                user_token_address: None,
             }
             .instantiate()
             .prepare_to_globalize(owner_role.clone())
@@ -119,6 +123,10 @@ mod fidenaro {
             self.whitelisted_stable_coin_address.unwrap().clone()
         }
 
+        pub fn get_user_token_resource_address(&self) -> ResourceAddress {
+            self.user_token_address.unwrap().clone()
+        }
+
         ////////////////////////////////
         ///methods for fidenaro admin///
         ////////////////////////////////
@@ -157,6 +165,13 @@ mod fidenaro {
                 tokens.push(vault.take_all());
             }
             tokens
+        }
+
+        pub fn set_user_token_resource_address(
+            &mut self,
+            stable_coin_resource_address: ResourceAddress,
+        ) {
+            self.user_token_address = Some(stable_coin_resource_address);
         }
     }
 }
