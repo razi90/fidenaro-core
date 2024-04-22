@@ -1,6 +1,6 @@
-use fidenaro::test_bindings::*;
 use scrypto::*;
 use scrypto_test::prelude::*;
+use trade_vault::test_bindings::*;
 
 #[test]
 fn test_init_fidenaro() -> Result<(), RuntimeError> {
