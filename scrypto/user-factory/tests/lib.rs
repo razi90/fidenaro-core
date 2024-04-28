@@ -1,33 +1,83 @@
-use radix_engine_interface::prelude::*;
+use scrypto::*;
+use scrypto_test::prelude::*;
+use user_factory::test_bindings::*;
 
-use test_engine::{env_args, global_package, receipt_traits::Outcome, test_engine::TestEngine};
+fn setup_test_environment(
+) -> Result<(TestEnvironment, UserFactory, NonFungibleBucket), RuntimeError> {
+    let mut env = TestEnvironment::new();
+    let package_address = Package::compile_and_publish(this_package!(), &mut env)?;
+
+    let mut user_factory = UserFactory::instantiate(package_address, &mut env)?;
+
+    let user_token = user_factory.create_new_user(
+        "BearosSnap".to_string(),
+        "Leverage Trader".to_string(),
+        "https://pbs.twimg.com/profile_images/1768938778956103680/mPz6mOzD_400x400.jpg".to_string(),
+        "XBearosSnap".to_string(),
+        "TBearosSnap".to_string(),
+        "DBearosSnap".to_string(),
+        &mut env,
+    )?;
+
+    Ok((env, user_factory, user_token))
+}
 
 #[test]
-fn test_create_new_user() {
-    global_package!(USER_FACTORY_PACKAGE, ".");
+fn test_update_user_data() -> Result<(), RuntimeError> {
+    // Arrange
+    let (mut env, mut user_factory, user_token) = setup_test_environment()?;
 
-    // Instantiate a new test engine with a global package.
-    let mut test_engine = TestEngine::with_package("UserFactory", &USER_FACTORY_PACKAGE);
-
-    // Instantiate the user factory component from the blueprint
-    test_engine.new_component(
-        "user_factory", // Name to use as reference
-        "UserFactory",  // Name of the component in the package
-        "instantiate",  // Name of the function that instantiates the component
-        env_args!(),    // Arguments to instantiate the package
+    let mut update_data: HashMap<String, String> = HashMap::new();
+    update_data.insert(String::from("user_name"), String::from("TradingDraziw"));
+    update_data.insert(
+        String::from("pfp_url"),
+        String::from(
+            "https://pbs.twimg.com/profile_images/1768938778956103680/mPz6mOzD_400x400.jpg",
+        ),
     );
 
-    test_engine
-        .call_method(
-            "create_new_user", // Name of the method to call
-            env_args!(
-                "BearosSnap",
-                "Leverage Trader",
-                "https://pbs.twimg.com/profile_images/1768938778956103680/mPz6mOzD_400x400.jpg",
-                "XBearosSnap",
-                "TBearosSnap",
-                "DBearosSnap"
-            ),
-        )
-        .assert_is_success();
+    // Act and Assert
+    assert!(user_factory
+        .update_user_data(user_token, update_data, &mut env)
+        .is_ok());
+
+    Ok(())
+}
+
+#[test]
+fn test_update_user_data_wrong_field() -> Result<(), RuntimeError> {
+    // Arrange
+    let (mut env, mut user_factory, user_token) = setup_test_environment()?;
+
+    let mut update_data: HashMap<String, String> = HashMap::new();
+    update_data.insert(String::from("wrong_field"), String::from("TradingDraziw"));
+
+    // Act and Assert
+    assert!(user_factory
+        .update_user_data(user_token, update_data, &mut env)
+        .is_err());
+
+    Ok(())
+}
+
+#[test]
+fn test_get_user_token_address() -> Result<(), RuntimeError> {
+    // Arrange
+    let (mut env, user_factory, _) = setup_test_environment()?;
+
+    // Act
+    let user_token_resource_address: ResourceAddress =
+        user_factory.get_user_token_resource_address(&mut env)?;
+
+    let user_factory_state = env.read_component_state::<UserFactoryState, _>(user_factory)?;
+
+    let user_token_resource_manager = user_factory_state.user_token_manager;
+
+    // Assert
+    assert_eq!(
+        user_token_resource_address,
+        user_token_resource_manager.address()
+    , "Check that the user token address getter returns the same address as the corresponding resource manager.");
+
+    Ok(())
 }

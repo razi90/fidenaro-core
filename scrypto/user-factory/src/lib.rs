@@ -91,11 +91,9 @@ mod user_factory {
 
         pub fn update_user_data(
             &mut self,
-            user_token_proof: Proof,
+            user_token: NonFungibleBucket,
             data_map: HashMap<String, String>,
-        ) {
-            let checked_proof = user_token_proof.check(self.get_user_token_resource_address());
-            let user_token = checked_proof.as_non_fungible();
+        ) -> NonFungibleBucket {
             let non_fungible_local_id = user_token.non_fungible_local_id();
 
             for (field_name, new_data) in data_map.iter() {
@@ -105,6 +103,7 @@ mod user_factory {
                     new_data,
                 );
             }
+            user_token
         }
 
         pub fn get_user_token_resource_address(&self) -> ResourceAddress {
