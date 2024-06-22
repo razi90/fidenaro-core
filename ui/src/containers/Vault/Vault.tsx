@@ -158,11 +158,6 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                 <ValueCard value={convertToDollarString(vault?.totalEquity)} description={"Equity"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={convertToDollarString(vault?.followerEquity)} description={"Equity Follower"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={convertToDollarString(vault?.managerEquity)} description={"Equity Manager"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                {/* <ValueCard value={convertToDollarString(vault?.pricePerShare)} description={"Price per Share"} isLoading={isVaultFetchLoading || isUserFetchLoading} /> */}
-                            </Flex>
-                            <Flex >
-                                <StatCard title="Your PnL" value={convertToPercentPnl(vault?.totalEquity, vault?.pnl)} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                <ValueCard value={convertToDollarString(user_share_amount)} description={"Your Share"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                             </Flex>
 
                             {userShareTokenAmount !== 0 && (
