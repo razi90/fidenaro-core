@@ -59,7 +59,7 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({ isOpen, setIsOpen, vaul
         return <Box>Error loading user data</Box>;
     }
 
-    const userShareTokenAmount = vault ? user?.assets.get(vault.share_token_address) ?? 0 : 0;
+    const userShareTokenAmount = vault ? user?.assets.get(vault.shareTokenAddress) ?? 0 : 0;
 
     // balance error handling
     const handleChange = (e: { target: { value: any; }; }) => {
@@ -113,11 +113,11 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({ isOpen, setIsOpen, vaul
             CALL_METHOD
                 Address("${user?.account}")
                 "withdraw"
-                Address("${vault?.share_token_address}")
+                Address("${vault?.shareTokenAddress}")
                 Decimal("${inputValue}")
                 ;
             TAKE_ALL_FROM_WORKTOP
-                Address("${vault?.share_token_address}")
+                Address("${vault?.shareTokenAddress}")
                 Bucket("shares")
                 ;
             CALL_METHOD

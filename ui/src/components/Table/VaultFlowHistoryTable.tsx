@@ -14,12 +14,12 @@ import {
 import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
-import { Trade } from '../../libs/entities/Vault';
+import { Transaction } from '../../libs/entities/Vault';
 import { convertToDollarString, formatUnixTimestampToUTC } from '../../libs/etc/StringOperations';
 
-interface VaultHistoryTableProps {
+interface VaultFlowHistoryTableProps {
     title: string;
-    data: Trade[] | undefined;
+    data: Transaction[] | undefined;
     isLoading: boolean;
 }
 
@@ -43,7 +43,7 @@ const RadixTansactionLink: React.FC<RadixTansactionLinkProps> = ({ content }) =>
     );
 };
 
-export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, data, isLoading }) => {
+export const VaultFlowHistoryTable: React.FC<VaultFlowHistoryTableProps> = ({ title, data, isLoading }) => {
 
     return (
         <>
@@ -57,11 +57,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                 <Tr>
                                     <Th>Time</Th>
                                     <Th>Action</Th>
-                                    <Th>From</Th>
                                     <Th isNumeric> Amount</Th>
-                                    <Th>To</Th>
-                                    <Th isNumeric>Amount </Th>
-                                    <Th isNumeric>Price</Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
@@ -71,14 +67,6 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                             <Text><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Text>
                                         </Td>
                                         <Td><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Td>
-                                        <Td><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Td>
-                                        <Td isNumeric>
-                                            <Text><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Text>
-                                        </Td>
-                                        <Td><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Td>
-                                        <Td isNumeric>
-                                            <Text><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Text>
-                                        </Td>
                                         <Td isNumeric>
                                             <Text><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Text>
                                         </Td>
@@ -90,11 +78,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                 <Tr>
                                     <Th>Time</Th>
                                     <Th>Action</Th>
-                                    <Th>From</Th>
                                     <Th isNumeric> Amount</Th>
-                                    <Th>To</Th>
-                                    <Th isNumeric>Amount </Th>
-                                    <Th isNumeric>Price</Th>
                                 </Tr>
                             </Tfoot>
                         </Table>
@@ -108,11 +92,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                 <Tr>
                                     <Th>Time</Th>
                                     <Th>Action</Th>
-                                    <Th>From</Th>
                                     <Th isNumeric> Amount</Th>
-                                    <Th>To</Th>
-                                    <Th isNumeric>Amount </Th>
-                                    <Th isNumeric>Price</Th>
                                 </Tr>
                             </Thead>
                             <Tbody>
@@ -120,33 +100,27 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                     <Tr sx={tableStyle} key={index}>
                                         <Td>{formatUnixTimestampToUTC(item.unixTimestamp)}</Td>
                                         <Td>{item.action}</Td>
-                                        <Td>{item.from.ticker}</Td>
-                                        <Td isNumeric>{item.from_amount}</Td>
-                                        <Td>{item.to.ticker}</Td>
-                                        <Td isNumeric>{item.to_amount}</Td>
-                                        <Td isNumeric>{convertToDollarString(item.price)}</Td>
-                                        {/* <Td>
-                                            <RadixTansactionLink content={item.transaction} />
-                                        </Td> */}
+                                        <Td isNumeric style={{ color: item.action === 'Withdrawal' ? 'red' : 'black' }}>
+                                            {item.action === 'Withdrawal' ?
+                                                `- ${convertToDollarString(item.amount)}` :
+                                                convertToDollarString(item.amount)
+                                            }
+                                        </Td>
                                     </Tr>
                                 ))}
                             </Tbody>
+
                             <Tfoot>
                                 <Tr>
                                     <Th>Time</Th>
                                     <Th>Action</Th>
-                                    <Th>From</Th>
                                     <Th isNumeric> Amount</Th>
-                                    <Th>To</Th>
-                                    <Th isNumeric>Amount </Th>
-                                    <Th isNumeric>Price</Th>
                                 </Tr>
                             </Tfoot>
                         </Table>
                     </Card >
-                )}
-
-
+                )
+            }
         </>
     );
 };

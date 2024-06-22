@@ -30,7 +30,8 @@ import { useParams } from 'react-router-dom';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 import { TradeButton } from '../../components/Button/TradeButton/TradeButton';
-import { convertToDollarString, convertToPercentPnl } from '../../libs/etc/StringOperations';
+import { convertToDollarString, convertToPercent } from '../../libs/etc/StringOperations';
+import { VaultFlowHistoryTable } from '../../components/Table/VaultFlowHistoryTable';
 
 
 interface VaultProps {
@@ -59,8 +60,20 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
         enqueueSnackbar("Error loading user data", { variant: "error" });
     }
 
-    let user_share_token_amount = vault?.share_token_address && user?.assets.has(vault?.share_token_address) ? user.assets.get(vault?.share_token_address) : 0;
-    let user_share_amount = vault?.pricePerShare ? vault.pricePerShare * user_share_token_amount! : 0;
+    let userShareTokenAmount = vault?.shareTokenAddress && user?.assets.has(vault?.shareTokenAddress) ? user.assets.get(vault?.shareTokenAddress) : 0;
+    let userShareValue = vault?.pricePerShare ? vault.pricePerShare * userShareTokenAmount! : 0;
+    let userTransactions = [...(vault?.withdrawals || []), ...(vault?.deposits || [])]
+        .sort((a, b) => b.unixTimestamp - a.unixTimestamp)
+        .filter(transaction => transaction.userId === user?.id);
+
+    let userDepositSum = vault?.deposits.filter(transaction => transaction.userId === user?.id).reduce((accumulator, current) => {
+        return accumulator + current.amount;
+    }, 0);
+
+    let userWithdrawalSum = vault?.withdrawals.filter(transaction => transaction.userId === user?.id).reduce((accumulator, current) => {
+        return accumulator + current.amount;
+    }, 0);
+
 
     return (
 
@@ -111,7 +124,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
 
                         <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto' isLoading={isVaultFetchLoading || isUserFetchLoading}>
                             <Flex >
-                                <StatCard title="Total" value={convertToPercentPnl(vault?.totalEquity, vault?.pnl)} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                <StatCard title="Vault ROI" value={convertToPercent(vault?.calculateROI())} isLoading={isVaultFetchLoading || isUserFetchLoading} />
 
                                 <Flex flex='1' m={2} >
                                     <ChartCard
@@ -152,6 +165,20 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                 <ValueCard value={convertToDollarString(user_share_amount)} description={"Your Share"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                             </Flex>
 
+                            {userShareTokenAmount !== 0 && (
+                                <>
+                                    <Flex >
+                                        <StatCard title="Your ROI" value={convertToPercent(vault?.calculateUserROI(user?.id, userShareValue))} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                        <ValueCard value={convertToDollarString(vault?.calculateUserPnL(user?.id, userShareValue))} description={"Your PnL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                        <ValueCard value={convertToDollarString(userShareValue)} description={"My Share Value"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                    </Flex>
+                                    <Flex >
+                                        <ValueCard value={convertToDollarString(userDepositSum)} description={"My Deposits"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                        <ValueCard value={convertToDollarString(userWithdrawalSum)} description={"My Withdrawals"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                    </Flex>
+                                </>
+                            )}
+
                         </PrimerCard>
                     </Flex >
                     <Flex p={4}>
@@ -181,7 +208,11 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                     </Flex >
 
                     <Box p={4}>
-                        <VaultHistoryTable title='History' data={vault?.tradeHistory} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                        <VaultHistoryTable title='Trade History' data={vault?.tradeHistory} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                    </Box>
+
+                    <Box p={4}>
+                        <VaultFlowHistoryTable title='My Transaction History' data={userTransactions} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                     </Box>
                 </Box >
             </Center >

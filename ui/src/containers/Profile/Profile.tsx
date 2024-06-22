@@ -79,7 +79,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
     const managedVaults = vaults?.filter((vault) => vault.manager.id === profile?.id)
 
-    const investedVaults = vaults?.filter((vault) => vault.followerList.includes(profile?.account ?? ''))
+    const investedVaults = vaults?.filter((vault) => vault.followers.includes(profile?.account ?? ''))
 
     // Calculate the total followers from managed vaults
     const totalFollowers = managedVaults?.reduce((total, vault) => total + vault.followers.length, 0);
@@ -88,11 +88,11 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
     const totalEquity = managedVaults?.reduce((total, vault) => total + vault.totalEquity, 0);
 
     // Calculate the total PnL as manager
-    const managerPnL = managedVaults?.reduce((total, vault) => total + vault.pnl, 0);
+    const managerPnL = managedVaults?.reduce((total, vault) => total + vault.calculatePnL(), 0);
 
     // Calculate the total PnL as investor. Should be based on shares one has in the vault but we assume 100% of shares for now
 
-    const investorPnL = investedVaults?.reduce((total: any, vault: any) => total + vault.pnl, 0);
+    const investorPnL = investedVaults?.reduce((total: any, vault: any) => total + vault.calculatePnL(), 0);
 
     // Total number of trades from all managed vaults
     const totalTrades = managedVaults?.reduce((total, vault) => total + vault.tradeHistory.length, 0);
@@ -105,7 +105,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
         if (!managerPnLRankings.has(managerId)) {
             managerPnLRankings.set(managerId, 0);
         }
-        managerPnLRankings.set(managerId, managerPnLRankings.get(managerId) + vault.pnl);
+        managerPnLRankings.set(managerId, managerPnLRankings.get(managerId) + vault.calculatePnL());
     });
 
     let sortedManagersByRank = Array.from(managerPnLRankings).sort((a, b) => {

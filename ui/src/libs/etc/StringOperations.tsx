@@ -6,10 +6,15 @@ export function convertToDollarString(amount: number | undefined): string {
     }
 }
 
-export function convertToPercentPnl(total_amount: number | undefined, pnl_amount: number | undefined): string {
-    if (typeof total_amount == undefined || pnl_amount == undefined || total_amount == 0) {
+export function convertToPercent(roi: number | undefined): string {
+    if (roi == undefined) {
         return "N/A"
     } else {
-        return (pnl_amount / total_amount! * 100).toFixed(2) + " %"
+        return (roi).toFixed(2) + " %"
     }
+}
+
+export function formatUnixTimestampToUTC(timestamp: number): string {
+    const date = new Date(timestamp * 1000); // Convert to milliseconds
+    return date.toISOString().replace('T', ' ').substr(0, 19) + ' UTC';
 }
