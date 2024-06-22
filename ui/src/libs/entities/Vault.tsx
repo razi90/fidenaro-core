@@ -5,7 +5,7 @@ export interface Vault {
     id: string;
     name: string;
     description: string;
-    share_token_address: string;
+    shareTokenAddress: string;
     manager_badge_address: string;
     total: number;
     today: number;
@@ -14,12 +14,20 @@ export interface Vault {
     totalEquity: number;
     managerEquity: number;
     followerEquity: number;
+    pricePerShare: number;
     profitShare: number;
-    pnl: number;
     manager: User;
-    followerList: string[];
     tradeHistory: Trade[];
     assets: Map<string, number>;
+    deposits: Transaction[];
+    withdrawals: Transaction[];
+    shareTokenAmount: number,
+
+    calculatePnL: () => number;
+    calculateROI: () => number;
+    calculateUserInvestedEquity: (userId: string | undefined) => number;
+    calculateUserPnL: (userId: string | undefined, userShareAmount: number) => number;
+    calculateUserROI: (userId: string | undefined, userShareAmount: number) => number;
 }
 
 export interface VaultPerformance {
@@ -45,7 +53,7 @@ export interface VaultHistory {
 }
 export interface Trade {
     epoch: number;
-    timestamp: string;
+    unixTimestamp: number;
     action: TradeAction;
     from: Asset;
     from_amount: number;
@@ -58,4 +66,11 @@ export enum TradeAction {
     Buy = "Buy",
     Sell = "Sell",
     Default = "Default"
+}
+
+export interface Transaction {
+    userId: string;
+    unixTimestamp: number;
+    action: string;
+    amount: number;
 }

@@ -1,4 +1,4 @@
-import { Trade, TradeAction, Vault } from '../entities/Vault';
+import { Trade, TradeAction, Transaction, Vault } from '../entities/Vault';
 import { vaultPerformanceCandleChartData } from './VaultPerformanceData';
 import { vaultProfitabilityChartData } from './VaultProfitabilityData';
 import { Asset, addressToAsset } from '../entities/Asset';
@@ -8,7 +8,6 @@ import { fetchUserInfoById } from '../user/UserDataService';
 import { fetchPriceList } from '../price/PriceDataService';
 
 export const fetchVaultList = async (): Promise<Vault[]> => {
-    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
     try {
         let tradeVaults: Vault[] = []
         let fidenaroComponentLedgerData = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(FidenaroComponentAddress)
@@ -33,7 +32,7 @@ export const getVaultById = async (address: string): Promise<Vault> => {
         let description = getMetaData(vaultLedgerData, "description")
 
         let vault_fields = vaultLedgerData.details.state.fields
-        let share_token_address = getFieldValueByKey(vault_fields, "share_token_manager")
+        let shareTokenAddress = getFieldValueByKey(vault_fields, "share_token_manager")
         let manager_badge_address = getFieldValueByKey(vault_fields, "fund_manager_badge")
         let fee = parseFloat(getFieldValueByKey(vault_fields, "fee"))
 
@@ -43,6 +42,9 @@ export const getVaultById = async (address: string): Promise<Vault> => {
         let manager_id = getFieldValueByKey(vault_fields, "manager_user_id")
         let manager = await fetchUserInfoById(manager_id)
 
+        let deposits = getDeposits(vault_fields)
+        let withdrawals = getWithdrawals(vault_fields)
+
         const priceList = await fetchPriceList()
         const totalEquity = calculateTotalEquity(assets, priceList)
 
@@ -50,13 +52,13 @@ export const getVaultById = async (address: string): Promise<Vault> => {
 
         let managerEquity = 0;
         let followerEquity = 0;
-        let pnl = 0
+        let pricePerShare = 0;
 
         if (totalShareTokenAmount !== 0) {
             const managerShareTokenAmount = getManagerShareTokenAmount(vault_fields, manager_id);
             managerEquity = totalEquity * (managerShareTokenAmount / totalShareTokenAmount);
             followerEquity = totalEquity - managerEquity;
-            pnl = totalEquity - calculateDeployedCapital(vault_fields)
+            pricePerShare = totalEquity / totalShareTokenAmount
         }
 
         let activeDays = calculateActiveDays(vault_fields)
@@ -65,21 +67,62 @@ export const getVaultById = async (address: string): Promise<Vault> => {
             name,
             id: address,
             description,
-            share_token_address,
+            shareTokenAddress,
             manager_badge_address,
             total: 0,
             today: 0,
             activeDays,
-            followers: followers,
+            followers,
             totalEquity,
             managerEquity,
             followerEquity,
+            pricePerShare,
             profitShare: fee,
-            pnl,
             manager,
-            followerList: [],
             tradeHistory,
-            assets
+            assets,
+            deposits,
+            withdrawals,
+            shareTokenAmount: totalShareTokenAmount,
+
+            calculatePnL: function () {
+                return (this.pricePerShare - 1) * this.shareTokenAmount;
+            },
+
+            calculateROI: function () {
+                return (this.pricePerShare - 1) * 100 || 0;
+            },
+
+            calculateUserInvestedEquity: function (userId: string | undefined) {
+
+                if (userId == undefined) return 0
+
+                const totalUserDeposits: number = this.deposits.filter(transaction => transaction.userId === userId).reduce((accumulator, current) => {
+                    return accumulator + current.amount;
+                }, 0);
+
+                const totalUserWithdrawals: number = this.withdrawals.filter(transaction => transaction.userId === userId).reduce((accumulator, current) => {
+                    return accumulator + current.amount;
+                }, 0);
+
+                console.log(totalUserDeposits)
+                console.log(totalUserWithdrawals)
+
+                if (totalUserDeposits > totalUserWithdrawals) {
+                    return totalUserDeposits - totalUserWithdrawals
+                } else {
+                    return totalUserDeposits
+                }
+
+            },
+
+            calculateUserPnL: function (userId: string | undefined, userShareValue: number) {
+                return userShareValue - this.calculateUserInvestedEquity(userId)
+            },
+
+            calculateUserROI: function (userId: string | undefined, userShareValue: number) {
+                return (this.calculateUserPnL(userId, userShareValue) / this.calculateUserInvestedEquity(userId)) * 100 || 0;
+            }
         }
 
         return vault
@@ -119,7 +162,7 @@ function getTrades(vault_fields: any): Trade[] {
             field.elements.forEach((element: any) => {
 
                 let epoch: number = parseInt(getFieldValueByKey(element.fields, "epoch"));
-                let timestamp: string = formatUnixTimestampToUTC(parseInt(getFieldValueByKey(element.fields, "timestamp")));
+                let unixTimestamp: number = parseInt(getFieldValueByKey(element.fields, "timestamp"));
                 let action: TradeAction = stringToTradeAction(getFieldVariantNameByKey(element.fields, "trade_action"));
                 let from: Asset = addressToAsset(getFieldValueByKey(element.fields, "from"));
                 let from_amount: number = parseFloat(getFieldValueByKey(element.fields, "from_amount"));
@@ -129,7 +172,7 @@ function getTrades(vault_fields: any): Trade[] {
 
                 let trade: Trade = {
                     epoch,
-                    timestamp,
+                    unixTimestamp,
                     action,
                     from,
                     from_amount,
@@ -144,10 +187,6 @@ function getTrades(vault_fields: any): Trade[] {
     return trades;
 }
 
-function formatUnixTimestampToUTC(timestamp: number): string {
-    const date = new Date(timestamp * 1000); // Convert to milliseconds
-    return date.toISOString().replace('T', ' ').substr(0, 19) + ' UTC';
-}
 
 function daysSince(unixTimestamp: number): number {
     const millisecondsPerDay = 24 * 60 * 60 * 1000; // 24 hours, 60 minutes, 60 seconds, 1000 milliseconds
@@ -216,20 +255,6 @@ function getFollowerIds(follower_field: any): string[] {
         }
     })
     return followers;
-}
-
-function getResourcePools(item: any): string[] {
-    let pools: string[] = []
-
-    item.forEach((field: any) => {
-        if (field.field_name == "pools") {
-            field.entries.forEach((entry: any) => {
-                pools.push(entry.key.value)
-            })
-        }
-    })
-
-    return pools;
 }
 
 function getVaultComponentAddress(vault: any) {
@@ -347,29 +372,43 @@ function getManagerShareTokenAmount(fields: any, manager_id: string): number {
     return amount;
 }
 
+function getDeposits(fields: any): Transaction[] {
+    return getTransactionsByKind(fields, "deposits")
+}
+
+function getWithdrawals(fields: any): Transaction[] {
+    return getTransactionsByKind(fields, "withdrawals")
+}
+
+function getTransactionsByKind(fields: any, key: string): Transaction[] {
+    let transactions: Transaction[] = [];
+
+    fields.forEach((field: any) => {
+        if (field.field_name === key) {
+            field.elements.forEach((element: any) => {
+
+                let userId = getFieldValueByKey(element.fields, "user_id");
+                let unixTimestamp = parseInt(getFieldValueByKey(element.fields, "timestamp"));
+                let action = getFieldVariantNameByKey(element.fields, "action");
+                let amount = parseFloat(getFieldValueByKey(element.fields, "amount"));
+
+                let transaction: Transaction = {
+                    userId,
+                    unixTimestamp,
+                    action,
+                    amount,
+                }
+
+                transactions.push(transaction)
+
+            });
+        }
+    });
+
+    return transactions;
+}
+
 function calculateActiveDays(vault_fields: any): number {
     return daysSince(parseInt(getFieldValueByKey(vault_fields, "creation_date")))
 }
-function calculateDeployedCapital(vault_fields: any): number {
-    const totalDeposits = calculateTotalAmount(vault_fields, "deposits")
-    const totalWithdrawals = calculateTotalAmount(vault_fields, "withdrawals")
-
-    return (totalDeposits - totalWithdrawals)
-}
-function calculateTotalAmount(vault_fields: any, key: string): number {
-    let amount: number = 0
-    vault_fields.forEach((field: any) => {
-        if (field.field_name == key) {
-            field.elements.forEach((element: any) => {
-                element.fields.forEach((transaction_field: any) => {
-                    if (transaction_field.field_name === "amount") {
-                        amount += parseFloat(transaction_field.value)
-                    }
-                })
-            })
-        }
-    })
-    return amount;
-}
-
 

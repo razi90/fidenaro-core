@@ -111,6 +111,41 @@ CALL_METHOD
     "deposit_batch"
     Expression("ENTIRE_WORKTOP");
 
+// Swap BTC to USD
+CALL_METHOD Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "withdraw"
+    Address("resource_tdx_2_1thl25uw98gzsjh6kwu6hygm04dmvxaf0yp07shd7knvsmxxhxhlqpy")
+    Decimal("1");
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1thl25uw98gzsjh6kwu6hygm04dmvxaf0yp07shd7knvsmxxhxhlqpy")
+    Bucket("resource_tdx_2_1thl25uw98gzsjh6kwu6hygm04dmvxaf0yp07shd7knvsmxxhxhlqpy");
+CALL_METHOD
+    Address("component_tdx_2_1cp66u08j9f9zr4kafv6hfy8486ezu3zldgwd76s75t0yq62f2mcy89")
+    "swap"
+    Bucket("resource_tdx_2_1thl25uw98gzsjh6kwu6hygm04dmvxaf0yp07shd7knvsmxxhxhlqpy");
+CALL_METHOD
+    Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");
+
+// Swap ETH to USD
+CALL_METHOD Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "withdraw"
+    Address("resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3")
+    Decimal("5");
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3")
+    Bucket("resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3");
+CALL_METHOD
+    Address("component_tdx_2_1cp6ye55hvfz4mp33ys766qecg26rrtkrxvhex70nnax2eppf9ssued")
+    "swap"
+    Bucket("resource_tdx_2_1t58fyrzezpxsdthwvjskm5wqlh5xtnurkv6txmprd9hzflqjetdae3");
+CALL_METHOD
+    Address("account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");
+
+
 // instatiate fidenaro
 CALL_FUNCTION
     Address("package_tdx_2_1p4cv2npjtjjdtrcmqeuftdppws2fpzhcapqj9mmdqvwn8uqa43w5x8")
