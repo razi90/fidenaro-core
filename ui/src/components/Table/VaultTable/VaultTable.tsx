@@ -34,7 +34,7 @@ import { IoEnterOutline } from "react-icons/io5";
 import { User } from '../../../libs/entities/User';
 import { TradeButton } from '../../Button/TradeButton/TradeButton';
 import ResetButton from '../../Button/ResetButton/ResetButton';
-import { convertToDollarString, convertToPercentPnl } from '../../../libs/etc/StringOperations';
+import { convertToDollarString, convertToPercent } from '../../../libs/etc/StringOperations';
 
 
 
@@ -132,7 +132,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
             // Apply filtering based on the filter criteria
             filteredEntries = filteredEntries.filter((entry) => {
                 const nameMatch = entry.name.toLowerCase().includes(nameFilter.toLowerCase());
-                const totalMatch = (entry.pnl / entry.totalEquity * 100) >= totalFilter;
+                const totalMatch = entry.calculateROI() >= totalFilter;
                 // const todayMatch = entry.today >= todayFilter;
                 const activeDaysMatch = entry.activeDays >= activeDaysFilter;
                 const followersMatch = entry.followers.length >= followersFilter;
@@ -266,8 +266,8 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                                     </Button>
                                                 </Tooltip>
                                             </Td>
-                                            <Td isNumeric color={entry.pnl >= 0 ? 'green.500' : 'red.500'}>
-                                                {convertToPercentPnl(entry.totalEquity, entry.pnl)}
+                                            <Td isNumeric color={entry.calculateROI() >= 0 ? 'green.500' : 'red.500'}>
+                                                {convertToPercent(entry.calculateROI())}
                                             </Td>
                                             {/* <Td isNumeric color={entry.today >= 0 ? 'green.500' : 'red.500'}>
                                                 {entry.today} %

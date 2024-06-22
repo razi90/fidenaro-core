@@ -10,8 +10,6 @@ import { PrimerCard } from '../../components/Card/PrimerCard';
 import { VaultRankingTable } from '../../components/Table/VaultRankingTable';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
-import { User } from '../../libs/entities/User';
-import { fetchUserInfo } from '../../libs/user/UserDataService';
 
 interface WallOfFameProps {
     isMinimized: boolean;
@@ -46,7 +44,7 @@ const WallOfFame: React.FC<WallOfFameProps> = ({ isMinimized }) => {
         return <Box sx={routePageBoxStyle(isMinimized)}>Error loading data</Box>;
     }
 
-    const rankedVaults = vaults!.sort((a, b) => b.pnl - a.pnl);
+    const rankedVaults = vaults!.sort((a, b) => b.calculatePnL() - a.calculatePnL());
 
 
 
