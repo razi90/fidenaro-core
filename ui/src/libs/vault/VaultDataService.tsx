@@ -15,7 +15,6 @@ export const fetchVaultList = async (): Promise<Vault[]> => {
         for (const address of tradeVaultComponentAddresses) {
             let vault = await getVaultById(address);
             tradeVaults.push(vault);
-            break;
         }
         return tradeVaults;
     } catch (error) {
