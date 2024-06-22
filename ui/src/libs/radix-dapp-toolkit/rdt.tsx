@@ -6,7 +6,7 @@ import { fetchConnectedWallet } from '../wallet/WalletDataService';
 
 export const rdt = RadixDappToolkit({
     dAppDefinitionAddress:
-        'account_tdx_2_12xmwv55ap2n25uzl9hywpu7ytyzhp9gl6zc9fnz3rssj40nv8pqmkn',
+        'account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj',
     networkId: RadixNetwork.Stokenet,
     applicationName: 'Fidenaro',
     applicationVersion: '0.1.0',

@@ -33,7 +33,7 @@ const GetFusdButton: React.FC = () => {
         try {
             let manifest = `
                 CALL_METHOD
-                    Address("component_tdx_2_1cr5s6adygr6s9ck5y6532yrd9fq8gn2ruy9skwryur309fn2heyjc8")
+                    Address("component_tdx_2_1crn7v7ssxrhf6zla48ffxxvk6ljd7v6pmrym2akx7n5kcpradkp06z")
                     "free_token"
                 ;
                 CALL_METHOD
