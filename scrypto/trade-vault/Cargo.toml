@@ -10,6 +10,7 @@ scrypto = { version = "1.2.0" }
 
 [dev-dependencies]
 scrypto-test = { version = "1.2.0" }
+user-factory = { path = "../user-factory" }
 
 [profile.release]
 opt-level = 'z'        # Optimize for size.
@@ -26,5 +27,3 @@ default = []
 crate-type = ["cdylib", "lib"]
 
 [workspace]
-# Set the package crate as its own empty workspace, to hide it from any potential ancestor workspace
-# Remove this [workspace] section if you intend the package to be part of a Cargo workspace
