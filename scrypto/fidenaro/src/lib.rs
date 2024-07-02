@@ -27,6 +27,7 @@ mod fidenaro {
             set_user_token_resource_address => restrict_to: [admin, OWNER];
         }
     }
+
     struct Fidenaro {
         vaults: HashMap<ComponentAddress, (ResourceAddress, ResourceAddress)>, //all vaults in the dapp (<vault, vaultmanagerbadge, sharetoken>)
         whitelisted_pool_addresses: Vec<ComponentAddress>,
@@ -169,9 +170,9 @@ mod fidenaro {
 
         pub fn set_user_token_resource_address(
             &mut self,
-            stable_coin_resource_address: ResourceAddress,
+            user_token_resource_address: ResourceAddress,
         ) {
-            self.user_token_address = Some(stable_coin_resource_address);
+            self.user_token_address = Some(user_token_resource_address);
         }
     }
 }

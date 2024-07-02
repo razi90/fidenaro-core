@@ -1,39 +1,42 @@
+use fidenaro::fidenaro_test::Fidenaro;
 use scrypto_test::prelude::*;
 use user_factory::user_factory_test::UserFactory;
 
-fn setup_test_environment() -> Result<
-    (
-        TestEnvironment<InMemorySubstateDatabase>,
-        UserFactory,
-        NonFungibleBucket,
-    ),
-    RuntimeError,
-> {
+fn setup_test_environment(
+) -> Result<(TestEnvironment<InMemorySubstateDatabase>, Fidenaro), RuntimeError> {
     let mut env = TestEnvironment::new();
-    let user_factory_package_address =
-        PackageFactory::compile_and_publish("../user-factory", &mut env, CompileProfile::Fast)?;
+    env.disable_auth_module();
 
-    let mut user_factory = UserFactory::instantiate(user_factory_package_address, &mut env)?;
+    let fidenaro_package_address =
+        PackageFactory::compile_and_publish(this_package!(), &mut env, CompileProfile::Fast)?;
 
-    let user_token = user_factory.create_new_user(
-        "BearosSnap".to_string(),
-        "Leverage Trader".to_string(),
-        "https://pbs.twimg.com/profile_images/1768938778956103680/mPz6mOzD_400x400.jpg".to_string(),
-        "XBearosSnap".to_string(),
-        "TBearosSnap".to_string(),
-        "DBearosSnap".to_string(),
-        &mut env,
-    )?;
+    let (fidenaro, _) = Fidenaro::instantiate(OwnerRole::None, fidenaro_package_address, &mut env)?;
 
-    Ok((env, user_factory, user_token))
+    Ok((env, fidenaro))
 }
 
 #[test]
-fn test_init_fidenaro() -> Result<(), RuntimeError> {
+fn test_set_user_token_resouce_address() -> Result<(), RuntimeError> {
     // Arrange
-    let mut env = TestEnvironment::new();
-    _ = setup_test_environment();
-    // let package_address = Package::compile_and_publish(this_package!(), &mut env)?;
+    let (mut env, mut fidenaro) = setup_test_environment()?;
+
+    let user_factory_package_address =
+        PackageFactory::compile_and_publish("../user-factory", &mut env, CompileProfile::Fast)?;
+
+    let user_factory = UserFactory::instantiate(user_factory_package_address, &mut env)?;
+    let user_token_resource_address = user_factory.get_user_token_resource_address(&mut env)?;
+
+    // Act
+    fidenaro.set_user_token_resource_address(user_token_resource_address, &mut env)?;
+
+    let fidenaro_user_token_resource_address =
+        fidenaro.get_user_token_resource_address(&mut env)?;
+
+    // Assert
+    assert_eq!(
+        user_token_resource_address, fidenaro_user_token_resource_address,
+        "User token resource address is not correct."
+    );
 
     Ok(())
 }
