@@ -1,24 +1,16 @@
 [package]
 name = "trade-vault"
-version = "0.1.0"
-edition = "2021"
-resolver = "2"
+version.workspace = true
+edition.workspace = true
+description = "The implementation of the trade vault"
 
 [dependencies]
-sbor = { version = "1.2.0" }
-scrypto = { version = "1.2.0" }
+sbor = { workspace = true }
+scrypto = { workspace = true }
 
 [dev-dependencies]
-scrypto-test = { version = "1.2.0" }
+scrypto-test = { workspace = true }
 user-factory = { path = "../user-factory" }
-
-[profile.release]
-opt-level = 'z'        # Optimize for size.
-lto = true             # Enable Link Time Optimization.
-codegen-units = 1      # Reduce number of codegen units to increase optimizations.
-panic = 'abort'        # Abort on panic.
-strip = true           # Strip the symbols.
-overflow-checks = true # Panic in the case of an overflow.
 
 [features]
 default = []
@@ -26,4 +18,5 @@ default = []
 [lib]
 crate-type = ["cdylib", "lib"]
 
-[workspace]
+[lints]
+workspace = true
