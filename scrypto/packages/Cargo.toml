@@ -1,6 +1,5 @@
 [workspace]
 resolver = "2"
-# members = ["fidenaro", "trade-vault", "user-factory", "ports-interface"]
 members = ["fidenaro", "trade-vault", "user-factory"]
 
 [workspace.package]
@@ -9,9 +8,9 @@ edition = "2021"
 description = "The implementation of project Fidenaro in Scrypto for the Radix Ledger"
 
 [workspace.dependencies]
-sbor = { version = "1.2.0" }
-scrypto = { version = "1.2.0" }
-scrypto-test = { version = "1.2.0" }
+sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
+scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
+scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
 
 [profile.release]
 opt-level = 'z'
