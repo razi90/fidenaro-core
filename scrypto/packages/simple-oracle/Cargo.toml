@@ -1,0 +1,26 @@
+[package]
+name = "simple-oracle"
+version = { workspace = true }
+edition = { workspace = true }
+description = "A simple oracle used in tests."
+
+[dependencies]
+sbor = { workspace = true }
+scrypto = { workspace = true }
+radix-engine-derive = { workspace = true }
+
+scrypto-interface = { workspace = true }
+ports-interface = { workspace = true }
+common = { workspace = true }
+
+humantime = { version = "2.1.0" }
+
+[features]
+default = []
+test = []
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[lints]
+workspace = true

@@ -1,6 +1,9 @@
+use ports_interface::prelude::*;
 use scrypto::prelude::*;
 
-#[derive(ScryptoSbor, PartialEq)]
+type PoolAdapter = PoolAdapterInterfaceScryptoStub;
+
+#[derive(Debug, ScryptoSbor, PartialEq)]
 pub enum Action {
     Buy,
     Sell,
@@ -8,7 +11,7 @@ pub enum Action {
     Withdrawal,
 }
 
-#[derive(ScryptoSbor)]
+#[derive(Debug, ScryptoSbor)]
 pub struct Trade {
     pub epoch: Epoch,
     pub timestamp: Instant,
@@ -20,7 +23,7 @@ pub struct Trade {
     pub price: Decimal,
 }
 
-#[derive(ScryptoSbor)]
+#[derive(Debug, ScryptoSbor)]
 pub struct Transaction {
     pub action: Action,
     pub epoch: Epoch,
@@ -35,20 +38,12 @@ mod trade_vault {
     extern_blueprint! {
         "package_sim1pk2hfv5krdg668ukjdsuzcwgg0vjaraw5xdrntz57dqv30kg3jp504",
         // "package_tdx_2_1p4at2str4wmwv2g9xm9n3fvsn6v707c26sfsf0pkz8tk3y4gjaan2c",
-        Radiswap {
-            fn swap(&mut self, input_bucket: Bucket) -> Bucket;
-            fn vault_reserves(&self) -> IndexMap<ResourceAddress, Decimal>;
-        }
-    }
-
-    extern_blueprint! {
-        "package_sim1pk2hfv5krdg668ukjdsuzcwgg0vjaraw5xdrntz57dqv30kg3jp504",
-        // "package_tdx_2_1p4at2str4wmwv2g9xm9n3fvsn6v707c26sfsf0pkz8tk3y4gjaan2c",
         Fidenaro {
             fn register_vault(&mut self, vault_address: ComponentAddress, user_id: ResourceAddress, share_token_address: ResourceAddress);
             fn get_stable_coin_resource_address(&self) -> ResourceAddress;
             fn get_user_token_resource_address(&self) -> ResourceAddress;
             fn get_whitelisted_pool_addresses(&self) -> Vec<ComponentAddress>;
+            fn checked_get_pool_adapter(&self, pool_address: ComponentAddress) -> Option<PoolAdapter>;
         }
     }
 
@@ -205,10 +200,10 @@ mod trade_vault {
                 user_token_proof.check(self.fidenaro.get_user_token_resource_address());
 
             let address: ResourceAddress = deposit.resource_address();
-            // Ensure that the type of stable coin passed in matches the type stored in the stable asset pool.
+
             assert!(
-                self.fidenaro.get_stable_coin_resource_address() == address,
-                "Wrong token type sent"
+                XRD == address,
+                "Wrong token type sent. Only XRD can be deposited."
             );
 
             // calculate value of all assets
@@ -425,40 +420,12 @@ mod trade_vault {
             self.fees_fund_manager_vault.take_all()
         }
 
-        ///////////////////////
-        /// private methods ///
-        ///////////////////////
-
-        fn get_asset_price(&self, asset_address: ResourceAddress) -> Decimal {
-            assert!(!self.fidenaro.get_whitelisted_pool_addresses().is_empty());
-
-            let mut asset_amount = dec!(0);
-            let mut stable_coin_amount = dec!(0);
-
-            for pool_address in self.fidenaro.get_whitelisted_pool_addresses() {
-                let pool: Global<Radiswap> = pool_address.into();
-                let vault_reserves = pool.vault_reserves();
-                if vault_reserves.contains_key(&asset_address) {
-                    asset_amount += vault_reserves
-                        .get(&asset_address)
-                        .copied()
-                        .unwrap_or(dec!(0));
-                    stable_coin_amount += vault_reserves
-                        .get(&self.fidenaro.get_stable_coin_resource_address())
-                        .copied()
-                        .unwrap_or(dec!(0));
-                }
-            }
-            info!("Asset amount is {}", asset_amount);
-            info!("Stable coin amount is {}", stable_coin_amount);
-
-            if stable_coin_amount.is_zero() {
-                return dec!(0);
-            } else {
-                let price = stable_coin_amount / asset_amount;
-                info!("Asset price is {}", price);
-                return price;
-            }
+        fn test_adapter(&mut self, pool_address: ComponentAddress) {
+            let adapter = self
+                .fidenaro
+                .checked_get_pool_adapter(pool_address)
+                .unwrap();
+            let price = adapter.price(pool_address);
         }
     }
 }

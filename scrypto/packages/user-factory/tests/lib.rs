@@ -1,3 +1,4 @@
+use scrypto::this_package;
 use scrypto_test::prelude::*;
 use user_factory::user_factory_test::UserFactory;
 
