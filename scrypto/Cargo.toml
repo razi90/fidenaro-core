@@ -1,6 +1,12 @@
 [workspace]
 resolver = "2"
-members = ["fidenaro", "trade-vault", "user-factory", "simple-oracle"]
+members = [
+    "packages/fidenaro",
+    "packages/trade-vault",
+    "packages/user-factory",
+    "packages/simple-oracle",
+    "tests",
+]
 
 [workspace.package]
 version = "0.1.0"
@@ -26,7 +32,7 @@ scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "48
 
 state-manager = { git = "https://github.com/radixdlt/babylon-node", rev = "63a8267196995fef0830e4fbf0271bea65c90ab1" }
 
-ports-interface = { path = "../libraries/ports-interface" }
+ports-interface = { path = "./libraries/ports-interface" }
 common = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
 scrypto-interface = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
 

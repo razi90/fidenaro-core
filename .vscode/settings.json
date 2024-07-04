@@ -1,9 +1,6 @@
 {
     "rust-analyzer.linkedProjects": [
-        "./scrypto/packages/fidenaro/Cargo.toml",
-        "./scrypto/packages/trade-vault/Cargo.toml",
-        "./scrypto/packages/user-factory/Cargo.toml",
-        "./scrypto/packages/simple-oracle/Cargo.toml",
+        "./scrypto/Cargo.toml",
         "./scrypto/libraries/ports-interface/Cargo.toml",
     ]
 }
