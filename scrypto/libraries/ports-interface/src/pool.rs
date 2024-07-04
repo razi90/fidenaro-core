@@ -30,6 +30,9 @@ define_interface! {
         #[cfg(feature = "scrypto-test-stubs")]
         ScryptoTestStub,
     ] {
+        /// Swap one asset into another
+        fn swap(&mut self, input_bucket: Bucket) -> Bucket;
+
         /// Returns the price of the pair of assets in the pool.
         fn price(&mut self, pool_address: ComponentAddress) -> Price;
 

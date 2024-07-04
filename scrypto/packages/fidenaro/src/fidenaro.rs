@@ -48,6 +48,8 @@ mod fidenaro {
             get_stable_coin_resource_address => PUBLIC;
             get_user_token_resource_address => PUBLIC;
             checked_get_pool_adapter => PUBLIC;
+            get_oracle_adapter => PUBLIC;
+            is_pool_allowed => PUBLIC;
 
             // Methods with admin access
             add_token_to_fee_vaults => restrict_to: [admin, OWNER];
@@ -327,6 +329,10 @@ mod fidenaro {
             self.oracle_adapter = oracle_adapter.into();
         }
 
+        pub fn get_oracle_adapter(&mut self) -> Option<OracleAdapter> {
+            Some(self.oracle_adapter)
+        }
+
         /// Sets the pool adapter that should be used by a pools belonging to a
         /// particular blueprint.
         ///
@@ -485,6 +491,13 @@ mod fidenaro {
             let blueprint_id = ScryptoVmV1Api::object_get_blueprint_id(pool_address.as_node_id());
             let entry = self.pool_information.get_mut(&blueprint_id);
             entry.map(|mut entry| callback(&mut entry))
+        }
+
+        pub fn is_pool_allowed(&mut self, pool_address: ComponentAddress) -> bool {
+            self.with_pool_blueprint_information_mut(pool_address, |pool_information| {
+                pool_information.allowed_pools.contains_key(&pool_address)
+            })
+            .unwrap_or(false)
         }
     }
 }

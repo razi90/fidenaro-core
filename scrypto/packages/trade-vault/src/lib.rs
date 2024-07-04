@@ -2,6 +2,7 @@ use ports_interface::prelude::*;
 use scrypto::prelude::*;
 
 type PoolAdapter = PoolAdapterInterfaceScryptoStub;
+type OracleAdapter = OracleAdapterInterfaceScryptoStub;
 
 #[derive(Debug, ScryptoSbor, PartialEq)]
 pub enum Action {
@@ -44,6 +45,8 @@ mod trade_vault {
             fn get_user_token_resource_address(&self) -> ResourceAddress;
             fn get_whitelisted_pool_addresses(&self) -> Vec<ComponentAddress>;
             fn checked_get_pool_adapter(&self, pool_address: ComponentAddress) -> Option<PoolAdapter>;
+            fn get_oracle_adapter(&self) -> Option<OracleAdapter>;
+            fn is_pool_allowed(&self, pool_address: ComponentAddress) -> bool;
         }
     }
 
@@ -209,21 +212,24 @@ mod trade_vault {
             // calculate value of all assets
             let mut total_asset_value = Decimal::zero();
 
-            // we just assume stable coin value is 1$ for now
-            if self.pools.contains_key(&address) {
+            if self.pools.contains_key(&XRD) {
                 total_asset_value += self.pools.get(&address).unwrap().amount();
             }
 
             // calculate value of other assets based on their current price
             for (asset_address, vault) in self.pools.iter() {
-                if asset_address != &address {
-                    let price = self.get_asset_price(*asset_address);
+                if asset_address != &XRD {
+                    let (price, _) = self
+                        .fidenaro
+                        .get_oracle_adapter()
+                        .unwrap()
+                        .get_price(*asset_address, XRD);
                     info!("Price: {}", price);
                     total_asset_value += vault.amount() * price;
                 }
             }
 
-            info!("Total value of assets: {}", total_asset_value);
+            info!("Total value of assets in XRD: {}", total_asset_value);
             // calculate the ratio of deposit value to total value in vault
             let mut amount_to_mint = Decimal::zero();
             if !total_asset_value.is_zero() {
@@ -324,11 +330,15 @@ mod trade_vault {
             // calculate total value of the withdrawn assets
             let mut withdrawal_asset_value = Decimal::zero();
             for token in &tokens {
-                if token.resource_address() == self.fidenaro.get_stable_coin_resource_address() {
+                if token.resource_address() == XRD {
                     withdrawal_asset_value += token.amount();
                 } else {
-                    withdrawal_asset_value +=
-                        token.amount() * self.get_asset_price(token.resource_address());
+                    let (price, _) = self
+                        .fidenaro
+                        .get_oracle_adapter()
+                        .unwrap()
+                        .get_price(token.resource_address(), XRD);
+                    withdrawal_asset_value += token.amount() * price;
                 }
             }
 
@@ -360,23 +370,24 @@ mod trade_vault {
             pool_address: ComponentAddress,
         ) {
             assert!(
-                self.fidenaro
-                    .get_whitelisted_pool_addresses()
-                    .contains(&pool_address),
+                self.fidenaro.is_pool_allowed(pool_address),
                 "This pool is not whitelisted!"
             );
 
             assert!(
                 self.pools.contains_key(&from_token_address),
-                "There is no token in this vault with this address!"
+                "This asset cannot be swapped as it is not part of the !"
             );
 
             let from_pool = self.pools.get_mut(&from_token_address).unwrap();
             let from_token = from_pool.take(from_token_amount).as_fungible();
 
-            let mut radiswap: Global<Radiswap> = pool_address.into();
+            let mut pool_adapter = self
+                .fidenaro
+                .checked_get_pool_adapter(pool_address)
+                .unwrap();
 
-            let to_tokens = radiswap.swap(from_token.into());
+            let to_tokens = pool_adapter.swap(from_token.into());
             let to_token_address = to_tokens.resource_address();
             let to_token_amount = to_tokens.amount();
 
@@ -391,15 +402,25 @@ mod trade_vault {
 
             let mut trade_action = Action::Sell;
 
-            if self.fidenaro.get_stable_coin_resource_address() == from_token_address {
+            if from_token_address == XRD {
                 trade_action = Action::Buy;
             };
 
             let price;
             if trade_action == Action::Buy {
-                price = self.get_asset_price(to_token_address);
+                price = self
+                    .fidenaro
+                    .get_oracle_adapter()
+                    .unwrap()
+                    .get_price(to_token_address, XRD)
+                    .0;
             } else {
-                price = self.get_asset_price(from_token_address);
+                price = self
+                    .fidenaro
+                    .get_oracle_adapter()
+                    .unwrap()
+                    .get_price(XRD, from_token_address)
+                    .0;
             };
 
             let trade = Trade {
@@ -418,14 +439,6 @@ mod trade_vault {
 
         pub fn withdraw_collected_fee_fund_manager(&mut self) -> Bucket {
             self.fees_fund_manager_vault.take_all()
-        }
-
-        fn test_adapter(&mut self, pool_address: ComponentAddress) {
-            let adapter = self
-                .fidenaro
-                .checked_get_pool_adapter(pool_address)
-                .unwrap();
-            let price = adapter.price(pool_address);
         }
     }
 }
