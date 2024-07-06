@@ -133,10 +133,10 @@ where
         include_bytes!(concat!(env!("OUT_DIR"), "/uncompressed_state.bin"));
 
     const PACKAGE_NAMES: [&'static str; 4] = [
-        "ignition",
+        // "ignition",
         "simple-oracle",
-        "ociswap-v1-adapter-v1",
-        "caviarnine-v1-adapter-v1",
+        // "ociswap-v1-adapter-v1",
+        // "caviarnine-v1-adapter-v1",
     ];
 
     const RESOURCE_DIVISIBILITIES: ResourceInformation<u8> = ResourceInformation::<u8> {
@@ -157,8 +157,8 @@ impl ScryptoTestEnv {
         let (addresses, db_flash) =
             scrypto_decode::<(Vec<NodeId>, DbFlash)>(Self::PACKAGES_BINARY).expect("Can't fail!");
 
-        let caviarnine_v1_package = PackageAddress::try_from(addresses[0]).unwrap();
-        let ociswap_v1_package = PackageAddress::try_from(addresses[1]).unwrap();
+        // let caviarnine_v1_package = PackageAddress::try_from(addresses[0]).unwrap();
+        // let ociswap_v1_package = PackageAddress::try_from(addresses[1]).unwrap();
 
         let mut env = TestEnvironmentBuilder::new().flash(db_flash).build();
 
@@ -204,27 +204,6 @@ impl ScryptoTestEnv {
                 .mint_initial_supply(dec!(0), &mut env)
                 .and_then(|bucket| bucket.resource_address(&mut env))
         })?;
-
-        // Creating the liquidity receipt resource that each of the exchanges
-        // will use.
-        let [ociswap_v1_liquidity_receipt_resource, ociswap_v2_liquidity_receipt_resource, defiplaza_v2_liquidity_receipt_resource, caviarnine_v1_liquidity_receipt_resource] =
-            std::array::from_fn(|_| {
-                ResourceBuilder::new_ruid_non_fungible::<LiquidityReceipt<AnyValue>>(
-                    OwnerRole::None,
-                )
-                .mint_roles(mint_roles! {
-                    minter => rule!(allow_all);
-                    minter_updater => rule!(allow_all);
-                })
-                .burn_roles(burn_roles! {
-                    burner => rule!(allow_all);
-                    burner_updater => rule!(allow_all);
-                })
-                .mint_initial_supply([], &mut env)
-                .expect("Must succeed!")
-                .resource_address(&mut env)
-                .expect("Must succeed!")
-            });
 
         // Creating the Ociswap pools of the resources.
         let ociswap_v1_pools = resource_addresses.try_map(|resource_address| {
@@ -529,115 +508,19 @@ impl ScryptoTestEnv {
             simple_oracle.set_price(*resource_address, XRD, dec!(1), &mut env)
         })?;
 
-        // Initializing ignition with information
-        {
-            ignition.set_is_open_position_enabled(true, &mut env)?;
-            ignition.set_is_close_position_enabled(true, &mut env)?;
-
-            ignition.add_reward_rate(LockupPeriod::from_months(6).unwrap(), dec!(0.2), &mut env)?;
-            ignition.add_reward_rate(
-                LockupPeriod::from_months(12).unwrap(),
-                dec!(0.4),
-                &mut env,
-            )?;
-
-            let xrd_bucket =
-                ResourceManager(XRD).mint_fungible(dec!(100_000_000_000_000), &mut env)?;
-            ignition.deposit_protocol_resources(
-                FungibleBucket(xrd_bucket),
-                Volatility::Volatile,
-                &mut env,
-            )?;
-            let xrd_bucket =
-                ResourceManager(XRD).mint_fungible(dec!(100_000_000_000_000), &mut env)?;
-            ignition.deposit_protocol_resources(
-                FungibleBucket(xrd_bucket),
-                Volatility::NonVolatile,
-                &mut env,
-            )?;
-
-            {
-                let ResourceInformation {
-                    bitcoin,
-                    ethereum,
-                    usdc,
-                    usdt,
-                } = resource_addresses;
-                ignition.insert_user_resource_volatility(
-                    bitcoin,
-                    Volatility::Volatile,
-                    &mut env,
-                )?;
-                ignition.insert_user_resource_volatility(
-                    ethereum,
-                    Volatility::Volatile,
-                    &mut env,
-                )?;
-
-                ignition.insert_user_resource_volatility(
-                    usdc,
-                    Volatility::NonVolatile,
-                    &mut env,
-                )?;
-                ignition.insert_user_resource_volatility(
-                    usdt,
-                    Volatility::NonVolatile,
-                    &mut env,
-                )?;
-            }
-
-            ignition.insert_pool_information(
-                OciswapV1PoolInterfaceScryptoTestStub::blueprint_id(ociswap_v1_package),
-                PoolBlueprintInformation {
-                    adapter: ociswap_v1_adapter_v1.try_into().unwrap(),
-                    allowed_pools: ociswap_v1_pools
-                        .iter()
-                        .map(|pool| pool.try_into().unwrap())
-                        .collect(),
-                    liquidity_receipt: ociswap_v1_liquidity_receipt_resource,
-                },
-                &mut env,
-            )?;
-
-            ignition.insert_pool_information(
-                OciswapV2PoolInterfaceScryptoTestStub::blueprint_id(ociswap_v2_package),
-                PoolBlueprintInformation {
-                    adapter: ociswap_v2_adapter_v1.try_into().unwrap(),
-                    allowed_pools: ociswap_v2_pools
-                        .iter()
-                        .map(|pool| pool.try_into().unwrap())
-                        .collect(),
-                    liquidity_receipt: ociswap_v2_liquidity_receipt_resource,
-                },
-                &mut env,
-            )?;
-
-            ignition.insert_pool_information(
-                DefiPlazaV2PoolInterfaceScryptoTestStub::blueprint_id(defiplaza_v2_package),
-                PoolBlueprintInformation {
-                    adapter: defiplaza_v2_adapter_v1.try_into().unwrap(),
-                    allowed_pools: defiplaza_v2_pools
-                        .iter()
-                        .map(|pool| pool.try_into().unwrap())
-                        .collect(),
-                    liquidity_receipt: defiplaza_v2_liquidity_receipt_resource,
-                },
-                &mut env,
-            )?;
-
-            ignition.insert_pool_information(
-                CaviarnineV1PoolInterfaceScryptoTestStub::blueprint_id(caviarnine_v1_package),
-                PoolBlueprintInformation {
-                    adapter: caviarnine_v1_adapter_v1.try_into().unwrap(),
-                    allowed_pools: caviarnine_v1_pools
-                        .iter()
-                        .map(|pool| pool.try_into().unwrap())
-                        .collect(),
-                    liquidity_receipt: caviarnine_v1_liquidity_receipt_resource,
-                },
-                &mut env,
-            )?;
-        }
+        // TODO: Initializing finde with information
+        // ignition.insert_pool_information(
+        //     CaviarnineV1PoolInterfaceScryptoTestStub::blueprint_id(caviarnine_v1_package),
+        //     PoolBlueprintInformation {
+        //         adapter: caviarnine_v1_adapter_v1.try_into().unwrap(),
+        //         allowed_pools: caviarnine_v1_pools
+        //             .iter()
+        //             .map(|pool| pool.try_into().unwrap())
+        //             .collect(),
+        //         liquidity_receipt: caviarnine_v1_liquidity_receipt_resource,
+        //     },
+        //     &mut env,
+        // )?;
 
         Ok(Self {
             environment: env,
@@ -649,34 +532,6 @@ impl ScryptoTestEnv {
                 oracle: simple_oracle,
                 protocol_owner_badge,
                 protocol_manager_badge,
-            },
-            ociswap_v1: DexEntities {
-                package: ociswap_v1_package,
-                pools: ociswap_v1_pools,
-                adapter_package: ociswap_v1_adapter_v1_package,
-                adapter: ociswap_v1_adapter_v1,
-                liquidity_receipt: ociswap_v1_liquidity_receipt_resource,
-            },
-            ociswap_v2: DexEntities {
-                package: ociswap_v2_package,
-                pools: ociswap_v2_pools,
-                adapter_package: ociswap_v2_adapter_v1_package,
-                adapter: ociswap_v2_adapter_v1,
-                liquidity_receipt: ociswap_v2_liquidity_receipt_resource,
-            },
-            defiplaza_v2: DexEntities {
-                package: defiplaza_v2_package,
-                pools: defiplaza_v2_pools,
-                adapter_package: defiplaza_v2_adapter_v1_package,
-                adapter: defiplaza_v2_adapter_v1,
-                liquidity_receipt: defiplaza_v2_liquidity_receipt_resource,
-            },
-            caviarnine_v1: DexEntities {
-                package: caviarnine_v1_package,
-                pools: caviarnine_v1_pools,
-                adapter_package: caviarnine_v1_adapter_v1_package,
-                adapter: caviarnine_v1_adapter_v1,
-                liquidity_receipt: caviarnine_v1_liquidity_receipt_resource,
             },
         })
     }
