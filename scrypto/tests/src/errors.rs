@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+use fidenaro::*;
+
 use crate::prelude::*;
 
 macro_rules! define_error_checking_functions {

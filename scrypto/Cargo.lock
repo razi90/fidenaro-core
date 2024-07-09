@@ -1433,6 +1433,7 @@ version = "0.1.0"
 dependencies = [
  "common",
  "extend",
+ "fidenaro",
  "flate2",
  "lazy_static",
  "paste",

@@ -15,6 +15,7 @@ radix-engine-common = { workspace = true }
 radix-engine-interface = { workspace = true }
 
 common = { workspace = true }
+fidenaro = { path = "../packages/fidenaro" }
 simple-oracle = { path = "../packages/simple-oracle", features = ["test"] }
 ports-interface = { workspace = true }
 # ociswap-v1-adapter-v1 = { path = "../../packages/ociswap-v1-adapter-v1", features = [
