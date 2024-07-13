@@ -15,6 +15,7 @@ user-factory = { path = "../user-factory" }
 
 [features]
 default = []
+test = []
 
 [lib]
 crate-type = ["cdylib", "lib"]

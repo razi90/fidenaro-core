@@ -789,6 +789,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "radiswap-adapter"
+version = "0.1.0"
+dependencies = [
+ "common",
+ "ports-interface",
+ "radix-engine-interface",
+ "sbor",
+ "scrypto",
+ "scrypto-interface",
+ "transaction",
+]
+
+[[package]]
 name = "radix-engine"
 version = "1.1.0-dev"
 source = "git+https://github.com/radixdlt/radixdlt-scrypto?rev=4887c5e4be2603433592ed290b70b1a0c03cced3#4887c5e4be2603433592ed290b70b1a0c03cced3"

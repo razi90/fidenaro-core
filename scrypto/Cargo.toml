@@ -5,6 +5,7 @@ members = [
     "packages/trade-vault",
     "packages/user-factory",
     "packages/simple-oracle",
+    "packages/radiswap-adapter",
     "tests",
 ]
 

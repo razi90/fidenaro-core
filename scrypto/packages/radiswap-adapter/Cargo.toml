@@ -1,0 +1,26 @@
+[package]
+name = "radiswap-adapter"
+version.workspace = true
+edition.workspace = true
+description = "Defines the adapter for Radiswap."
+
+[dependencies]
+sbor = { workspace = true }
+scrypto = { workspace = true }
+radix-engine-interface = { workspace = true }
+transaction = { workspace = true, optional = true }
+scrypto-interface = { workspace = true }
+common = { workspace = true }
+ports-interface = { workspace = true }
+
+[features]
+default = []
+test = []
+
+manifest-builder-stubs = ["dep:transaction"]
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[lints]
+workspace = true
