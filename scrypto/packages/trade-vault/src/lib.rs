@@ -387,7 +387,7 @@ mod trade_vault {
                 .checked_get_pool_adapter(pool_address)
                 .unwrap();
 
-            let to_tokens = pool_adapter.swap(from_token.into());
+            let to_tokens = pool_adapter.swap(pool_address, from_token.into());
             let to_token_address = to_tokens.resource_address();
             let to_token_amount = to_tokens.amount();
 
