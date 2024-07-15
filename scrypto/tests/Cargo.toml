@@ -17,6 +17,10 @@ radix-engine-interface = { workspace = true }
 common = { workspace = true }
 fidenaro = { path = "../packages/fidenaro", features = ["test"] }
 simple-oracle = { path = "../packages/simple-oracle", features = ["test"] }
+radiswap-adapter = { path = "../packages/radiswap-adapter", features = [
+    "test",
+] }
+radiswap = { path = "../bootstrapping-helper/radiswap", features = ["test"] }
 ports-interface = { workspace = true }
 package-loader = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
 

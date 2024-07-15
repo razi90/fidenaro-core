@@ -80,7 +80,7 @@ mod radiswap {
         }
 
         pub fn swap(&mut self, input_bucket: Bucket) -> Bucket {
-            let mut reserves = self.vault_reserves();
+            let mut reserves = self.vault_amounts();
 
             let input_amount = input_bucket.amount();
 
