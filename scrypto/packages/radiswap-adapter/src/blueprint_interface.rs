@@ -20,6 +20,6 @@ define_interface! {
         ) -> (Bucket, Option<Bucket>);
         fn remove_liquidity(&mut self, pool_units: Bucket) -> (Bucket, Bucket);
         fn swap(&mut self, input_bucket: Bucket) -> Bucket;
-        fn vault_reserves(&self) -> IndexMap<ResourceAddress, Decimal>;
+        fn vault_amounts(&self) -> IndexMap<ResourceAddress, Decimal>;
     }
 }

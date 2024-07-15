@@ -107,7 +107,7 @@ mod radiswap {
             self.withdraw(output_resource_address, output_amount)
         }
 
-        pub fn vault_reserves(&self) -> IndexMap<ResourceAddress, Decimal> {
+        pub fn vault_amounts(&self) -> IndexMap<ResourceAddress, Decimal> {
             self.pool_component.get_vault_amounts()
         }
 
