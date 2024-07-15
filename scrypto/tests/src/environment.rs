@@ -28,6 +28,8 @@ pub trait EnvironmentSpecifier {
     // Components
     type Fidenaro;
     type SimpleOracle;
+    type RadiswapPool;
+    type RadiswapAdapter;
 
     // Badges
     type Badge;
@@ -42,6 +44,8 @@ impl EnvironmentSpecifier for ScryptoUnitEnvironmentSpecifier {
     // Components
     type Fidenaro = ComponentAddress;
     type SimpleOracle = ComponentAddress;
+    type RadiswapPool = ComponentAddress;
+    type RadiswapAdapter = ComponentAddress;
 
     // Badges
     type Badge = (PublicKey, PrivateKey, ComponentAddress, ResourceAddress);
@@ -64,10 +68,8 @@ impl<S> Environment<S>
 where
     S: EnvironmentSpecifier,
 {
-    const PACKAGES_BINARY: &'static [u8] =
-        include_bytes!(concat!(env!("OUT_DIR"), "/uncompressed_state.bin"));
-
-    const PACKAGE_NAMES: [&'static str; 2] = ["fidenaro", "simple-oracle"];
+    const PACKAGE_NAMES: [&'static str; 4] =
+        ["fidenaro", "simple-oracle", "radiswap", "radiswap-adapter"];
 
     const RESOURCE_DIVISIBILITIES: ResourceInformation<u8> = ResourceInformation::<u8> {
         bitcoin: 8,
@@ -83,48 +85,8 @@ impl ScryptoUnitEnv {
     }
 
     pub fn new_with_configuration(configuration: Configuration) -> Self {
-        // Flash the substates to the ledger so that they can be used in tests.
-        let (addresses, db_flash) =
-            scrypto_decode::<(Vec<NodeId>, DbFlash)>(Self::PACKAGES_BINARY).expect("Can't fail!");
-
-        let caviarnine_v1_package = PackageAddress::try_from(addresses[0]).unwrap();
-        let ociswap_v1_package = PackageAddress::try_from(addresses[1]).unwrap();
-
-        let mut test_runner = {
-            let mut in_memory_substate_database = InMemorySubstateDatabase::standard();
-            in_memory_substate_database.commit(&DatabaseUpdates {
-                node_updates: db_flash
-                    .into_iter()
-                    .map(|(db_node_key, partition_num_to_updates_mapping)| {
-                        (
-                            db_node_key,
-                            NodeDatabaseUpdates {
-                                partition_updates: partition_num_to_updates_mapping
-                                    .into_iter()
-                                    .map(|(partition_num, substates)| {
-                                        (
-                                            partition_num,
-                                            PartitionDatabaseUpdates::Delta {
-                                                substate_updates: substates
-                                                    .into_iter()
-                                                    .map(|(db_sort_key, value)| {
-                                                        (db_sort_key, DatabaseUpdate::Set(value))
-                                                    })
-                                                    .collect(),
-                                            },
-                                        )
-                                    })
-                                    .collect(),
-                            },
-                        )
-                    })
-                    .collect(),
-            });
-            TestRunnerBuilder::new()
-                .with_custom_database(in_memory_substate_database)
-                .without_trace()
-                .build()
-        };
+        // Create a new simple test runner
+        let mut test_runner = TestRunnerBuilder::new().without_trace().build();
 
         // The account that everything gets deposited into throughout the tests.
         let (public_key, private_key, account) = test_runner.new_account(false);
@@ -135,11 +97,11 @@ impl ScryptoUnitEnv {
         let protocol_manager_rule = rule!(require(protocol_manager_badge));
         let protocol_owner_rule = rule!(require(protocol_owner_badge));
 
-        // let [ignition_package, simple_oracle_package, ociswap_v1_adapter_v1_package, caviarnine_v1_adapter_v1_package] =
-        //     Self::PACKAGE_NAMES.map(|package_name| {
-        //         let (code, definition) = package_loader::PackageLoader::get(package_name);
-        //         test_runner.publish_package((code, definition), Default::default(), OwnerRole::None)
-        //     });
+        let [fidenaro_package, simple_oracle_package, radiswap_package, radiswap_adapter] =
+            Self::PACKAGE_NAMES.map(|package_name| {
+                let (code, definition) = package_loader::PackageLoader::get(package_name);
+                test_runner.publish_package((code, definition), Default::default(), OwnerRole::None)
+            });
 
         let resource_addresses = Self::RESOURCE_DIVISIBILITIES.map(|divisibility| {
             test_runner.create_freely_mintable_fungible_resource(

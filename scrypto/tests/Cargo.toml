@@ -18,25 +18,7 @@ common = { workspace = true }
 fidenaro = { path = "../packages/fidenaro", features = ["test"] }
 simple-oracle = { path = "../packages/simple-oracle", features = ["test"] }
 ports-interface = { workspace = true }
-# ociswap-v1-adapter-v1 = { path = "../../packages/ociswap-v1-adapter-v1", features = [
-#     "test",
-#     "manifest-builder-stubs",
-# ] }
-# ociswap-v2-adapter-v1 = { path = "../../packages/ociswap-v2-adapter-v1", features = [
-#     "test",
-#     "manifest-builder-stubs",
-# ] }
-# defiplaza-v2-adapter-v1 = { path = "../../packages/defiplaza-v2-adapter-v1", features = [
-#     "test",
-#     "manifest-builder-stubs",
-# ] }
-# caviarnine-v1-adapter-v1 = { path = "../../packages/caviarnine-v1-adapter-v1", features = [
-#     "test",
-#     "manifest-builder-stubs",
-# ] }
-
-# package-loader = { path = "../../libraries/package-loader" }
-# gateway-client = { path = "../../libraries/gateway-client" }
+package-loader = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
 
 paste = { version = "1.0.14" }
 extend = { version = "1.2.0" }
