@@ -1,5 +1,7 @@
 mod blueprint_interface;
 
+pub use crate::blueprint_interface::*;
+
 use common::prelude::*;
 use ports_interface::prelude::*;
 use scrypto::prelude::*;
@@ -28,7 +30,7 @@ define_error! {
 
 macro_rules! pool {
     ($address: expr) => {
-        $crate::blueprint_interface::RadiswapInterfaceScryptoStub::from($address)
+        $crate::blueprint_interface::RadiswapPoolInterfaceScryptoStub::from($address)
     };
 }
 

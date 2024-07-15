@@ -115,13 +115,14 @@ impl ScryptoUnitEnv {
         let ociswap_v1_pools = resource_addresses.map(|resource_address| {
             let manifest = ManifestBuilder::new()
                 .lock_fee_from_faucet()
-                .ociswap_v1_pool_instantiate(
-                    ociswap_v1_package,
-                    *resource_address,
-                    XRD,
-                    configuration.fees,
-                    FAUCET,
-                )
+                .radiswap_pool_new()
+                // .ociswap_v1_pool_instantiate(
+                //     ociswap_v1_package,
+                //     *resource_address,
+                //     XRD,
+                //     configuration.fees,
+                //     FAUCET,
+                // )
                 .build();
             let component_address = *test_runner
                 .execute_manifest(manifest, vec![])
