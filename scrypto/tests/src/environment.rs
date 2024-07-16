@@ -185,28 +185,18 @@ impl ScryptoUnitEnv {
                 .expect_commit_success();
         });
 
-        // Initializing ignition with information
-        let ignition = test_runner
+        // Initializing fidenaro with information
+        let fidenaro = test_runner
             .execute_manifest(
                 ManifestBuilder::new()
                     .lock_fee_from_faucet()
                     .call_function(
-                        ignition_package,
-                        "Ignition",
+                        fidenaro_package,
+                        "Fidenaro",
                         "instantiate",
-                        (
-                            MetadataInit::default(),
-                            OwnerRole::None,
-                            protocol_owner_rule,
-                            protocol_manager_rule,
-                            XRD,
-                            simple_oracle,
-                            configuration.maximum_allowed_price_staleness_in_seconds_seconds,
-                            configuration.maximum_allowed_relative_price_difference,
-                            InitializationParametersManifest::default(),
-                            None::<ManifestAddressReservation>,
-                        ),
+                        (OwnerRole::None, simple_oracle),
                     )
+                    .try_deposit_entire_worktop_or_abort(account, None)
                     .build(),
                 vec![],
             )
