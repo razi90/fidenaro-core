@@ -112,18 +112,12 @@ impl ScryptoUnitEnv {
             )
         });
 
-        let ociswap_v1_pools = resource_addresses.map(|resource_address| {
+        let radiswap_pools = resource_addresses.map(|resource_address| {
             let manifest = ManifestBuilder::new()
                 .lock_fee_from_faucet()
-                .radiswap_pool_new()
-                // .ociswap_v1_pool_instantiate(
-                //     ociswap_v1_package,
-                //     *resource_address,
-                //     XRD,
-                //     configuration.fees,
-                //     FAUCET,
-                // )
+                .radiswap_pool_new(radiswap_package, OwnerRole::None, *resource_address, XRD)
                 .build();
+
             let component_address = *test_runner
                 .execute_manifest(manifest, vec![])
                 .expect_commit_success()
@@ -140,11 +134,7 @@ impl ScryptoUnitEnv {
                 .with_name_lookup(|builder, _| {
                     let xrd_bucket = builder.bucket("xrd_bucket");
                     let other_bucket = builder.bucket("other_bucket");
-                    builder.ociswap_v1_pool_add_liquidity(
-                        component_address,
-                        xrd_bucket,
-                        other_bucket,
-                    )
+                    builder.radiswap_pool_add_liquidity(component_address, xrd_bucket, other_bucket)
                 })
                 .try_deposit_entire_worktop_or_abort(account, None)
                 .build();
