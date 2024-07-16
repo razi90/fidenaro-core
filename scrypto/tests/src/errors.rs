@@ -90,10 +90,5 @@ define_error_checking_functions! {
         OVERFLOW_ERROR,
         INVALID_MAXIMUM_PRICE_STALENESS,
         INVALID_UPFRONT_REWARD_PERCENTAGE,
-    ],
-    // ociswap_adapter => [
-    //     FAILED_TO_GET_RESOURCE_ADDRESSES_ERROR,
-    //     FAILED_TO_GET_VAULT_ERROR,
-    //     PRICE_IS_UNDEFINED
-    // ]
+    ]
 }

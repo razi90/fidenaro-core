@@ -1,6 +1,8 @@
 use ports_interface::prelude::*;
 use scrypto::prelude::*;
 
+use crate::errors::*;
+
 type PoolAdapter = PoolAdapterInterfaceScryptoStub;
 type OracleAdapter = OracleAdapterInterfaceScryptoStub;
 
@@ -34,7 +36,6 @@ pub struct PoolBlueprintInformation {
 
 #[blueprint]
 mod fidenaro {
-    use crate::NO_ADAPTER_FOUND_FOR_POOL_ERROR;
 
     enable_method_auth! {
         roles {
