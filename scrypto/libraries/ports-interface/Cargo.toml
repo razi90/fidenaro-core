@@ -1,26 +1,18 @@
 [package]
 name = "ports-interface"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
 description = "Defines the interface of the various adapters."
 
 [dependencies]
-sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "4887c5e4be2603433592ed290b70b1a0c03cced3" }
-scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "4887c5e4be2603433592ed290b70b1a0c03cced3" }
-transaction = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "4887c5e4be2603433592ed290b70b1a0c03cced3", optional = true }
-radix-engine-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "4887c5e4be2603433592ed290b70b1a0c03cced3" }
-radix-engine-derive = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "4887c5e4be2603433592ed290b70b1a0c03cced3" }
-radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "4887c5e4be2603433592ed290b70b1a0c03cced3" }
-common = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
-scrypto-interface = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
-
-[profile.release]
-opt-level = 'z'
-lto = true
-codegen-units = 1
-panic = 'abort'
-strip = true
-overflow-checks = true
+sbor = { workspace = true }
+scrypto = { workspace = true }
+transaction = { workspace = true, optional = true }
+radix-engine-common = { workspace = true }
+radix-engine-derive = { workspace = true }
+radix-engine-interface = { workspace = true }
+common = { workspace = true }
+scrypto-interface = { workspace = true }
 
 [features]
 default = [
@@ -36,3 +28,6 @@ manifest-builder-stubs = ["dep:transaction"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
+
+[lints]
+workspace = true

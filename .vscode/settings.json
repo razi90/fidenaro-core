@@ -1,6 +1,5 @@
 {
     "rust-analyzer.linkedProjects": [
-        "./scrypto/Cargo.toml",
-        "./scrypto/libraries/ports-interface/Cargo.toml",
+        "./scrypto/Cargo.toml"
     ]
 }

@@ -97,7 +97,7 @@ impl ScryptoUnitEnv {
         let protocol_manager_rule = rule!(require(protocol_manager_badge));
         let protocol_owner_rule = rule!(require(protocol_owner_badge));
 
-        let [fidenaro_package, simple_oracle_package, radiswap_package, radiswap_adapter] =
+        let [fidenaro_package, simple_oracle_package, radiswap_package, radiswap_adapter_package] =
             Self::PACKAGE_NAMES.map(|package_name| {
                 let (code, definition) = package_loader::PackageLoader::get(package_name);
                 test_runner.publish_package((code, definition), Default::default(), OwnerRole::None)
@@ -206,7 +206,7 @@ impl ScryptoUnitEnv {
             .copied()
             .unwrap();
 
-        let ociswap_v1_adapter_v1 = [(ociswap_v1_adapter_v1_package, "OciswapV1Adapter")].map(
+        let radiswap_adapter = [(radiswap_adapter_package, "RadiswapAdapter")].map(
             |(package_address, blueprint_name)| {
                 test_runner
                     .execute_manifest(

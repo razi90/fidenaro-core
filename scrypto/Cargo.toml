@@ -6,6 +6,7 @@ members = [
     "packages/user-factory",
     "packages/simple-oracle",
     "packages/radiswap-adapter",
+    "libraries/ports-interface",
     "tests",
 ]
 
@@ -36,6 +37,8 @@ state-manager = { git = "https://github.com/radixdlt/babylon-node", rev = "63a82
 ports-interface = { path = "./libraries/ports-interface" }
 common = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
 scrypto-interface = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
+
+env_logger = "0.11.2"
 
 [profile.release]
 opt-level = 'z'

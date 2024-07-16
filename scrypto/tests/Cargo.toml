@@ -3,7 +3,6 @@ name = "tests"
 version.workspace = true
 edition.workspace = true
 description = "A crate with unit and integration tests for Fidenaro"
-# build = "build.rs"
 
 [dependencies]
 sbor = { workspace = true }
