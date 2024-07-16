@@ -1491,6 +1491,7 @@ dependencies = [
  "radix-engine-common",
  "radix-engine-interface",
  "sbor",
+ "scrypto",
  "scrypto-test",
  "scrypto-unit",
  "simple-oracle",

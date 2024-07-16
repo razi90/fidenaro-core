@@ -6,6 +6,7 @@ description = "A crate with unit and integration tests for Fidenaro"
 
 [dependencies]
 sbor = { workspace = true }
+scrypto = { workspace = true }
 transaction = { workspace = true }
 scrypto-test = { workspace = true }
 scrypto-unit = { workspace = true }
