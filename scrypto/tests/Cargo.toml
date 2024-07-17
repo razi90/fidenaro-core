@@ -20,12 +20,12 @@ radiswap-adapter = { path = "../packages/radiswap-adapter", features = [
 ] }
 ports-interface = { workspace = true }
 
-paste = { version = "1.0.14" }
+paste = { version = "1.0.15" }
 extend = { version = "1.2.0" }
-lazy_static = "1.4.0"
+lazy_static = "1.5.0"
 
 [build-dependencies]
-flate2 = { version = "1.0.28" }
+flate2 = { version = "1.0.30" }
 
 [lints]
 workspace = true
