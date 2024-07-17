@@ -469,10 +469,7 @@ pub fn define_interface(input: TokenStream) -> TokenStream {
 /// }
 /// ```
 #[proc_macro_attribute]
-pub fn blueprint_with_traits(
-    meta: TokenStream,
-    item: TokenStream,
-) -> TokenStream {
+pub fn blueprint_with_traits(meta: TokenStream, item: TokenStream) -> TokenStream {
     handlers::handle_blueprint_with_traits(meta.into(), item.into())
         .unwrap_or_else(|err| err.to_compile_error())
         .into()

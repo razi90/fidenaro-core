@@ -8,7 +8,6 @@ description = "Defines the adapter for Radiswap."
 sbor = { workspace = true }
 scrypto = { workspace = true }
 radix-engine-interface = { workspace = true }
-transaction = { workspace = true, optional = true }
 scrypto-interface = { workspace = true }
 common = { workspace = true }
 ports-interface = { workspace = true }
@@ -17,7 +16,7 @@ ports-interface = { workspace = true }
 default = []
 test = []
 
-manifest-builder-stubs = ["dep:transaction"]
+manifest-builder-stubs = []
 
 [lib]
 crate-type = ["cdylib", "lib"]

@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-use radix_engine_derive::*;
 use scrypto::prelude::*;
 
 /// A price type representing the price in terms of some base and quote assets.
@@ -136,17 +135,14 @@ mod test {
     use super::*;
 
     const BITCOIN: ResourceAddress = ResourceAddress::new_or_panic([
-        93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 1,
+        93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
     ]);
     const USD: ResourceAddress = ResourceAddress::new_or_panic([
-        93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 2,
+        93, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
     ]);
 
     #[test]
-    fn percentage_difference_with_opposite_base_and_quote_is_calculated_correctly(
-    ) {
+    fn percentage_difference_with_opposite_base_and_quote_is_calculated_correctly() {
         // Arrange
         let p1 = Price {
             base: BITCOIN,
@@ -220,8 +216,7 @@ mod test {
         };
 
         // Act
-        let (out_address, out_amount) =
-            price.exchange(usd, dec!(43000)).unwrap();
+        let (out_address, out_amount) = price.exchange(usd, dec!(43000)).unwrap();
 
         // Assert
         assert_eq!(out_address, btc);

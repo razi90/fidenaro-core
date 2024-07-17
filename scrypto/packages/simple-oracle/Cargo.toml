@@ -7,7 +7,6 @@ description = "A simple oracle used in tests."
 [dependencies]
 sbor = { workspace = true }
 scrypto = { workspace = true }
-radix-engine-derive = { workspace = true }
 
 scrypto-interface = { workspace = true }
 ports-interface = { workspace = true }
