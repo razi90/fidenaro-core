@@ -169,18 +169,18 @@ fn generate_scrypto_stub(input: &DefineInterfaceInput, attributes: &[Attribute])
                             blueprint_package_address,
                             stringify!(#blueprint_ident),
                             stringify!(#ident),
-                            ::radix_engine_interface::scrypto_args!(#(#arg_idents),*)
+                            ::scrypto::prelude::scrypto_args!(#(#arg_idents),*)
                         );
-                        ::radix_common::prelude::scrypto_decode(&rtn).unwrap()
+                        scrypto::data::scrypto::scrypto_decode(&rtn).unwrap()
                     }
                 } else {
                     quote! {
                         let rtn = ::scrypto::prelude::ScryptoVmV1Api::object_call(
                             &self.0.0,
                             stringify!(#ident),
-                            ::radix_engine_interface::scrypto_args!(#(#arg_idents),*)
+                            ::scrypto::prelude::scrypto_args!(#(#arg_idents),*)
                         );
-                        ::radix_common::prelude::scrypto_decode(&rtn).unwrap()
+                        scrypto::data::scrypto::scrypto_decode(&rtn).unwrap()
                     }
                 };
 
@@ -317,18 +317,18 @@ fn generate_scrypto_test_stub(
                             blueprint_package_address,
                             stringify!(#blueprint_ident),
                             stringify!(#ident),
-                            ::radix_engine_interface::scrypto_args!(#(#arg_idents),*)
+                            ::scrypto::prelude::scrypto_args!(#(#arg_idents),*)
                         )
-                        .map(|rtn| ::radix_common::prelude::scrypto_decode(&rtn).unwrap())
+                        .map(|rtn| scrypto::data::scrypto::scrypto_decode(&rtn).unwrap())
                     }
                 } else {
                     quote! {
                         env.call_method(
                             &self.0.0,
                             stringify!(#ident),
-                            ::radix_engine_interface::scrypto_args!(#(#arg_idents),*)
+                            ::scrypto::prelude::scrypto_args!(#(#arg_idents),*)
                         )
-                        .map(|rtn| ::radix_common::prelude::scrypto_decode(&rtn).unwrap())
+                        .map(|rtn| scrypto::data::scrypto::scrypto_decode(&rtn).unwrap())
                     }
                 };
 
@@ -342,7 +342,7 @@ fn generate_scrypto_test_stub(
                     #[allow(clippy::too_many_arguments)]
                     pub #token_fn #ident <Y, E> ( #arguments ) -> Result<#rtn, E>
                     where
-                        Y: ::radix_common::prelude::ClientApi<E>,
+                        Y: ::scrypto::api::ClientApi<E>,
                         E: ::core::fmt::Debug
                     {
                         #inner

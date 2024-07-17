@@ -21,6 +21,7 @@ description = "The implementation of project Fidenaro in Scrypto for the Radix L
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
 utils = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
+radix-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
 radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
 

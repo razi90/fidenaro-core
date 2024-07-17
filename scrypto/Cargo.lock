@@ -874,6 +874,7 @@ name = "ports-interface"
 version = "0.1.0"
 dependencies = [
  "common",
+ "radix-common",
  "radix-engine 1.2.0",
  "radix-engine-interface 1.2.0",
  "sbor 1.2.0",

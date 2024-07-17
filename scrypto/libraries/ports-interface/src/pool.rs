@@ -16,7 +16,6 @@
 // under the License.
 
 //! Defines the interface of the adapters used to communicate with pools.
-
 use common::prelude::*;
 use scrypto::prelude::*;
 use scrypto_interface::*;
