@@ -37,7 +37,7 @@ state-manager = { git = "https://github.com/radixdlt/babylon-node", rev = "63a82
 
 ports-interface = { path = "./libraries/ports-interface" }
 scrypto-interface = { path = "./libraries/scrypto-interface" }
-common = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
+common = { path = "./libraries/common" }
 
 env_logger = "0.11.2"
 
