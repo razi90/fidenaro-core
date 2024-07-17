@@ -26,23 +26,23 @@ pub impl DefaultLedgerSimulator {
     ) -> TransactionReceiptV1 {
         self.execute_manifest_with_enabled_modules(
             manifest,
-            EnabledModules::for_test_transaction() & !EnabledModules::AUTH,
+            Some(SystemOverrides::with_network(NetworkDefinition::simulator())),
         )
     }
 
     fn execute_manifest_with_enabled_modules(
         &mut self,
         manifest: TransactionManifestV1,
-        enabled_modules: EnabledModules,
+        system_overrides: Option<SystemOverrides>,
     ) -> TransactionReceiptV1 {
         let mut execution_config = ExecutionConfig::for_test_transaction();
-        execution_config.enabled_modules = enabled_modules;
+        execution_config.system_overrides = system_overrides;
 
         let nonce = self.next_transaction_nonce();
         let test_transaction = TestTransaction::new_from_nonce(manifest, nonce);
         let prepared_transaction = test_transaction.prepare().unwrap();
         let executable = prepared_transaction.get_executable(Default::default());
-        self.execute_transaction(executable, Default::default(), execution_config)
+        self.execute_transaction(executable, execution_config)
     }
 
     /// Constructs a notarized transaction and executes it. This is primarily
