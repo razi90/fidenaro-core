@@ -39,7 +39,7 @@ pub struct ScryptoUnitEnvironmentSpecifier;
 
 impl EnvironmentSpecifier for ScryptoUnitEnvironmentSpecifier {
     // Environment
-    type Environment = DefaultTestRunner;
+    type Environment = DefaultLedgerSimulator;
 
     // Components
     type Fidenaro = ComponentAddress;
@@ -68,8 +68,12 @@ impl<S> Environment<S>
 where
     S: EnvironmentSpecifier,
 {
-    const PACKAGE_NAMES: [&'static str; 4] =
-        ["fidenaro", "simple-oracle", "radiswap", "radiswap-adapter"];
+    const PACKAGE_NAMES: [&'static str; 4] = [
+        "../packages/fidenaro",
+        "../packages/simple-oracle",
+        "../bootstrapping-helper/radiswap",
+        "../packages/radiswap-adapter",
+    ];
 
     const RESOURCE_DIVISIBILITIES: ResourceInformation<u8> = ResourceInformation::<u8> {
         bitcoin: 8,
@@ -86,25 +90,23 @@ impl ScryptoUnitEnv {
 
     pub fn new_with_configuration(configuration: Configuration) -> Self {
         // Create a new simple test runner
-        let mut test_runner = TestRunnerBuilder::new().without_trace().build();
+        let mut ledger_simulator = LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
         // The account that everything gets deposited into throughout the tests.
-        let (public_key, private_key, account) = test_runner.new_account(false);
+        let (public_key, private_key, account) = ledger_simulator.new_account(false);
 
-        let protocol_manager_badge = test_runner.create_fungible_resource(dec!(1), 0, account);
-        let protocol_owner_badge = test_runner.create_fungible_resource(dec!(1), 0, account);
+        let protocol_manager_badge = ledger_simulator.create_fungible_resource(dec!(1), 0, account);
+        let protocol_owner_badge = ledger_simulator.create_fungible_resource(dec!(1), 0, account);
 
         let protocol_manager_rule = rule!(require(protocol_manager_badge));
         let protocol_owner_rule = rule!(require(protocol_owner_badge));
 
         let [fidenaro_package, simple_oracle_package, radiswap_package, radiswap_adapter_package] =
-            Self::PACKAGE_NAMES.map(|package_name| {
-                let (code, definition) = package_loader::PackageLoader::get(package_name);
-                test_runner.publish_package((code, definition), Default::default(), OwnerRole::None)
-            });
+            Self::PACKAGE_NAMES
+                .map(|package_name| ledger_simulator.compile_and_publish(package_name));
 
         let resource_addresses = Self::RESOURCE_DIVISIBILITIES.map(|divisibility| {
-            test_runner.create_freely_mintable_fungible_resource(
+            ledger_simulator.create_freely_mintable_fungible_resource(
                 OwnerRole::None,
                 None,
                 *divisibility,
@@ -118,7 +120,7 @@ impl ScryptoUnitEnv {
                 .radiswap_pool_new(radiswap_package, OwnerRole::None, *resource_address, XRD)
                 .build();
 
-            let component_address = *test_runner
+            let component_address = *ledger_simulator
                 .execute_manifest(manifest, vec![])
                 .expect_commit_success()
                 .new_component_addresses()
@@ -138,14 +140,14 @@ impl ScryptoUnitEnv {
                 })
                 .try_deposit_entire_worktop_or_abort(account, None)
                 .build();
-            test_runner
+            ledger_simulator
                 .execute_manifest_without_auth(manifest)
                 .expect_commit_success();
 
             component_address
         });
 
-        let simple_oracle = test_runner
+        let simple_oracle = ledger_simulator
             .execute_manifest(
                 ManifestBuilder::new()
                     .lock_fee_from_faucet()
@@ -171,7 +173,7 @@ impl ScryptoUnitEnv {
 
         // Submitting some dummy prices to the oracle to get things going.
         resource_addresses.map(|resource_address| {
-            test_runner
+            ledger_simulator
                 .execute_manifest_without_auth(
                     ManifestBuilder::new()
                         .lock_fee_from_faucet()
@@ -186,7 +188,7 @@ impl ScryptoUnitEnv {
         });
 
         // Initializing fidenaro with information
-        let fidenaro = test_runner
+        let fidenaro = ledger_simulator
             .execute_manifest(
                 ManifestBuilder::new()
                     .lock_fee_from_faucet()
@@ -208,7 +210,7 @@ impl ScryptoUnitEnv {
 
         let radiswap_adapter = [(radiswap_adapter_package, "RadiswapAdapter")].map(
             |(package_address, blueprint_name)| {
-                test_runner
+                ledger_simulator
                     .execute_manifest(
                         ManifestBuilder::new()
                             .lock_fee_from_faucet()
@@ -236,7 +238,7 @@ impl ScryptoUnitEnv {
         );
 
         Self {
-            environment: test_runner,
+            environment: ledger_simulator,
             resources: resource_addresses,
             // protocol: ProtocolEntities {
             //     fidenaro_package_address: fidenaro_package,

@@ -19,7 +19,7 @@ use crate::prelude::*;
 use extend::ext;
 
 #[ext]
-pub impl DefaultTestRunner {
+pub impl DefaultLedgerSimulator {
     fn execute_manifest_without_auth(
         &mut self,
         manifest: TransactionManifestV1,
@@ -41,13 +41,8 @@ pub impl DefaultTestRunner {
         let nonce = self.next_transaction_nonce();
         let test_transaction = TestTransaction::new_from_nonce(manifest, nonce);
         let prepared_transaction = test_transaction.prepare().unwrap();
-        let executable =
-            prepared_transaction.get_executable(Default::default());
-        self.execute_transaction(
-            executable,
-            Default::default(),
-            execution_config,
-        )
+        let executable = prepared_transaction.get_executable(Default::default());
+        self.execute_transaction(executable, Default::default(), execution_config)
     }
 
     /// Constructs a notarized transaction and executes it. This is primarily
@@ -73,9 +68,6 @@ pub impl DefaultTestRunner {
             .manifest(manifest)
             .notarize(notary_private_key)
             .build();
-        self.execute_raw_transaction(
-            &network_definition,
-            &transaction.to_raw().unwrap(),
-        )
+        self.execute_raw_transaction(&network_definition, &transaction.to_raw().unwrap())
     }
 }

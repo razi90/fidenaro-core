@@ -875,8 +875,6 @@ version = "0.1.0"
 dependencies = [
  "common",
  "radix-common",
- "radix-engine 1.2.0",
- "radix-engine-interface 1.2.0",
  "radix-transactions",
  "sbor 1.2.0",
  "scrypto 1.2.0",
@@ -948,7 +946,8 @@ version = "0.1.0"
 dependencies = [
  "common",
  "ports-interface",
- "radix-engine-interface 1.2.0",
+ "radix-common",
+ "radix-transactions",
  "sbor 1.2.0",
  "scrypto 1.2.0",
  "scrypto-interface",

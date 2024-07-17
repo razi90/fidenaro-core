@@ -8,9 +8,7 @@ description = "Defines the interface of the various adapters."
 sbor = { workspace = true }
 scrypto = { workspace = true }
 radix-common = { workspace = true }
-radix-engine = { workspace = true }
-radix-engine-interface = { workspace = true }
-radix-transactions = { workspace = true }
+radix-transactions = { workspace = true, optional = true }
 scrypto-interface = { workspace = true }
 common = { workspace = true }
 
@@ -24,11 +22,10 @@ default = [
 trait = []
 scrypto-stubs = []
 scrypto-test-stubs = []
-manifest-builder-stubs = []
+manifest-builder-stubs = ["dep:radix-transactions"]
 
 [lib]
 crate-type = ["cdylib", "lib"]
-proc-macro = true
 
 [lints]
 workspace = true
