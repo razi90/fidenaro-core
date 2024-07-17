@@ -6,6 +6,7 @@ description = "A crate with unit and integration tests for Fidenaro"
 
 [dependencies]
 sbor = { workspace = true }
+scrypto = { workspace = true }
 scrypto-test = { workspace = true }
 radix-engine = { workspace = true }
 radix-engine-interface = { workspace = true }
@@ -13,6 +14,7 @@ radix-engine-interface = { workspace = true }
 common = { workspace = true }
 fidenaro = { path = "../packages/fidenaro", features = ["test"] }
 simple-oracle = { path = "../packages/simple-oracle", features = ["test"] }
+radiswap = { path = "../bootstrapping-helper/radiswap", features = ["test"] }
 radiswap-adapter = { path = "../packages/radiswap-adapter", features = [
     "test",
     "manifest-builder-stubs",
