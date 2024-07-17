@@ -877,6 +877,7 @@ dependencies = [
  "radix-common",
  "radix-engine 1.2.0",
  "radix-engine-interface 1.2.0",
+ "radix-transactions",
  "sbor 1.2.0",
  "scrypto 1.2.0",
  "scrypto-interface",

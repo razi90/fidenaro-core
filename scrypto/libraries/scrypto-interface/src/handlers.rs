@@ -431,7 +431,7 @@ fn generate_manifest_builder_stub(
                 } else {
                     arguments.add_argument_to_beginning(
                         Ident::new("component_address", ident.span()),
-                        parse_quote!(impl ::transaction::builder::ResolvableGlobalAddress),
+                        parse_quote!(impl radix_transactions::builder::ResolvableGlobalAddress),
                     );
                 }
 
@@ -485,7 +485,7 @@ fn generate_manifest_builder_stub(
                 } else {
                     arguments.add_argument_to_beginning(
                         Ident::new("component_address", ident.span()),
-                        parse_quote!(impl ::transaction::builder::ResolvableGlobalAddress),
+                        parse_quote!(impl radix_transactions::builder::ResolvableGlobalAddress),
                     );
 
                     let original_arguments = original_arguments
@@ -527,7 +527,7 @@ fn generate_manifest_builder_stub(
         #(#attributes)*
         #[allow(clippy::too_many_arguments, unused_mut)]
         const _: () = {
-            impl #trait_ident for ::transaction::builder::ManifestBuilder {
+            impl #trait_ident for radix_transactions::builder::ManifestBuilder {
                 #(#implementations)*
             }
         };

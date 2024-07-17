@@ -10,6 +10,7 @@ scrypto = { workspace = true }
 radix-common = { workspace = true }
 radix-engine = { workspace = true }
 radix-engine-interface = { workspace = true }
+radix-transactions = { workspace = true }
 scrypto-interface = { workspace = true }
 common = { workspace = true }
 
