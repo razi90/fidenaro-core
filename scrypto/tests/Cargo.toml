@@ -19,7 +19,6 @@ radiswap-adapter = { path = "../packages/radiswap-adapter", features = [
     "manifest-builder-stubs",
 ] }
 ports-interface = { workspace = true }
-package-loader = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
 
 paste = { version = "1.0.14" }
 extend = { version = "1.2.0" }
