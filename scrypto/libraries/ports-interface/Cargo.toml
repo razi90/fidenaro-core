@@ -5,6 +5,7 @@ edition.workspace = true
 description = "Defines the interface of the various adapters."
 
 [dependencies]
+scrypto-interface = { workspace = true }
 sbor = { workspace = true }
 scrypto = { workspace = true }
 transaction = { workspace = true, optional = true }
@@ -12,7 +13,6 @@ radix-engine-common = { workspace = true }
 radix-engine-derive = { workspace = true }
 radix-engine-interface = { workspace = true }
 common = { workspace = true }
-scrypto-interface = { workspace = true }
 
 [features]
 default = [

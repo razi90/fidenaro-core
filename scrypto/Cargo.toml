@@ -7,6 +7,7 @@ members = [
     "packages/simple-oracle",
     "packages/radiswap-adapter",
     "libraries/ports-interface",
+    "libraries/scrypto-interface",
     "tests",
 ]
 
@@ -35,8 +36,8 @@ scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", rev = "48
 state-manager = { git = "https://github.com/radixdlt/babylon-node", rev = "63a8267196995fef0830e4fbf0271bea65c90ab1" }
 
 ports-interface = { path = "./libraries/ports-interface" }
+scrypto-interface = { path = "./libraries/scrypto-interface" }
 common = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
-scrypto-interface = { git = "https://github.com/radixdlt/Ignition", branch = "main" }
 
 env_logger = "0.11.2"
 

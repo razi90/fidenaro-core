@@ -1207,7 +1207,6 @@ dependencies = [
 [[package]]
 name = "scrypto-interface"
 version = "0.1.0"
-source = "git+https://github.com/radixdlt/Ignition?branch=main#6e3fe97ef8a386e9d45c0105039546afa4a303e6"
 dependencies = [
  "heck",
  "proc-macro2",
