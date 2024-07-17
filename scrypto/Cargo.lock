@@ -1605,7 +1605,6 @@ dependencies = [
  "radix-engine",
  "radix-engine-interface",
  "sbor",
- "scrypto",
  "scrypto-test",
  "simple-oracle",
 ]
