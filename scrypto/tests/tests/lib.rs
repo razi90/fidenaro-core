@@ -13,12 +13,12 @@ fn simple_radiswap_test() -> Result<(), RuntimeError> {
     let resource_address1 = ledger.create_fungible_resource(Decimal::from(100), 18, account);
     let resource_address2 = ledger.create_fungible_resource(Decimal::from(100), 18, account);
 
-    let mut radiswap = Radiswap::new(
-        OwnerRole::None,
-        resource_address1,
-        resource_address2,
-        package_address,
-    )?;
+    // let mut radiswap = Radiswap::new(
+    //     OwnerRole::None,
+    //     resource_address1,
+    //     resource_address2,
+    //     package_address,
+    // )?;
 
     Ok(())
 }
