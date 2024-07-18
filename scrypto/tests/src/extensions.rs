@@ -24,23 +24,17 @@ pub impl DefaultLedgerSimulator {
     fn execute_manifest_without_auth(
         &mut self,
         manifest: TransactionManifestV1,
-        owner_public_key: Secp256k1PublicKey,
     ) -> TransactionReceiptV1 {
-        let system_overrides =
+        let mut system_overrides =
             SystemOverrides::default_for_network(&NetworkDefinition::simulator());
-        system_overrides.disable_auth;
-        self.execute_manifest_with_enabled_modules(
-            manifest,
-            Some(system_overrides),
-            owner_public_key,
-        )
+        system_overrides.disable_auth = true;
+        self.execute_manifest_with_enabled_modules(manifest, Some(system_overrides))
     }
 
     fn execute_manifest_with_enabled_modules(
         &mut self,
         manifest: TransactionManifestV1,
         system_overrides: Option<SystemOverrides>,
-        owner_public_key: Secp256k1PublicKey,
     ) -> TransactionReceiptV1 {
         let mut execution_config = ExecutionConfig::for_test_transaction();
         execution_config.system_overrides = system_overrides;
@@ -48,10 +42,7 @@ pub impl DefaultLedgerSimulator {
         let nonce = self.next_transaction_nonce();
         let test_transaction = TestTransaction::new_from_nonce(manifest, nonce);
         let prepared_transaction = test_transaction.prepare().unwrap();
-        let executable =
-            prepared_transaction.get_executable(btreeset![NonFungibleGlobalId::from_public_key(
-                &owner_public_key,
-            )]);
+        let executable = prepared_transaction.get_executable(Default::default());
         self.execute_transaction(executable, execution_config)
     }
 }
