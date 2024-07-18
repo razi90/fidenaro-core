@@ -59,7 +59,7 @@ where
     pub environment: S::Environment,
     /* Various entities */
     pub resources: ResourceInformation<ResourceAddress>,
-    // pub protocol: ProtocolEntities<S>,
+    pub protocol: ProtocolEntities<S>,
     /* Supported Dexes */
     // pub ociswap_v1: DexEntities<S::OciswapV1Pool, S::OciswapV1Adapter>,
 }
@@ -241,26 +241,26 @@ impl ScryptoUnitEnv {
         Self {
             environment: ledger_simulator,
             resources: resource_addresses,
-            // protocol: ProtocolEntities {
-            //     fidenaro_package_address: fidenaro_package,
-            //     fidenaro,
-            //     oracle_package_address: simple_oracle_package,
-            //     oracle: simple_oracle,
-            //     protocol_owner_badge: (
-            //         public_key.into(),
-            //         Secp256k1PrivateKey::from_bytes(&private_key.to_bytes())
-            //             .unwrap()
-            //             .into(),
-            //         account,
-            //         protocol_owner_badge,
-            //     ),
-            //     protocol_manager_badge: (
-            //         public_key.into(),
-            //         private_key.into(),
-            //         account,
-            //         protocol_manager_badge,
-            //     ),
-            // },
+            protocol: ProtocolEntities {
+                fidenaro_package_address: fidenaro_package,
+                fidenaro,
+                oracle_package_address: simple_oracle_package,
+                oracle: simple_oracle,
+                protocol_owner_badge: (
+                    public_key.into(),
+                    Secp256k1PrivateKey::from_bytes(&private_key.to_bytes())
+                        .unwrap()
+                        .into(),
+                    account,
+                    protocol_owner_badge,
+                ),
+                protocol_manager_badge: (
+                    public_key.into(),
+                    private_key.into(),
+                    account,
+                    protocol_manager_badge,
+                ),
+            },
         }
     }
 }

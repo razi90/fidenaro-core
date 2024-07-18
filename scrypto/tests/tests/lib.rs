@@ -1,4 +1,3 @@
-use scrypto::math::Decimal;
 use scrypto_test::prelude::*;
 
 use tests::prelude::*;
