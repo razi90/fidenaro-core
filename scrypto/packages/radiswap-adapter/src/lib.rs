@@ -30,7 +30,7 @@ define_error! {
 
 macro_rules! pool {
     ($address: expr) => {
-        $crate::blueprint_interface::RadiswapPoolInterfaceScryptoStub::from($address)
+        $crate::blueprint_interface::RadiswapInterfaceScryptoStub::from($address)
     };
 }
 

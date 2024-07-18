@@ -2,7 +2,7 @@ use scrypto::prelude::*;
 use scrypto_interface::*;
 
 define_interface! {
-    RadiswapPool impl [
+    Radiswap impl [
         ScryptoStub,
         ScryptoTestStub,
         #[cfg(feature = "manifest-builder-stubs")]

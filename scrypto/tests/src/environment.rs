@@ -117,7 +117,7 @@ impl ScryptoUnitEnv {
         let radiswap_pools = resource_addresses.map(|resource_address| {
             let manifest = ManifestBuilder::new()
                 .lock_fee_from_faucet()
-                .radiswap_pool_new(radiswap_package, OwnerRole::None, *resource_address, XRD)
+                .radiswap_new(radiswap_package, OwnerRole::None, *resource_address, XRD)
                 .build();
 
             let component_address = *ledger_simulator
@@ -136,7 +136,7 @@ impl ScryptoUnitEnv {
                 .with_name_lookup(|builder, _| {
                     let xrd_bucket = builder.bucket("xrd_bucket");
                     let other_bucket = builder.bucket("other_bucket");
-                    builder.radiswap_pool_add_liquidity(component_address, xrd_bucket, other_bucket)
+                    builder.radiswap_add_liquidity(component_address, xrd_bucket, other_bucket)
                 })
                 .try_deposit_entire_worktop_or_abort(account, None)
                 .build();
