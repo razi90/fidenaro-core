@@ -1,7 +1,12 @@
 use scrypto::math::Decimal;
 use scrypto_test::prelude::*;
 
-use radiswap::test_bindings::*;
+use tests::prelude::*;
+
+#[test]
+fn simple_testing_environment_can_be_created() {
+    let env = ScryptoUnitEnv::new();
+}
 
 #[test]
 fn simple_radiswap_test() -> Result<(), RuntimeError> {

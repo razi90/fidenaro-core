@@ -141,7 +141,7 @@ impl ScryptoUnitEnv {
                 .try_deposit_entire_worktop_or_abort(account, None)
                 .build();
             ledger_simulator
-                .execute_manifest_without_auth(manifest)
+                .execute_manifest_without_auth(manifest, public_key)
                 .expect_commit_success();
 
             component_address
@@ -176,6 +176,7 @@ impl ScryptoUnitEnv {
             ledger_simulator
                 .execute_manifest_without_auth(
                     ManifestBuilder::new()
+                        .create_proof_from_account_of_amount(account, protocol_manager_badge, 1)
                         .lock_fee_from_faucet()
                         .call_method(
                             simple_oracle,
@@ -183,6 +184,7 @@ impl ScryptoUnitEnv {
                             (*resource_address, XRD, dec!(1)),
                         )
                         .build(),
+                    public_key,
                 )
                 .expect_commit_success();
         });
