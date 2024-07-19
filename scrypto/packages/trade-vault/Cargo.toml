@@ -3,6 +3,7 @@ name = "trade-vault"
 version.workspace = true
 edition.workspace = true
 description = "The implementation of the trade vault"
+build = "build.rs"
 
 [dependencies]
 sbor = { workspace = true }
