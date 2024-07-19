@@ -68,8 +68,9 @@ impl<S> Environment<S>
 where
     S: EnvironmentSpecifier,
 {
-    const PACKAGE_NAMES: [&'static str; 4] = [
+    const PACKAGE_NAMES: [&'static str; 5] = [
         "../packages/fidenaro",
+        "../packages/user-factory",
         "../packages/simple-oracle",
         "../bootstrapping-helper/radiswap",
         "../packages/radiswap-adapter",
@@ -101,9 +102,18 @@ impl ScryptoUnitEnv {
         let protocol_manager_rule = rule!(require(protocol_manager_badge));
         let protocol_owner_rule = rule!(require(protocol_owner_badge));
 
-        let [fidenaro_package, simple_oracle_package, radiswap_package, radiswap_adapter_package] =
+        let [fidenaro_package, user_factory_package, simple_oracle_package, radiswap_package, radiswap_adapter_package] =
             Self::PACKAGE_NAMES
                 .map(|package_name| ledger_simulator.compile_and_publish(package_name));
+
+        std::env::set_var(
+            "FIDENARO_PACKAGE_ADDRESS",
+            fidenaro_package
+                .display(&AddressBech32Encoder::for_simulator())
+                .to_string(),
+        );
+
+        let trade_vault_package = ledger_simulator.compile_and_publish("../packages/trade-vault");
 
         let resource_addresses = Self::RESOURCE_DIVISIBILITIES.map(|divisibility| {
             ledger_simulator.create_freely_mintable_fungible_resource(
