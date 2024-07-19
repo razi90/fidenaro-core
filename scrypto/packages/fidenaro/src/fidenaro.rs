@@ -460,7 +460,7 @@ mod fidenaro {
         /// component to remove from the set of allowed pools.
         pub fn remove_allowed_pool(&mut self, pool_address: ComponentAddress) {
             self.with_pool_blueprint_information_mut(pool_address, |pool_information| {
-                pool_information.allowed_pools.remove(&pool_address);
+                pool_information.allowed_pools.swap_remove(&pool_address);
             })
             .expect(NO_ADAPTER_FOUND_FOR_POOL_ERROR)
         }
