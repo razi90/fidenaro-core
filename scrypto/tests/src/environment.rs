@@ -106,6 +106,7 @@ impl ScryptoUnitEnv {
             Self::PACKAGE_NAMES
                 .map(|package_name| ledger_simulator.compile_and_publish(package_name));
 
+        // Convert the package address to the Bech32 representation "package_sim1..." to use it to replace it in the blueprint of the trade vault
         std::env::set_var(
             "FIDENARO_PACKAGE_ADDRESS",
             fidenaro_package
