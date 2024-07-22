@@ -17,6 +17,8 @@
 
 #![allow(clippy::arithmetic_side_effects)]
 
+use scrypto::component::Faucet;
+
 use crate::prelude::*;
 
 pub type ScryptoUnitEnv = Environment<ScryptoUnitEnvironmentSpecifier>;
@@ -258,6 +260,18 @@ impl ScryptoUnitEnv {
         // Init user accounts
         let (_, _, trader_account) = ledger_simulator.new_account(false);
         let (_, _, follower_account) = ledger_simulator.new_account(false);
+
+        // Deposit XRD in user accounts
+        [trader_account, follower_account].map(|account| {
+            ledger_simulator.execute_manifest(
+                ManifestBuilder::new()
+                    .lock_fee_from_faucet()
+                    .get_free_xrd_from_faucet()
+                    .try_deposit_entire_worktop_or_abort(account, None)
+                    .build(),
+                vec![],
+            );
+        });
 
         // Init user factory
         let user_factory = ledger_simulator
