@@ -259,6 +259,47 @@ impl ScryptoUnitEnv {
         let (_, _, trader_account) = ledger_simulator.new_account(false);
         let (_, _, follower_account) = ledger_simulator.new_account(false);
 
+        // Init user factory
+        let user_factory = ledger_simulator
+            .execute_manifest(
+                ManifestBuilder::new()
+                    .lock_fee_from_faucet()
+                    .call_function(user_factory_package, "UserFactory", "instantiate", ())
+                    .build(),
+                vec![],
+            )
+            .expect_commit_success()
+            .new_component_addresses()
+            .first()
+            .copied()
+            .unwrap();
+
+        // Create Fidenaro user NFTs
+        [
+            (trader_account, "Trader".to_string()),
+            (follower_account, "Follower".to_string()),
+        ]
+        .map(|(account, user_type)| {
+            let bio = user_type.clone() + "Bio";
+            let pfp = format!("http://{}-pfp.com", user_type);
+            let twitter = user_type.clone() + "Twitter";
+            let telegram = user_type.clone() + "Telegram";
+            let discord = user_type.clone() + "Discord";
+
+            ledger_simulator.execute_manifest(
+                ManifestBuilder::new()
+                    .lock_fee_from_faucet()
+                    .call_method(
+                        user_factory,
+                        "new_user",
+                        (user_type, bio, pfp, twitter, telegram, discord),
+                    )
+                    .try_deposit_entire_worktop_or_abort(account, None)
+                    .build(),
+                vec![],
+            );
+        });
+
         Self {
             environment: ledger_simulator,
             resources: resource_addresses,
@@ -266,6 +307,7 @@ impl ScryptoUnitEnv {
                 fidenaro_package_address: fidenaro_package,
                 fidenaro,
                 user_factory_package_address: user_factory_package,
+                user_factory,
                 trade_vault_package_address: trade_vault_package,
                 oracle_package_address: simple_oracle_package,
                 oracle: simple_oracle,
@@ -312,6 +354,7 @@ where
     pub fidenaro: S::Fidenaro,
     /* User Factory */
     pub user_factory_package_address: PackageAddress,
+    pub user_factory: S::UserFactory,
     /* Trade Vault */
     pub trade_vault_package_address: PackageAddress,
     /* Oracle */
