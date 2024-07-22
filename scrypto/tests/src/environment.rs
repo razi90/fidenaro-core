@@ -255,6 +255,10 @@ impl ScryptoUnitEnv {
             .copied()
             .unwrap();
 
+        // Init user accounts
+        let (_, _, trader_account) = ledger_simulator.new_account(false);
+        let (_, _, follower_account) = ledger_simulator.new_account(false);
+
         Self {
             environment: ledger_simulator,
             resources: resource_addresses,
@@ -279,6 +283,8 @@ impl ScryptoUnitEnv {
                     account,
                     protocol_manager_badge,
                 ),
+                trader_account,
+                follower_account,
             },
             radiswap: DexEntities {
                 package: radiswap_package,
@@ -314,6 +320,8 @@ where
     /* Badges */
     pub protocol_owner_badge: S::Badge,
     pub protocol_manager_badge: S::Badge,
+    pub trader_account: ComponentAddress,
+    pub follower_account: ComponentAddress,
 }
 
 /// A struct that defines the entities that belong to a Decentralized Exchange.
