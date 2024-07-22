@@ -17,8 +17,6 @@
 
 #![allow(clippy::arithmetic_side_effects)]
 
-use scrypto::component::Faucet;
-
 use crate::prelude::*;
 
 pub type ScryptoUnitEnv = Environment<ScryptoUnitEnvironmentSpecifier>;
@@ -263,14 +261,16 @@ impl ScryptoUnitEnv {
 
         // Deposit XRD in user accounts
         [trader_account, follower_account].map(|account| {
-            ledger_simulator.execute_manifest(
-                ManifestBuilder::new()
-                    .lock_fee_from_faucet()
-                    .get_free_xrd_from_faucet()
-                    .try_deposit_entire_worktop_or_abort(account, None)
-                    .build(),
-                vec![],
-            );
+            ledger_simulator
+                .execute_manifest(
+                    ManifestBuilder::new()
+                        .lock_fee_from_faucet()
+                        .get_free_xrd_from_faucet()
+                        .try_deposit_entire_worktop_or_abort(account, None)
+                        .build(),
+                    vec![],
+                )
+                .expect_commit_success();
         });
 
         // Init user factory
@@ -300,19 +300,23 @@ impl ScryptoUnitEnv {
             let telegram = user_type.clone() + "Telegram";
             let discord = user_type.clone() + "Discord";
 
-            ledger_simulator.execute_manifest(
-                ManifestBuilder::new()
-                    .lock_fee_from_faucet()
-                    .call_method(
-                        user_factory,
-                        "new_user",
-                        (user_type, bio, pfp, twitter, telegram, discord),
-                    )
-                    .try_deposit_entire_worktop_or_abort(account, None)
-                    .build(),
-                vec![],
-            );
+            ledger_simulator
+                .execute_manifest(
+                    ManifestBuilder::new()
+                        .lock_fee_from_faucet()
+                        .call_method(
+                            user_factory,
+                            "create_new_user",
+                            (user_type, bio, pfp, twitter, telegram, discord),
+                        )
+                        .try_deposit_entire_worktop_or_abort(account, None)
+                        .build(),
+                    vec![],
+                )
+                .expect_commit_success();
         });
+
+        // Create a trade vault for the
 
         Self {
             environment: ledger_simulator,
