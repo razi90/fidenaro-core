@@ -1961,7 +1961,6 @@ dependencies = [
  "extend",
  "fidenaro",
  "flate2",
- "lazy_static",
  "paste",
  "ports-interface",
  "radiswap",

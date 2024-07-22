@@ -60,7 +60,7 @@ where
     S: EnvironmentSpecifier,
 {
     /* Test Environment */
-    pub environment: S::Environment,
+    pub ledger_simulator: S::Environment,
     /* Various entities */
     pub resources: ResourceInformation<ResourceAddress>,
     pub protocol: ProtocolEntities<S>,
@@ -364,7 +364,7 @@ impl ScryptoUnitEnv {
             .unwrap();
 
         Self {
-            environment: ledger_simulator,
+            ledger_simulator: ledger_simulator,
             resources: resource_addresses,
             protocol: ProtocolEntities {
                 fidenaro_package_address: fidenaro_package,
