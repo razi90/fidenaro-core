@@ -80,17 +80,12 @@ mod trade_vault {
     }
 
     impl TradeVault {
-        pub fn instantiate_trade_vault(
-            user_token: NonFungibleBucket,
-            fund_name: String,
+        pub fn instantiate(
+            user_token_id: String,
+            vault_name: String,
             fidenaro: ComponentAddress,
             short_description: String,
-        ) -> (
-            Global<TradeVault>,
-            FungibleBucket,
-            ResourceAddress,
-            NonFungibleBucket,
-        ) {
+        ) -> (Global<TradeVault>, FungibleBucket) {
             let (address_reservation, component_address) =
                 Runtime::allocate_component_address(TradeVault::blueprint_id());
 
@@ -98,8 +93,8 @@ mod trade_vault {
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata(metadata! {
                     init {
-                        "name" => format!("{} Vault Manager Badge", &fund_name), updatable;
-                        "description" => format!("Manager badge for the Fidenaro {} vault.", &fund_name), updatable;
+                        "name" => format!("{} Vault Manager Badge", &vault_name), updatable;
+                        "description" => format!("Manager badge for the Fidenaro {} vault.", &vault_name), updatable;
                         "icon_url" => Url::of("https://fidenaro.com/images/LogoFidenaro.png"), locked;
                         "tags" => ["manager", "Fidenaro"], locked;
                     }
@@ -110,8 +105,8 @@ mod trade_vault {
                 .divisibility(DIVISIBILITY_MAXIMUM)
                 .metadata(metadata! {
                     init {
-                        "name" => format!("{} Share Tokens", &fund_name), updatable;
-                        "description" => format!("Represents investor shares of the Fidenaro {} vault.", &fund_name), updatable;
+                        "name" => format!("{} Share Tokens", &vault_name), updatable;
+                        "description" => format!("Represents investor shares of the Fidenaro {} vault.", &vault_name), updatable;
                         "icon_url" => Url::of("https://fidenaro.com/images/LogoFidenaro.png"), locked;
                         "tags" => ["share", "Fidenaro"], locked;
                     }
@@ -127,7 +122,7 @@ mod trade_vault {
                 .create_with_no_initial_supply();
 
             let fidenaro: Global<Fidenaro> = fidenaro.into();
-            let manager_user_id = user_token.non_fungible_local_id().to_string();
+            let manager_user_id = user_token_id;
 
             let fund_metadata_config = metadata! {
                 roles {
@@ -153,7 +148,7 @@ mod trade_vault {
                     );
                 },
                 init {
-                    "name" => format!("{}", fund_name), updatable;
+                    "name" => format!("{}", vault_name), updatable;
                     "description" => format!("{}", short_description), updatable;
                 }
             };
@@ -185,12 +180,7 @@ mod trade_vault {
             .with_address(address_reservation)
             .globalize();
 
-            (
-                component,
-                fund_manager_badge,
-                share_token_manager.address(),
-                user_token,
-            )
+            (component, fund_manager_badge)
         }
 
         //////////////////////////

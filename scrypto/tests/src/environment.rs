@@ -274,22 +274,29 @@ impl ScryptoUnitEnv {
         });
 
         // Init user factory
-        let user_factory = ledger_simulator
-            .execute_manifest(
-                ManifestBuilder::new()
-                    .lock_fee_from_faucet()
-                    .call_function(user_factory_package, "UserFactory", "instantiate", ())
-                    .build(),
-                vec![],
-            )
-            .expect_commit_success()
+        let binding = ledger_simulator.execute_manifest(
+            ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .call_function(user_factory_package, "UserFactory", "instantiate", ())
+                .build(),
+            vec![],
+        );
+        let transaction_receipt = binding.expect_commit_success();
+
+        let user_factory = transaction_receipt
             .new_component_addresses()
             .first()
             .copied()
             .unwrap();
 
+        let user_nft_resource_addresss = transaction_receipt
+            .new_resource_addresses()
+            .first()
+            .copied()
+            .unwrap();
+
         // Create Fidenaro user NFTs
-        [
+        let [trader_user_id, follower_user_id] = [
             (trader_account, "Trader".to_string()),
             (follower_account, "Follower".to_string()),
         ]
@@ -300,7 +307,7 @@ impl ScryptoUnitEnv {
             let telegram = user_type.clone() + "Telegram";
             let discord = user_type.clone() + "Discord";
 
-            ledger_simulator
+            let user_nft_vault_id = ledger_simulator
                 .execute_manifest(
                     ManifestBuilder::new()
                         .lock_fee_from_faucet()
@@ -313,10 +320,48 @@ impl ScryptoUnitEnv {
                         .build(),
                     vec![],
                 )
-                .expect_commit_success();
+                .expect_commit_success()
+                .new_vault_addresses()
+                .first()
+                .copied()
+                .unwrap();
+
+            ledger_simulator
+                .inspect_non_fungible_vault(user_nft_vault_id.into())
+                .unwrap()
+                .1
+                .next()
+                .unwrap()
         });
 
-        // Create a trade vault for the
+        println!("Trader User ID: {:?}", trader_user_id);
+        println!("Follower User ID: {:?}", follower_user_id);
+
+        // Create a trade vault with the trader account as the manager
+        let trade_vault = ledger_simulator
+            .execute_manifest(
+                ManifestBuilder::new()
+                    .lock_fee_from_faucet()
+                    .call_function(
+                        trade_vault_package,
+                        "TradeVault",
+                        "instantiate",
+                        (
+                            trader_user_id.to_string(),
+                            "Test Vault",
+                            fidenaro,
+                            "Vault short description",
+                        ),
+                    )
+                    .try_deposit_entire_worktop_or_abort(trader_account, None)
+                    .build(),
+                vec![],
+            )
+            .expect_commit_success()
+            .new_component_addresses()
+            .first()
+            .copied()
+            .unwrap();
 
         Self {
             environment: ledger_simulator,
