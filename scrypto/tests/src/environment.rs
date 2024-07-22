@@ -372,6 +372,7 @@ impl ScryptoUnitEnv {
                 user_factory_package_address: user_factory_package,
                 user_factory,
                 trade_vault_package_address: trade_vault_package,
+                trade_vault,
                 oracle_package_address: simple_oracle_package,
                 oracle: simple_oracle,
                 protocol_owner_badge: (
@@ -420,6 +421,7 @@ where
     pub user_factory: S::UserFactory,
     /* Trade Vault */
     pub trade_vault_package_address: PackageAddress,
+    pub trade_vault: S::TradeVault,
     /* Oracle */
     pub oracle_package_address: PackageAddress,
     pub oracle: S::SimpleOracle,
