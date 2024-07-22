@@ -27,8 +27,10 @@ pub trait EnvironmentSpecifier {
 
     // Components
     type Fidenaro;
+    type UserFactory;
+    type TradeVault;
     type SimpleOracle;
-    type RadiswapPool;
+    type Radiswap;
     type RadiswapAdapter;
 
     // Badges
@@ -43,8 +45,10 @@ impl EnvironmentSpecifier for ScryptoUnitEnvironmentSpecifier {
 
     // Components
     type Fidenaro = ComponentAddress;
+    type UserFactory = ComponentAddress;
+    type TradeVault = ComponentAddress;
     type SimpleOracle = ComponentAddress;
-    type RadiswapPool = ComponentAddress;
+    type Radiswap = ComponentAddress;
     type RadiswapAdapter = ComponentAddress;
 
     // Badges
@@ -61,7 +65,7 @@ where
     pub resources: ResourceInformation<ResourceAddress>,
     pub protocol: ProtocolEntities<S>,
     /* Supported Dexes */
-    // pub ociswap_v1: DexEntities<S::OciswapV1Pool, S::OciswapV1Adapter>,
+    pub radiswap: DexEntities<S::Radiswap, S::RadiswapAdapter>,
 }
 
 impl<S> Environment<S>
@@ -89,7 +93,7 @@ impl ScryptoUnitEnv {
         Self::new_with_configuration(Configuration::default())
     }
 
-    pub fn new_with_configuration(configuration: Configuration) -> Self {
+    pub fn new_with_configuration(_configuration: Configuration) -> Self {
         // Create a new simple test runner
         let mut ledger_simulator = LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
@@ -100,13 +104,14 @@ impl ScryptoUnitEnv {
         let protocol_owner_badge = ledger_simulator.create_fungible_resource(dec!(1), 0, account);
 
         let protocol_manager_rule = rule!(require(protocol_manager_badge));
-        let protocol_owner_rule = rule!(require(protocol_owner_badge));
+        let _protocol_owner_rule = rule!(require(protocol_owner_badge));
 
+        // Compile and publish packages
         let [fidenaro_package, user_factory_package, simple_oracle_package, radiswap_package, radiswap_adapter_package] =
             Self::PACKAGE_NAMES
                 .map(|package_name| ledger_simulator.compile_and_publish(package_name));
 
-        // Convert the package address to the Bech32 representation "package_sim1..." to use it to replace it in the blueprint of the trade vault
+        // Convert the fidenaro package address to the Bech32 representation "package_sim1..." to use it to replace it in the blueprint of the trade vault
         std::env::set_var(
             "FIDENARO_PACKAGE_ADDRESS",
             fidenaro_package
@@ -114,8 +119,10 @@ impl ScryptoUnitEnv {
                 .to_string(),
         );
 
+        // Compile and publish the trade vault blueprint
         let trade_vault_package = ledger_simulator.compile_and_publish("../packages/trade-vault");
 
+        // Create resources
         let resource_addresses = Self::RESOURCE_DIVISIBILITIES.map(|divisibility| {
             ledger_simulator.create_freely_mintable_fungible_resource(
                 OwnerRole::None,
@@ -125,6 +132,7 @@ impl ScryptoUnitEnv {
             )
         });
 
+        // Initialize Radiswap pools
         let radiswap_pools = resource_addresses.map(|resource_address| {
             let manifest = ManifestBuilder::new()
                 .lock_fee_from_faucet()
@@ -159,6 +167,7 @@ impl ScryptoUnitEnv {
             component_address
         });
 
+        // Initialize a simple oracle
         let simple_oracle = ledger_simulator
             .execute_manifest(
                 ManifestBuilder::new()
@@ -220,34 +229,31 @@ impl ScryptoUnitEnv {
             .copied()
             .unwrap();
 
-        let radiswap_adapter = [(radiswap_adapter_package, "RadiswapAdapter")].map(
-            |(package_address, blueprint_name)| {
-                ledger_simulator
-                    .execute_manifest(
-                        ManifestBuilder::new()
-                            .lock_fee_from_faucet()
-                            .call_function(
-                                package_address,
-                                blueprint_name,
-                                "instantiate",
-                                (
-                                    rule!(allow_all),
-                                    rule!(allow_all),
-                                    MetadataInit::default(),
-                                    OwnerRole::None,
-                                    None::<ManifestAddressReservation>,
-                                ),
-                            )
-                            .build(),
-                        vec![],
+        // Initialze the Radiswap adapter
+        let radiswap_adapter = ledger_simulator
+            .execute_manifest(
+                ManifestBuilder::new()
+                    .lock_fee_from_faucet()
+                    .call_function(
+                        radiswap_adapter_package,
+                        "RadiswapAdapter",
+                        "instantiate",
+                        (
+                            rule!(allow_all),
+                            rule!(allow_all),
+                            MetadataInit::default(),
+                            OwnerRole::None,
+                            None::<ManifestAddressReservation>,
+                        ),
                     )
-                    .expect_commit_success()
-                    .new_component_addresses()
-                    .first()
-                    .copied()
-                    .unwrap()
-            },
-        );
+                    .build(),
+                vec![],
+            )
+            .expect_commit_success()
+            .new_component_addresses()
+            .first()
+            .copied()
+            .unwrap();
 
         Self {
             environment: ledger_simulator,
@@ -255,6 +261,8 @@ impl ScryptoUnitEnv {
             protocol: ProtocolEntities {
                 fidenaro_package_address: fidenaro_package,
                 fidenaro,
+                user_factory_package_address: user_factory_package,
+                trade_vault_package_address: trade_vault_package,
                 oracle_package_address: simple_oracle_package,
                 oracle: simple_oracle,
                 protocol_owner_badge: (
@@ -271,6 +279,12 @@ impl ScryptoUnitEnv {
                     account,
                     protocol_manager_badge,
                 ),
+            },
+            radiswap: DexEntities {
+                package: radiswap_package,
+                pools: radiswap_pools,
+                adapter_package: radiswap_adapter_package,
+                adapter: radiswap_adapter,
             },
         }
     }
@@ -290,6 +304,10 @@ where
     /* Fidenaro */
     pub fidenaro_package_address: PackageAddress,
     pub fidenaro: S::Fidenaro,
+    /* User Factory */
+    pub user_factory_package_address: PackageAddress,
+    /* Trade Vault */
+    pub trade_vault_package_address: PackageAddress,
     /* Oracle */
     pub oracle_package_address: PackageAddress,
     pub oracle: S::SimpleOracle,
@@ -310,8 +328,6 @@ pub struct DexEntities<P, A> {
     /* Adapter */
     pub adapter_package: PackageAddress,
     pub adapter: A,
-    /* Receipt */
-    pub liquidity_receipt: ResourceAddress,
 }
 
 #[derive(Clone, Debug, Copy)]
