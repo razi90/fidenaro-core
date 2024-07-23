@@ -215,22 +215,29 @@ impl ScryptoUnitEnv {
         });
 
         // Initializing fidenaro with information
-        let fidenaro = ledger_simulator
-            .execute_manifest(
-                ManifestBuilder::new()
-                    .lock_fee_from_faucet()
-                    .call_function(
-                        fidenaro_package,
-                        "Fidenaro",
-                        "instantiate",
-                        (OwnerRole::None, simple_oracle),
-                    )
-                    .try_deposit_entire_worktop_or_abort(account, None)
-                    .build(),
-                vec![],
-            )
-            .expect_commit_success()
+        let binding = ledger_simulator.execute_manifest(
+            ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .call_function(
+                    fidenaro_package,
+                    "Fidenaro",
+                    "instantiate",
+                    (OwnerRole::None, simple_oracle),
+                )
+                .try_deposit_entire_worktop_or_abort(account, None)
+                .build(),
+            vec![],
+        );
+        let transaction_receipt = binding.expect_commit_success();
+
+        let fidenaro = transaction_receipt
             .new_component_addresses()
+            .first()
+            .copied()
+            .unwrap();
+
+        let admin_badge_address = transaction_receipt
+            .new_resource_addresses()
             .first()
             .copied()
             .unwrap();
@@ -342,11 +349,20 @@ impl ScryptoUnitEnv {
             NonFungibleGlobalId::new(user_nft_resource_addresss, local_id)
         });
 
-        println!("Trader User ID: {:?}", trader_user_nft);
-        println!("Trader User ID: {:?}", trader_user_nft.local_id());
-
-        println!("Follower User ID: {:?}", follower_user_nft);
-        println!("Follower User ID: {:?}", follower_user_nft.local_id());
+        // Set user nft resource address in Fidenaro
+        ledger_simulator
+            .execute_manifest_without_auth(
+                ManifestBuilder::new()
+                    .lock_fee_from_faucet()
+                    .create_proof_from_account_of_amount(account, admin_badge_address, 1)
+                    .call_method(
+                        fidenaro,
+                        "set_user_token_resource_address",
+                        (user_nft_resource_addresss,),
+                    )
+                    .build(),
+            )
+            .expect_commit_success();
 
         // Create a trade vault with the trader account as the manager
         let trade_vault = ledger_simulator
