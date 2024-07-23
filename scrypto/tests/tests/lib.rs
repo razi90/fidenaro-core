@@ -32,13 +32,15 @@ fn restore_env() {
 }
 
 #[test]
-fn can_deposit() {
+fn test_common_user_interactions() {
     init_env();
     restore_env();
 
     unsafe {
         if let Some(env_mutex) = ENV.as_ref() {
             let mut env = env_mutex.lock().unwrap();
+
+            // let follower deposit into a vault
             let manifest = ManifestBuilder::new()
                 .lock_fee_from_faucet()
                 .create_proof_from_account_of_non_fungible(
@@ -60,34 +62,24 @@ fn can_deposit() {
             env.ledger_simulator
                 .execute_manifest_without_auth(manifest)
                 .expect_commit_success();
+
+            // let trader perform a swap
+
+            // let follower withdraw from vault
         }
     }
 }
 
-#[test]
-fn can_swap() {
-    init_env();
-    restore_env();
+// #[test]
+// fn can_swap() {
+//     init_env();
+//     restore_env();
 
-    // Here you can use the environment for your test
-    unsafe {
-        if let Some(env_mutex) = ENV.as_ref() {
-            let env = env_mutex.lock().unwrap();
-            // Do your test with env
-        }
-    }
-}
-
-#[test]
-fn can_withdraw() {
-    init_env();
-    restore_env();
-
-    // Here you can use the environment for your test
-    unsafe {
-        if let Some(env_mutex) = ENV.as_ref() {
-            let env = env_mutex.lock().unwrap();
-            // Do your test with env
-        }
-    }
-}
+//     // Here you can use the environment for your test
+//     unsafe {
+//         if let Some(env_mutex) = ENV.as_ref() {
+//             let env = env_mutex.lock().unwrap();
+//             // Do your test with env
+//         }
+//     }
+// }
