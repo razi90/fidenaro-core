@@ -35,6 +35,9 @@ pub trait EnvironmentSpecifier {
 
     // Badges
     type Badge;
+
+    // Users
+    type User;
 }
 
 pub struct ScryptoUnitEnvironmentSpecifier;
@@ -53,6 +56,9 @@ impl EnvironmentSpecifier for ScryptoUnitEnvironmentSpecifier {
 
     // Badges
     type Badge = (PublicKey, PrivateKey, ComponentAddress, ResourceAddress);
+
+    // Users
+    type User = (ComponentAddress, NonFungibleGlobalId);
 }
 
 pub struct Environment<S>
@@ -296,7 +302,7 @@ impl ScryptoUnitEnv {
             .unwrap();
 
         // Create Fidenaro user NFTs
-        let [trader_user_id, follower_user_id] = [
+        let [trader_user_nft, follower_user_nft] = [
             (trader_account, "Trader".to_string()),
             (follower_account, "Follower".to_string()),
         ]
@@ -326,16 +332,21 @@ impl ScryptoUnitEnv {
                 .copied()
                 .unwrap();
 
-            ledger_simulator
+            let local_id = ledger_simulator
                 .inspect_non_fungible_vault(user_nft_vault_id.into())
                 .unwrap()
                 .1
                 .next()
-                .unwrap()
+                .unwrap();
+
+            NonFungibleGlobalId::new(user_nft_resource_addresss, local_id)
         });
 
-        println!("Trader User ID: {:?}", trader_user_id);
-        println!("Follower User ID: {:?}", follower_user_id);
+        println!("Trader User ID: {:?}", trader_user_nft);
+        println!("Trader User ID: {:?}", trader_user_nft.local_id());
+
+        println!("Follower User ID: {:?}", follower_user_nft);
+        println!("Follower User ID: {:?}", follower_user_nft.local_id());
 
         // Create a trade vault with the trader account as the manager
         let trade_vault = ledger_simulator
@@ -347,7 +358,7 @@ impl ScryptoUnitEnv {
                         "TradeVault",
                         "instantiate",
                         (
-                            trader_user_id.to_string(),
+                            trader_user_nft.local_id().to_string(),
                             "Test Vault",
                             fidenaro,
                             "Vault short description",
@@ -389,8 +400,8 @@ impl ScryptoUnitEnv {
                     account,
                     protocol_manager_badge,
                 ),
-                trader_account,
-                follower_account,
+                trader: (trader_account, trader_user_nft),
+                follower: (follower_account, follower_user_nft),
             },
             radiswap: DexEntities {
                 package: radiswap_package,
@@ -428,8 +439,8 @@ where
     /* Badges */
     pub protocol_owner_badge: S::Badge,
     pub protocol_manager_badge: S::Badge,
-    pub trader_account: ComponentAddress,
-    pub follower_account: ComponentAddress,
+    pub trader: S::User,
+    pub follower: S::User,
 }
 
 /// A struct that defines the entities that belong to a Decentralized Exchange.
