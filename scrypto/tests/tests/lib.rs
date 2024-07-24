@@ -64,6 +64,22 @@ fn test_common_user_interactions() {
                 .expect_commit_success();
 
             // let trader perform a swap
+            let manifest = ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .create_proof_from_account_of_amount(
+                    env.protocol.trader.0,
+                    env.protocol.trade_vault_admin_badge,
+                    1,
+                )
+                .call_method(
+                    env.protocol.trade_vault,
+                    "swap",
+                    (XRD, 10, env.radiswap.pools.bitcoin),
+                )
+                .build();
+            env.ledger_simulator
+                .execute_manifest_without_auth(manifest)
+                .expect_commit_success();
 
             // let follower withdraw from vault
         }

@@ -365,27 +365,34 @@ impl ScryptoUnitEnv {
             .expect_commit_success();
 
         // Create a trade vault with the trader account as the manager
-        let trade_vault = ledger_simulator
-            .execute_manifest(
-                ManifestBuilder::new()
-                    .lock_fee_from_faucet()
-                    .call_function(
-                        trade_vault_package,
-                        "TradeVault",
-                        "instantiate",
-                        (
-                            trader_user_nft.local_id().to_string(),
-                            "Test Vault",
-                            fidenaro,
-                            "Vault short description",
-                        ),
-                    )
-                    .try_deposit_entire_worktop_or_abort(trader_account, None)
-                    .build(),
-                vec![],
-            )
-            .expect_commit_success()
+        let transaction_receipt = ledger_simulator.execute_manifest(
+            ManifestBuilder::new()
+                .lock_fee_from_faucet()
+                .call_function(
+                    trade_vault_package,
+                    "TradeVault",
+                    "instantiate",
+                    (
+                        trader_user_nft.local_id().to_string(),
+                        "Test Vault",
+                        fidenaro,
+                        "Vault short description",
+                    ),
+                )
+                .try_deposit_entire_worktop_or_abort(trader_account, None)
+                .build(),
+            vec![],
+        );
+        let transaction_result = transaction_receipt.expect_commit_success();
+
+        let trade_vault = transaction_result
             .new_component_addresses()
+            .first()
+            .copied()
+            .unwrap();
+
+        let trade_vault_admin_badge = transaction_result
+            .new_resource_addresses()
             .first()
             .copied()
             .unwrap();
@@ -400,6 +407,7 @@ impl ScryptoUnitEnv {
                 user_factory,
                 trade_vault_package_address: trade_vault_package,
                 trade_vault,
+                trade_vault_admin_badge,
                 oracle_package_address: simple_oracle_package,
                 oracle: simple_oracle,
                 protocol_owner_badge: (
@@ -449,6 +457,7 @@ where
     /* Trade Vault */
     pub trade_vault_package_address: PackageAddress,
     pub trade_vault: S::TradeVault,
+    pub trade_vault_admin_badge: ResourceAddress,
     /* Oracle */
     pub oracle_package_address: PackageAddress,
     pub oracle: S::SimpleOracle,
