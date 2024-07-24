@@ -420,6 +420,12 @@ impl ScryptoUnitEnv {
             .copied()
             .unwrap();
 
+        let trade_vault_share_token = transaction_result
+            .new_resource_addresses()
+            .last()
+            .copied()
+            .unwrap();
+
         Self {
             ledger_simulator: ledger_simulator,
             resources: resource_addresses,
@@ -431,6 +437,7 @@ impl ScryptoUnitEnv {
                 trade_vault_package_address: trade_vault_package,
                 trade_vault,
                 trade_vault_admin_badge,
+                trade_vault_share_token,
                 oracle_package_address: simple_oracle_package,
                 oracle: simple_oracle,
                 protocol_owner_badge: (
@@ -481,6 +488,7 @@ where
     pub trade_vault_package_address: PackageAddress,
     pub trade_vault: S::TradeVault,
     pub trade_vault_admin_badge: ResourceAddress,
+    pub trade_vault_share_token: ResourceAddress,
     /* Oracle */
     pub oracle_package_address: PackageAddress,
     pub oracle: S::SimpleOracle,

@@ -6,9 +6,8 @@ fn main() {
     let placeholder = "FIDENARO_PACKAGE_ADDRESS";
 
     // Read the replacement value from an environment variable
-    let default_package_address = "default_package_address_value";
     let mut replacement = env::var("FIDENARO_PACKAGE_ADDRESS")
-        .unwrap_or_else(|_| default_package_address.to_string());
+        .expect("FIDENARO_PACKAGE_ADDRESS environment variable not set");
 
     // Add quotes
     replacement = format!("\"{}\"", replacement);
