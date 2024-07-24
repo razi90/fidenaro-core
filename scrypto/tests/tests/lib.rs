@@ -74,7 +74,7 @@ fn test_common_user_interactions() {
                 .call_method(
                     env.protocol.trade_vault,
                     "swap",
-                    (XRD, 10, env.radiswap.pools.bitcoin),
+                    (XRD, dec!(10), env.radiswap.pools.bitcoin),
                 )
                 .build();
             env.ledger_simulator
