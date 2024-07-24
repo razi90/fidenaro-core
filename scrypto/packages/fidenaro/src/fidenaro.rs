@@ -50,7 +50,6 @@ mod fidenaro {
             get_user_token_resource_address => PUBLIC;
             checked_get_pool_adapter => PUBLIC;
             get_oracle_adapter => PUBLIC;
-            is_pool_allowed => PUBLIC;
 
             // Methods with admin access
             add_token_to_fee_vaults => restrict_to: [admin, OWNER];
@@ -59,7 +58,7 @@ mod fidenaro {
             withdraw_collected_fee_fidenaro => restrict_to: [admin, OWNER];
             withdraw_collected_fee_fidenaro_all => restrict_to: [admin, OWNER];
             set_user_token_resource_address => restrict_to: [admin, OWNER];
-            update_pool_information => restrict_to: [admin, OWNER];
+            insert_pool_information => restrict_to: [admin, OWNER];
             set_oracle_adapter => restrict_to: [admin, OWNER];
             set_pool_adapter => restrict_to: [admin, OWNER];
             add_allowed_pool => restrict_to: [admin, OWNER];
@@ -222,7 +221,7 @@ mod fidenaro {
         /// to add the information for.
         /// * `PoolBlueprintInformation`: [`PoolBlueprintInformation`] The
         /// protocol information related to the blueprint.
-        pub fn update_pool_information(
+        pub fn insert_pool_information(
             &mut self,
             blueprint_id: BlueprintId,
             pool_information: PoolBlueprintInformation,
@@ -492,13 +491,6 @@ mod fidenaro {
             let blueprint_id = ScryptoVmV1Api::object_get_blueprint_id(pool_address.as_node_id());
             let entry = self.pool_information.get_mut(&blueprint_id);
             entry.map(|mut entry| callback(&mut entry))
-        }
-
-        pub fn is_pool_allowed(&mut self, pool_address: ComponentAddress) -> bool {
-            self.with_pool_blueprint_information_mut(pool_address, |pool_information| {
-                pool_information.allowed_pools.contains_key(&pool_address)
-            })
-            .unwrap_or(false)
         }
     }
 }

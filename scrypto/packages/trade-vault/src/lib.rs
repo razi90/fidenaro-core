@@ -37,7 +37,7 @@ pub struct Transaction {
 mod trade_vault {
 
     extern_blueprint! {
-        FIDENARO_PACKAGE_ADDRESS,
+        "default_package_address_value",
         Fidenaro {
             fn register_vault(&mut self, vault_address: ComponentAddress, user_id: ResourceAddress, share_token_address: ResourceAddress);
             fn get_stable_coin_resource_address(&self) -> ResourceAddress;
@@ -358,11 +358,6 @@ mod trade_vault {
             from_token_amount: Decimal,
             pool_address: ComponentAddress,
         ) {
-            assert!(
-                self.fidenaro.is_pool_allowed(pool_address),
-                "This pool is not whitelisted!"
-            );
-
             assert!(
                 self.pools.contains_key(&from_token_address),
                 "This asset cannot be swapped as it is not part of the !"

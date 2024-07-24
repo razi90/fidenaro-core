@@ -268,6 +268,29 @@ impl ScryptoUnitEnv {
             .copied()
             .unwrap();
 
+        // Add radiswap pools to Fidenaro
+        ledger_simulator
+            .execute_manifest_without_auth(
+                ManifestBuilder::new()
+                    .lock_fee_from_faucet()
+                    .call_method(
+                        fidenaro,
+                        "insert_pool_information",
+                        (
+                            RadiswapInterfaceScryptoTestStub::blueprint_id(radiswap_package),
+                            PoolBlueprintInformation {
+                                adapter: radiswap_adapter,
+                                allowed_pools: radiswap_pools
+                                    .iter()
+                                    .map(|pool| pool.try_into().unwrap())
+                                    .collect(),
+                            },
+                        ),
+                    )
+                    .build(),
+            )
+            .expect_commit_success();
+
         // Init user accounts
         let (_, _, trader_account) = ledger_simulator.new_account(false);
         let (_, _, follower_account) = ledger_simulator.new_account(false);
