@@ -25,12 +25,13 @@ pub use crate::unit_test_environment::*;
 pub use radix_engine::system::system_db_reader::*;
 pub use radix_engine_interface::prelude::*;
 pub use scrypto_test::prelude::*;
-pub use scrypto_test::sdk::*;
 
 pub use ::fidenaro::fidenaro_test::*;
 pub use ::fidenaro::*;
 pub use ::radiswap_adapter::adapter_test::*;
 pub use ::simple_oracle::simple_oracle_test::*;
+pub use ::trade_vault::trade_vault_test::*;
+pub use ::user_factory::user_factory_test::*;
 
 pub use ::radiswap_adapter::*;
 

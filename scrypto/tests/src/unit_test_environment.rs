@@ -44,7 +44,7 @@ pub struct ScryptoUnitTestEnvironmentSpecifier;
 
 impl EnvironmentSpecifier for ScryptoUnitTestEnvironmentSpecifier {
     // Environment
-    type Environment = DefaultLedgerSimulator;
+    type Environment = TestEnvironment<InMemorySubstateDatabase>;
 
     // Components
     type Fidenaro = ComponentAddress;
@@ -66,7 +66,7 @@ where
     S: EnvironmentSpecifier,
 {
     /* Test Environment */
-    pub ledger_simulator: S::Environment,
+    pub environment: S::Environment,
     /* Various entities */
     pub resources: ResourceInformation<ResourceAddress>,
     pub protocol: ProtocolEntities<S>,
@@ -96,15 +96,13 @@ where
 }
 
 impl ScryptoUnitTestEnv {
-    // pub fn new() -> Result<Self, RuntimeError> {
-    pub fn new() -> Result<(), RuntimeError> {
+    pub fn new() -> Result<Self, RuntimeError> {
         Self::new_with_configuration(Configuration::default())
     }
 
     pub fn new_with_configuration(
         _configuration: Configuration,
-    ) -> Result<(), RuntimeError> {
-        // ) -> Result<Self, RuntimeError> {
+    ) -> Result<Self, RuntimeError> {
         // Init test environment
         let mut env = TestEnvironmentBuilder::new().build();
 
@@ -141,200 +139,115 @@ impl ScryptoUnitTestEnv {
                     &mut env,
                     CompileProfile::FastWithTraceLogs,
                 )
+                .unwrap()
             });
 
-        Ok(())
+        // Convert the fidenaro package address to the Bech32 representation "package_sim1..." to use it to replace it in the blueprint of the trade vault
+        std::env::set_var(
+            "FIDENARO_PACKAGE_ADDRESS",
+            fidenaro_package
+                .display(&AddressBech32Encoder::for_simulator())
+                .to_string(),
+        );
 
-        // // Convert the fidenaro package address to the Bech32 representation "package_sim1..." to use it to replace it in the blueprint of the trade vault
-        // std::env::set_var(
-        //     "FIDENARO_PACKAGE_ADDRESS",
-        //     fidenaro_package
-        //         .display(&AddressBech32Encoder::for_simulator())
-        //         .to_string(),
-        // );
+        // Compile and publish the trade vault blueprint
+        let trade_vault_package = PackageFactory::compile_and_publish(
+            "../packages/trade-vault",
+            &mut env,
+            CompileProfile::FastWithTraceLogs,
+        )
+        .unwrap();
 
-        // // Compile and publish the trade vault blueprint
-        // let trade_vault_package =
-        //     ledger_simulator.compile_and_publish("../packages/trade-vault");
+        // Creating the various resources and their associated pools.
+        let resource_addresses =
+            Self::RESOURCE_DIVISIBILITIES.try_map(|divisibility| {
+                ResourceBuilder::new_fungible(OwnerRole::Fixed(rule!(
+                    allow_all
+                )))
+                .divisibility(*divisibility)
+                .mint_roles(mint_roles! {
+                    minter => rule!(allow_all);
+                    minter_updater => rule!(allow_all);
+                })
+                .burn_roles(burn_roles! {
+                    burner => rule!(allow_all);
+                    burner_updater => rule!(allow_all);
+                })
+                .mint_initial_supply(dec!(0), &mut env)
+                .and_then(|bucket| bucket.resource_address(&mut env))
+            })?;
 
-        // // Create resources
-        // let resource_addresses =
-        //     Self::RESOURCE_DIVISIBILITIES.map(|divisibility| {
-        //         ledger_simulator.create_freely_mintable_fungible_resource(
-        //             OwnerRole::None,
-        //             None,
-        //             *divisibility,
-        //             account,
-        //         )
-        //     });
+        // Initialize Radiswap pools
+        let radiswap_pools =
+            resource_addresses.try_map(|resource_address| {
+                let mut radiswap_pool = RadiswapInterfaceScryptoTestStub::new(
+                    OwnerRole::None,
+                    *resource_address,
+                    XRD,
+                    radiswap_package,
+                    &mut env,
+                )?;
 
-        // // Initialize Radiswap pools
-        // let radiswap_pools = resource_addresses.map(|resource_address| {
-        //     let manifest = ManifestBuilder::new()
-        //         .lock_fee_from_faucet()
-        //         .radiswap_new(
-        //             radiswap_package,
-        //             OwnerRole::None,
-        //             *resource_address,
-        //             XRD,
-        //         )
-        //         .build();
+                let resource_x = ResourceManager(*resource_address)
+                    .mint_fungible(dec!(100_000_000), &mut env)?;
+                let resource_y = ResourceManager(XRD)
+                    .mint_fungible(dec!(100_000_000), &mut env)?;
+                let _ = radiswap_pool
+                    .add_liquidity(resource_x, resource_y, &mut env)?;
 
-        //     let component_address = *ledger_simulator
-        //         .execute_manifest(manifest, vec![])
-        //         .expect_commit_success()
-        //         .new_component_addresses()
-        //         .first()
-        //         .unwrap();
+                Ok::<_, RuntimeError>(radiswap_pool)
+            })?;
 
-        //     let manifest = ManifestBuilder::new()
-        //         .lock_fee_from_faucet()
-        //         .create_proof_from_account_of_amount(
-        //             account,
-        //             protocol_manager_badge,
-        //             1,
-        //         )
-        //         .mint_fungible(XRD, dec!(100_000_000))
-        //         .mint_fungible(*resource_address, dec!(100_000_000))
-        //         .take_all_from_worktop(XRD, "xrd_bucket")
-        //         .take_all_from_worktop(*resource_address, "other_bucket")
-        //         .with_name_lookup(|builder, _| {
-        //             let xrd_bucket = builder.bucket("xrd_bucket");
-        //             let other_bucket = builder.bucket("other_bucket");
-        //             builder.radiswap_add_liquidity(
-        //                 component_address,
-        //                 xrd_bucket,
-        //                 other_bucket,
-        //             )
-        //         })
-        //         .try_deposit_entire_worktop_or_abort(account, None)
-        //         .build();
-        //     ledger_simulator
-        //         .execute_manifest_without_auth(manifest)
-        //         .expect_commit_success();
+        // Instantiate a simple oracle
+        let mut simple_oracle = SimpleOracle::instantiate(
+            protocol_manager_rule.clone(),
+            Default::default(),
+            OwnerRole::None,
+            None,
+            simple_oracle_package,
+            &mut env,
+        )?;
 
-        //     component_address
-        // });
+        // Submitting some dummy prices to the oracle to get things going.
+        resource_addresses.try_map(|resource_address| {
+            simple_oracle.set_price(*resource_address, XRD, dec!(1), &mut env)
+        })?;
 
-        // // Initialize a simple oracle
-        // let simple_oracle = ledger_simulator
-        //     .execute_manifest(
-        //         ManifestBuilder::new()
-        //             .lock_fee_from_faucet()
-        //             .call_function(
-        //                 simple_oracle_package,
-        //                 "SimpleOracle",
-        //                 "instantiate",
-        //                 (
-        //                     protocol_manager_rule.clone(),
-        //                     MetadataInit::default(),
-        //                     OwnerRole::None,
-        //                     None::<ManifestAddressReservation>,
-        //                 ),
-        //             )
-        //             .build(),
-        //         vec![],
-        //     )
-        //     .expect_commit_success()
-        //     .new_component_addresses()
-        //     .first()
-        //     .copied()
-        //     .unwrap();
+        // Instantiate Fidenaro
+        let (mut fidenaro, _) = Fidenaro::instantiate(
+            OwnerRole::None,
+            simple_oracle.try_into().unwrap(),
+            fidenaro_package,
+            &mut env,
+        )?;
 
-        // // Submitting some dummy prices to the oracle to get things going.
-        // resource_addresses.map(|resource_address| {
-        //     ledger_simulator
-        //         .execute_manifest_without_auth(
-        //             ManifestBuilder::new()
-        //                 .lock_fee_from_faucet()
-        //                 .call_method(
-        //                     simple_oracle,
-        //                     "set_price",
-        //                     (*resource_address, XRD, dec!(1)),
-        //                 )
-        //                 .build(),
-        //         )
-        //         .expect_commit_success();
-        // });
+        // Instantiate Radiswap adapter
+        let radiswap_adapter = RadiswapAdapter::instantiate(
+            rule!(allow_all),
+            rule!(allow_all),
+            Default::default(),
+            OwnerRole::None,
+            None,
+            radiswap_adapter_package,
+            &mut env,
+        )?;
 
-        // // Initializing fidenaro with information
-        // let binding = ledger_simulator.execute_manifest(
-        //     ManifestBuilder::new()
-        //         .lock_fee_from_faucet()
-        //         .call_function(
-        //             fidenaro_package,
-        //             "Fidenaro",
-        //             "instantiate",
-        //             (OwnerRole::None, simple_oracle),
-        //         )
-        //         .try_deposit_entire_worktop_or_abort(account, None)
-        //         .build(),
-        //     vec![],
-        // );
-        // let transaction_receipt = binding.expect_commit_success();
+        // Add radiswap pools to Fidenaro
+        fidenaro.insert_pool_information(
+            RadiswapInterfaceScryptoTestStub::blueprint_id(radiswap_package),
+            PoolBlueprintInformation {
+                adapter: radiswap_adapter.try_into().unwrap(),
+                allowed_pools: radiswap_pools
+                    .iter()
+                    .map(|pool| pool.try_into().unwrap())
+                    .collect(),
+            },
+            &mut env,
+        )?;
 
-        // let fidenaro = transaction_receipt
-        //     .new_component_addresses()
-        //     .first()
-        //     .copied()
-        //     .unwrap();
-
-        // let admin_badge_address = transaction_receipt
-        //     .new_resource_addresses()
-        //     .first()
-        //     .copied()
-        //     .unwrap();
-
-        // // Initialze the Radiswap adapter
-        // let radiswap_adapter = ledger_simulator
-        //     .execute_manifest(
-        //         ManifestBuilder::new()
-        //             .lock_fee_from_faucet()
-        //             .call_function(
-        //                 radiswap_adapter_package,
-        //                 "RadiswapAdapter",
-        //                 "instantiate",
-        //                 (
-        //                     rule!(allow_all),
-        //                     rule!(allow_all),
-        //                     MetadataInit::default(),
-        //                     OwnerRole::None,
-        //                     None::<ManifestAddressReservation>,
-        //                 ),
-        //             )
-        //             .build(),
-        //         vec![],
-        //     )
-        //     .expect_commit_success()
-        //     .new_component_addresses()
-        //     .first()
-        //     .copied()
-        //     .unwrap();
-
-        // // Add radiswap pools to Fidenaro
-        // ledger_simulator
-        //     .execute_manifest_without_auth(
-        //         ManifestBuilder::new()
-        //             .lock_fee_from_faucet()
-        //             .call_method(
-        //                 fidenaro,
-        //                 "insert_pool_information",
-        //                 (
-        //                     RadiswapInterfaceScryptoTestStub::blueprint_id(
-        //                         radiswap_package,
-        //                     ),
-        //                     PoolBlueprintInformation {
-        //                         adapter: radiswap_adapter,
-        //                         allowed_pools: radiswap_pools
-        //                             .iter()
-        //                             .map(|pool| pool.try_into().unwrap())
-        //                             .collect(),
-        //                     },
-        //                 ),
-        //             )
-        //             .build(),
-        //     )
-        //     .expect_commit_success();
+        // Instantiate user factory
+        let user_factory =
+            UserFactory::instantiate(user_factory_package, &mut env);
 
         // // Init user accounts
         // let (_, _, trader_account) = ledger_simulator.new_account(false);
@@ -480,52 +393,34 @@ impl ScryptoUnitTestEnv {
         //     .copied()
         //     .unwrap();
 
-        // Ok(Self {
-        //     ledger_simulator: ledger_simulator,
-        //     resources: resource_addresses,
-        //     protocol: ProtocolEntities {
-        //         fidenaro_package_address: fidenaro_package,
-        //         fidenaro,
-        //         user_factory_package_address: user_factory_package,
-        //         user_factory,
-        //         trade_vault_package_address: trade_vault_package,
-        //         trade_vault,
-        //         trade_vault_admin_badge,
-        //         trade_vault_share_token,
-        //         oracle_package_address: simple_oracle_package,
-        //         oracle: simple_oracle,
-        //         protocol_owner_badge: (
-        //             public_key.into(),
-        //             Secp256k1PrivateKey::from_bytes(&private_key.to_bytes())
-        //                 .unwrap()
-        //                 .into(),
-        //             account,
-        //             protocol_owner_badge,
-        //         ),
-        //         protocol_manager_badge: (
-        //             public_key.into(),
-        //             private_key.into(),
-        //             account,
-        //             protocol_manager_badge,
-        //         ),
-        //         trader: (trader_account, trader_user_nft),
-        //         follower: (follower_account, follower_user_nft),
-        //     },
-        //     radiswap: DexEntities {
-        //         package: radiswap_package,
-        //         pools: radiswap_pools,
-        //         adapter_package: radiswap_adapter_package,
-        //         adapter: radiswap_adapter,
-        //     },
-        // })
+        Ok(Self {
+            environment: env,
+            resources: resource_addresses,
+            protocol: ProtocolEntities {
+                fidenaro_package_address: fidenaro_package,
+                fidenaro,
+                user_factory_package_address: user_factory_package,
+                user_factory,
+                trade_vault_package_address: trade_vault_package,
+                trade_vault,
+                trade_vault_admin_badge,
+                trade_vault_share_token,
+                oracle_package_address: simple_oracle_package,
+                oracle: simple_oracle,
+                protocol_owner_badge,
+                protocol_manager_badge,
+                trader,
+                follower,
+            },
+            radiswap: DexEntities {
+                package: radiswap_package,
+                pools: radiswap_pools,
+                adapter_package: radiswap_adapter_package,
+                adapter: radiswap_adapter,
+            },
+        })
     }
 }
-
-// impl Default for ScryptoUnitTestEnv {
-//     fn default() -> Self {
-//         Self::new()
-//     }
-// }
 
 #[derive(Debug)]
 pub struct ProtocolEntities<S>

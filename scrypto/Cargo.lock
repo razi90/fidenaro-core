@@ -1971,6 +1971,8 @@ dependencies = [
  "scrypto 1.2.0",
  "scrypto-test 1.2.0",
  "simple-oracle",
+ "trade-vault",
+ "user-factory",
 ]
 
 [[package]]

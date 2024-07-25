@@ -13,6 +13,7 @@ scrypto-test = { workspace = true }
 
 [features]
 default = []
+test = []
 
 [lib]
 crate-type = ["cdylib", "lib"]

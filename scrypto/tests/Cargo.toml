@@ -13,6 +13,8 @@ radix-engine-interface = { workspace = true }
 
 common = { workspace = true }
 fidenaro = { path = "../packages/fidenaro", features = ["test"] }
+user-factory = { path = "../packages/user-factory", features = ["test"] }
+trade-vault = { path = "../packages/trade-vault", features = ["test"] }
 simple-oracle = { path = "../packages/simple-oracle", features = ["test"] }
 radiswap = { path = "../bootstrapping-helper/radiswap", features = ["test"] }
 radiswap-adapter = { path = "../packages/radiswap-adapter", features = [
