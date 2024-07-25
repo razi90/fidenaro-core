@@ -37,7 +37,7 @@ pub struct Transaction {
 mod trade_vault {
 
     extern_blueprint! {
-        "default_package_address_value",
+        FIDENARO_PACKAGE_ADDRESS,
         Fidenaro {
             fn register_vault(&mut self, vault_address: ComponentAddress, user_id: ResourceAddress, share_token_address: ResourceAddress);
             fn get_stable_coin_resource_address(&self) -> ResourceAddress;
