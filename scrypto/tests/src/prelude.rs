@@ -25,6 +25,7 @@ pub use crate::unit_test_environment::*;
 pub use radix_engine::system::system_db_reader::*;
 pub use radix_engine_interface::prelude::*;
 pub use scrypto_test::prelude::*;
+pub use scrypto_test::sdk::*;
 
 pub use ::fidenaro::fidenaro_test::*;
 pub use ::fidenaro::*;

@@ -23,7 +23,9 @@ fn init_env() {
 fn restore_env() {
     // Restore the environment from the snapshot
     unsafe {
-        if let (Some(env_mutex), Some(snapshot_mutex)) = (ENV.as_ref(), SNAPSHOT.as_ref()) {
+        if let (Some(env_mutex), Some(snapshot_mutex)) =
+            (ENV.as_ref(), SNAPSHOT.as_ref())
+        {
             let mut env = env_mutex.lock().unwrap();
             let snapshot = snapshot_mutex.lock().unwrap();
             env.ledger_simulator.restore_snapshot(snapshot.clone());
@@ -54,10 +56,15 @@ fn test_common_user_interactions() {
                 )
                 .withdraw_from_account(env.protocol.follower.0, XRD, 100)
                 .take_all_from_worktop(XRD, "bucket")
-                .call_method_with_name_lookup(env.protocol.trade_vault, "deposit", |lookup| {
-                    (lookup.proof("proof"), (lookup.bucket("bucket")))
-                })
-                .try_deposit_entire_worktop_or_abort(env.protocol.follower.0, None)
+                .call_method_with_name_lookup(
+                    env.protocol.trade_vault,
+                    "deposit",
+                    |lookup| (lookup.proof("proof"), (lookup.bucket("bucket"))),
+                )
+                .try_deposit_entire_worktop_or_abort(
+                    env.protocol.follower.0,
+                    None,
+                )
                 .build();
             env.ledger_simulator
                 .execute_manifest_without_auth(manifest)
@@ -98,11 +105,19 @@ fn test_common_user_interactions() {
                     env.protocol.trade_vault_share_token,
                     10,
                 )
-                .take_all_from_worktop(env.protocol.trade_vault_share_token, "shares")
-                .call_method_with_name_lookup(env.protocol.trade_vault, "withdraw", |lookup| {
-                    (lookup.proof("proof"), (lookup.bucket("shares")))
-                })
-                .try_deposit_entire_worktop_or_abort(env.protocol.follower.0, None)
+                .take_all_from_worktop(
+                    env.protocol.trade_vault_share_token,
+                    "shares",
+                )
+                .call_method_with_name_lookup(
+                    env.protocol.trade_vault,
+                    "withdraw",
+                    |lookup| (lookup.proof("proof"), (lookup.bucket("shares"))),
+                )
+                .try_deposit_entire_worktop_or_abort(
+                    env.protocol.follower.0,
+                    None,
+                )
                 .build();
             env.ledger_simulator
                 .execute_manifest_without_auth(manifest)
@@ -110,17 +125,3 @@ fn test_common_user_interactions() {
         }
     }
 }
-
-// #[test]
-// fn can_swap() {
-//     init_env();
-//     restore_env();
-
-//     // Here you can use the environment for your test
-//     unsafe {
-//         if let Some(env_mutex) = ENV.as_ref() {
-//             let env = env_mutex.lock().unwrap();
-//             // Do your test with env
-//         }
-//     }
-// }
