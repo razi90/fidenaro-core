@@ -19,7 +19,8 @@
 
 use crate::prelude::*;
 
-pub type ScryptoSimulatorEnv = Environment<ScryptoSimulatorEnvironmentSpecifier>;
+pub type ScryptoSimulatorEnv =
+    Environment<ScryptoSimulatorEnvironmentSpecifier>;
 
 pub trait EnvironmentSpecifier {
     // Environment
@@ -86,12 +87,13 @@ where
         "../packages/radiswap-adapter",
     ];
 
-    const RESOURCE_DIVISIBILITIES: ResourceInformation<u8> = ResourceInformation::<u8> {
-        bitcoin: 8,
-        ethereum: 18,
-        usdc: 6,
-        usdt: 6,
-    };
+    const RESOURCE_DIVISIBILITIES: ResourceInformation<u8> =
+        ResourceInformation::<u8> {
+            bitcoin: 8,
+            ethereum: 18,
+            usdc: 6,
+            usdt: 6,
+        };
 }
 
 impl ScryptoSimulatorEnv {
@@ -101,21 +103,26 @@ impl ScryptoSimulatorEnv {
 
     pub fn new_with_configuration(_configuration: Configuration) -> Self {
         // Create a new simple test runner
-        let mut ledger_simulator = LedgerSimulatorBuilder::new().without_kernel_trace().build();
+        let mut ledger_simulator =
+            LedgerSimulatorBuilder::new().without_kernel_trace().build();
 
         // The account that everything gets deposited into throughout the tests.
-        let (public_key, private_key, account) = ledger_simulator.new_account(false);
+        let (public_key, private_key, account) =
+            ledger_simulator.new_account(false);
 
-        let protocol_manager_badge = ledger_simulator.create_fungible_resource(dec!(1), 0, account);
-        let protocol_owner_badge = ledger_simulator.create_fungible_resource(dec!(1), 0, account);
+        let protocol_manager_badge =
+            ledger_simulator.create_fungible_resource(dec!(1), 0, account);
+        let protocol_owner_badge =
+            ledger_simulator.create_fungible_resource(dec!(1), 0, account);
 
         let protocol_manager_rule = rule!(require(protocol_manager_badge));
         let _protocol_owner_rule = rule!(require(protocol_owner_badge));
 
         // Compile and publish packages
         let [fidenaro_package, user_factory_package, simple_oracle_package, radiswap_package, radiswap_adapter_package] =
-            Self::PACKAGE_NAMES
-                .map(|package_name| ledger_simulator.compile_and_publish(package_name));
+            Self::PACKAGE_NAMES.map(|package_name| {
+                ledger_simulator.compile_and_publish(package_name)
+            });
 
         // Convert the fidenaro package address to the Bech32 representation "package_sim1..." to use it to replace it in the blueprint of the trade vault
         std::env::set_var(
@@ -126,23 +133,30 @@ impl ScryptoSimulatorEnv {
         );
 
         // Compile and publish the trade vault blueprint
-        let trade_vault_package = ledger_simulator.compile_and_publish("../packages/trade-vault");
+        let trade_vault_package =
+            ledger_simulator.compile_and_publish("../packages/trade-vault");
 
         // Create resources
-        let resource_addresses = Self::RESOURCE_DIVISIBILITIES.map(|divisibility| {
-            ledger_simulator.create_freely_mintable_fungible_resource(
-                OwnerRole::None,
-                None,
-                *divisibility,
-                account,
-            )
-        });
+        let resource_addresses =
+            Self::RESOURCE_DIVISIBILITIES.map(|divisibility| {
+                ledger_simulator.create_freely_mintable_fungible_resource(
+                    OwnerRole::None,
+                    None,
+                    *divisibility,
+                    account,
+                )
+            });
 
         // Initialize Radiswap pools
         let radiswap_pools = resource_addresses.map(|resource_address| {
             let manifest = ManifestBuilder::new()
                 .lock_fee_from_faucet()
-                .radiswap_new(radiswap_package, OwnerRole::None, *resource_address, XRD)
+                .radiswap_new(
+                    radiswap_package,
+                    OwnerRole::None,
+                    *resource_address,
+                    XRD,
+                )
                 .build();
 
             let component_address = *ledger_simulator
@@ -154,7 +168,11 @@ impl ScryptoSimulatorEnv {
 
             let manifest = ManifestBuilder::new()
                 .lock_fee_from_faucet()
-                .create_proof_from_account_of_amount(account, protocol_manager_badge, 1)
+                .create_proof_from_account_of_amount(
+                    account,
+                    protocol_manager_badge,
+                    1,
+                )
                 .mint_fungible(XRD, dec!(100_000_000))
                 .mint_fungible(*resource_address, dec!(100_000_000))
                 .take_all_from_worktop(XRD, "xrd_bucket")
@@ -162,7 +180,11 @@ impl ScryptoSimulatorEnv {
                 .with_name_lookup(|builder, _| {
                     let xrd_bucket = builder.bucket("xrd_bucket");
                     let other_bucket = builder.bucket("other_bucket");
-                    builder.radiswap_add_liquidity(component_address, xrd_bucket, other_bucket)
+                    builder.radiswap_add_liquidity(
+                        component_address,
+                        xrd_bucket,
+                        other_bucket,
+                    )
                 })
                 .try_deposit_entire_worktop_or_abort(account, None)
                 .build();
@@ -277,7 +299,9 @@ impl ScryptoSimulatorEnv {
                         fidenaro,
                         "insert_pool_information",
                         (
-                            RadiswapInterfaceScryptoTestStub::blueprint_id(radiswap_package),
+                            RadiswapInterfaceScryptoTestStub::blueprint_id(
+                                radiswap_package,
+                            ),
                             PoolBlueprintInformation {
                                 adapter: radiswap_adapter,
                                 allowed_pools: radiswap_pools
@@ -313,7 +337,12 @@ impl ScryptoSimulatorEnv {
         let binding = ledger_simulator.execute_manifest(
             ManifestBuilder::new()
                 .lock_fee_from_faucet()
-                .call_function(user_factory_package, "UserFactory", "instantiate", ())
+                .call_function(
+                    user_factory_package,
+                    "UserFactory",
+                    "instantiate",
+                    (),
+                )
                 .build(),
             vec![],
         );
@@ -377,7 +406,11 @@ impl ScryptoSimulatorEnv {
             .execute_manifest_without_auth(
                 ManifestBuilder::new()
                     .lock_fee_from_faucet()
-                    .create_proof_from_account_of_amount(account, admin_badge_address, 1)
+                    .create_proof_from_account_of_amount(
+                        account,
+                        admin_badge_address,
+                        1,
+                    )
                     .call_method(
                         fidenaro,
                         "set_user_token_resource_address",
@@ -534,7 +567,10 @@ impl<T> ResourceInformation<T> {
         }
     }
 
-    pub fn try_map<F, O, E>(&self, mut map: F) -> Result<ResourceInformation<O>, E>
+    pub fn try_map<F, O, E>(
+        &self,
+        mut map: F,
+    ) -> Result<ResourceInformation<O>, E>
     where
         F: FnMut(&T) -> Result<O, E>,
     {
@@ -550,7 +586,10 @@ impl<T> ResourceInformation<T> {
         [self.bitcoin, self.ethereum, self.usdc, self.usdt].into_iter()
     }
 
-    pub fn zip<O>(self, other: ResourceInformation<O>) -> ResourceInformation<(T, O)> {
+    pub fn zip<O>(
+        self,
+        other: ResourceInformation<O>,
+    ) -> ResourceInformation<(T, O)> {
         ResourceInformation {
             bitcoin: (self.bitcoin, other.bitcoin),
             ethereum: (self.ethereum, other.ethereum),
