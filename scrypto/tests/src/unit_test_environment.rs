@@ -17,6 +17,8 @@
 
 #![allow(clippy::arithmetic_side_effects)]
 
+use scrypto::prelude::ScryptoNonFungibleBucket;
+
 use crate::prelude::*;
 
 pub type ScryptoUnitTestEnv = Environment<ScryptoUnitTestEnvironmentSpecifier>;
@@ -37,7 +39,7 @@ pub trait EnvironmentSpecifier {
     type Badge;
 
     // Users
-    type User;
+    // type User;
 }
 
 pub struct ScryptoUnitTestEnvironmentSpecifier;
@@ -47,18 +49,18 @@ impl EnvironmentSpecifier for ScryptoUnitTestEnvironmentSpecifier {
     type Environment = TestEnvironment<InMemorySubstateDatabase>;
 
     // Components
-    type Fidenaro = ComponentAddress;
-    type UserFactory = ComponentAddress;
-    type TradeVault = ComponentAddress;
-    type SimpleOracle = ComponentAddress;
-    type Radiswap = ComponentAddress;
-    type RadiswapAdapter = ComponentAddress;
+    type Fidenaro = Fidenaro;
+    type UserFactory = UserFactory;
+    type TradeVault = TradeVault;
+    type SimpleOracle = SimpleOracle;
+    type Radiswap = RadiswapInterfaceScryptoTestStub;
+    type RadiswapAdapter = RadiswapAdapter;
 
     // Badges
-    type Badge = (PublicKey, PrivateKey, ComponentAddress, ResourceAddress);
+    type Badge = Bucket;
 
     // Users
-    type User = (ComponentAddress, NonFungibleGlobalId);
+    // type User = (ComponentAddress, NonFungibleGlobalId);
 }
 
 pub struct Environment<S>
@@ -246,8 +248,38 @@ impl ScryptoUnitTestEnv {
         )?;
 
         // Instantiate user factory
-        let user_factory =
-            UserFactory::instantiate(user_factory_package, &mut env);
+        let mut user_factory =
+            UserFactory::instantiate(user_factory_package, &mut env)?;
+
+        let trader_user_token = user_factory.create_new_user(
+            "trader".to_string(),
+            "bio".to_string(),
+            "http://trader-pfp.com".to_string(),
+            "twitter".to_string(),
+            "telegram".to_string(),
+            "discord".to_string(),
+            &mut env,
+        )?;
+        let follower_user_token = user_factory.create_new_user(
+            "follower".to_string(),
+            "bio".to_string(),
+            "http://follower-pfp.com".to_string(),
+            "twitter".to_string(),
+            "telegram".to_string(),
+            "discord".to_string(),
+            &mut env,
+        )?;
+
+        // Instantiate a trade vault
+        let (trade_vault, _) = TradeVault::instantiate(
+            "#0#".to_string(),
+            // trader_user_token.non_fungible_local_id().to_string(),
+            "Test Vault".to_owned(),
+            fidenaro.try_into().unwrap(),
+            "Vault short description".to_owned(),
+            trade_vault_package,
+            &mut env,
+        )?;
 
         // // Init user accounts
         // let (_, _, trader_account) = ledger_simulator.new_account(false);
@@ -403,20 +435,20 @@ impl ScryptoUnitTestEnv {
                 user_factory,
                 trade_vault_package_address: trade_vault_package,
                 trade_vault,
-                trade_vault_admin_badge,
-                trade_vault_share_token,
+                // trade_vault_admin_badge,
+                // trade_vault_share_token,
                 oracle_package_address: simple_oracle_package,
                 oracle: simple_oracle,
                 protocol_owner_badge,
                 protocol_manager_badge,
-                trader,
-                follower,
+                // trader,
+                // follower,
             },
             radiswap: DexEntities {
                 package: radiswap_package,
                 pools: radiswap_pools,
                 adapter_package: radiswap_adapter_package,
-                adapter: radiswap_adapter,
+                adapter: radiswap_adapter.try_into().unwrap(),
             },
         })
     }
@@ -436,16 +468,16 @@ where
     /* Trade Vault */
     pub trade_vault_package_address: PackageAddress,
     pub trade_vault: S::TradeVault,
-    pub trade_vault_admin_badge: ResourceAddress,
-    pub trade_vault_share_token: ResourceAddress,
+    // pub trade_vault_admin_badge: ResourceAddress,
+    // pub trade_vault_share_token: ResourceAddress,
     /* Oracle */
     pub oracle_package_address: PackageAddress,
     pub oracle: S::SimpleOracle,
     /* Badges */
     pub protocol_owner_badge: S::Badge,
     pub protocol_manager_badge: S::Badge,
-    pub trader: S::User,
-    pub follower: S::User,
+    // pub trader: S::User,
+    // pub follower: S::User,
 }
 
 /// A struct that defines the entities that belong to a Decentralized Exchange.

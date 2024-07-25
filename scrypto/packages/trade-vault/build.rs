@@ -3,18 +3,17 @@ use std::fs;
 
 fn main() {
     // Define the placeholder
-    let placeholder = "FIDENARO_PACKAGE_ADDRESS";
+    let placeholder =
+        "package_sim1pkuj90ee40aujtm7p7jpzlr30jymfu5mgzkaf36t626my7ftuhjmnx";
 
     // Read the replacement value from an environment variable
-    let mut replacement = env::var("FIDENARO_PACKAGE_ADDRESS")
-        .expect("FIDENARO_PACKAGE_ADDRESS environment variable not set");
-
-    // Add quotes
-    replacement = format!("\"{}\"", replacement);
+    let replacement = env::var("FIDENARO_PACKAGE_ADDRESS")
+        .unwrap_or_else(|_| placeholder.to_string());
 
     // Read the source file
     let source_path = "src/lib.rs"; // Adjust the path as necessary
-    let content = fs::read_to_string(source_path).expect("Unable to read source file");
+    let content =
+        fs::read_to_string(source_path).expect("Unable to read source file");
 
     // Replace the placeholder
     let modified_content = content.replace(placeholder, &replacement);

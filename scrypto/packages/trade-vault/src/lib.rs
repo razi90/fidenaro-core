@@ -37,7 +37,7 @@ pub struct Transaction {
 mod trade_vault {
 
     extern_blueprint! {
-        FIDENARO_PACKAGE_ADDRESS,
+        "package_sim1pkuj90ee40aujtm7p7jpzlr30jymfu5mgzkaf36t626my7ftuhjmnx",
         Fidenaro {
             fn register_vault(&mut self, vault_address: ComponentAddress, user_id: ResourceAddress, share_token_address: ResourceAddress);
             fn get_stable_coin_resource_address(&self) -> ResourceAddress;
@@ -160,7 +160,9 @@ mod trade_vault {
                 pools: HashMap::new(),
                 total_share_tokens: dec!(0),
                 share_token_manager,
-                fees_fund_manager_vault: Vault::new(share_token_manager.address()),
+                fees_fund_manager_vault: Vault::new(
+                    share_token_manager.address(),
+                ),
                 fidenaro: fidenaro,
                 trades: Vec::new(),
                 deposits: Vec::new(),
@@ -187,9 +189,13 @@ mod trade_vault {
         ///methods for everyone///
         //////////////////////////
 
-        pub fn deposit(&mut self, user_token_proof: Proof, deposit: Bucket) -> Bucket {
-            let checked_proof =
-                user_token_proof.check(self.fidenaro.get_user_token_resource_address());
+        pub fn deposit(
+            &mut self,
+            user_token_proof: Proof,
+            deposit: Bucket,
+        ) -> Bucket {
+            let checked_proof = user_token_proof
+                .check(self.fidenaro.get_user_token_resource_address());
 
             let address: ResourceAddress = deposit.resource_address();
 
@@ -275,12 +281,17 @@ mod trade_vault {
         }
 
         //method that withdraw tokens from the fund relative to how much sharetokens you put into the method.
-        pub fn withdraw(&mut self, user_token_proof: Proof, share_tokens: Bucket) -> Vec<Bucket> {
-            let checked_proof =
-                user_token_proof.check(self.fidenaro.get_user_token_resource_address());
+        pub fn withdraw(
+            &mut self,
+            user_token_proof: Proof,
+            share_tokens: Bucket,
+        ) -> Vec<Bucket> {
+            let checked_proof = user_token_proof
+                .check(self.fidenaro.get_user_token_resource_address());
 
             assert!(
-                share_tokens.resource_address() == self.share_token_manager.address(),
+                share_tokens.resource_address()
+                    == self.share_token_manager.address(),
                 "Wrong tokens sent. You need to send share tokens."
             );
 
@@ -303,14 +314,14 @@ mod trade_vault {
 
             let mut remove_entry = false;
 
-            self.followers
-                .entry(user_id.clone())
-                .and_modify(|existing_amount| {
+            self.followers.entry(user_id.clone()).and_modify(
+                |existing_amount| {
                     *existing_amount -= share_tokens.amount();
                     if existing_amount.is_zero() {
                         remove_entry = true;
                     }
-                });
+                },
+            );
 
             if remove_entry {
                 self.followers.remove(&user_id);
