@@ -17,9 +17,10 @@
 
 #![allow(ambiguous_glob_reexports, ambiguous_glob_imports)]
 
-pub use crate::environment::*;
 pub use crate::errors::*;
 pub use crate::extensions::*;
+pub use crate::simulator_test_environment::*;
+pub use crate::unit_test_environment::*;
 
 pub use radix_engine::system::system_db_reader::*;
 pub use radix_engine_interface::prelude::*;

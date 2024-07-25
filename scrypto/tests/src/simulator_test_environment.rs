@@ -19,7 +19,7 @@
 
 use crate::prelude::*;
 
-pub type ScryptoUnitEnv = Environment<ScryptoUnitEnvironmentSpecifier>;
+pub type ScryptoSimulatorEnv = Environment<ScryptoSimulatorEnvironmentSpecifier>;
 
 pub trait EnvironmentSpecifier {
     // Environment
@@ -40,9 +40,9 @@ pub trait EnvironmentSpecifier {
     type User;
 }
 
-pub struct ScryptoUnitEnvironmentSpecifier;
+pub struct ScryptoSimulatorEnvironmentSpecifier;
 
-impl EnvironmentSpecifier for ScryptoUnitEnvironmentSpecifier {
+impl EnvironmentSpecifier for ScryptoSimulatorEnvironmentSpecifier {
     // Environment
     type Environment = DefaultLedgerSimulator;
 
@@ -94,7 +94,7 @@ where
     };
 }
 
-impl ScryptoUnitEnv {
+impl ScryptoSimulatorEnv {
     pub fn new() -> Self {
         Self::new_with_configuration(Configuration::default())
     }
@@ -467,7 +467,7 @@ impl ScryptoUnitEnv {
     }
 }
 
-impl Default for ScryptoUnitEnv {
+impl Default for ScryptoSimulatorEnv {
     fn default() -> Self {
         Self::new()
     }

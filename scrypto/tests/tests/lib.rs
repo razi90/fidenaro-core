@@ -5,14 +5,14 @@ use tests::prelude::*;
 
 // Global variables for environment and snapshots
 static INIT: Once = Once::new();
-static mut ENV: Option<Mutex<ScryptoUnitEnv>> = None;
+static mut ENV: Option<Mutex<ScryptoSimulatorEnv>> = None;
 static mut SNAPSHOT: Option<Mutex<LedgerSimulatorSnapshot>> = None;
 
 fn init_env() {
     // Initialize the environment and take a snapshot
     unsafe {
         INIT.call_once(|| {
-            let env = ScryptoUnitEnv::new();
+            let env = ScryptoSimulatorEnv::new();
             let snapshot = env.ledger_simulator.create_snapshot();
             ENV = Some(Mutex::new(env));
             SNAPSHOT = Some(Mutex::new(snapshot));
