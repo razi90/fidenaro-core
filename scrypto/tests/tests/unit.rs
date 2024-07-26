@@ -84,7 +84,7 @@ fn can_swap() -> Result<(), RuntimeError> {
     });
 
     assert_eq!(xrd_amount, dec!(50));
-    assert_eq!(btc_amount, dec!(49.999975)); // we expect a price change because of slippage
+    assert_eq!(btc_amount, dec!(49.999975)); // we expect less than 50 BTC because of slippage
 
     Ok(())
 }
