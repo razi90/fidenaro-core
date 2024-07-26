@@ -71,7 +71,7 @@ fn can_swap() -> Result<(), RuntimeError> {
         env,
     );
 
-    // // Assert
+    // Assert
     assert!(result.is_ok());
 
     let [xrd_amount, btc_amount] = [XRD, resources.bitcoin].map(|resource| {
