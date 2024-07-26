@@ -67,7 +67,7 @@ mod trade_vault {
     struct TradeVault {
         manager_user_id: String,
         creation_date: Instant,
-        pools: HashMap<ResourceAddress, Vault>,
+        assets: HashMap<ResourceAddress, Vault>,
         fund_manager_badge: ResourceAddress,
         share_token_manager: ResourceManager,
         total_share_tokens: Decimal,
@@ -157,7 +157,7 @@ mod trade_vault {
                 manager_user_id,
                 creation_date: Clock::current_time(TimePrecision::Minute),
                 fund_manager_badge: fund_manager_badge.resource_address(),
-                pools: HashMap::new(),
+                assets: HashMap::new(),
                 total_share_tokens: dec!(0),
                 share_token_manager,
                 fees_fund_manager_vault: Vault::new(
@@ -207,12 +207,13 @@ mod trade_vault {
             // calculate value of all assets
             let mut total_asset_value = Decimal::zero();
 
-            if self.pools.contains_key(&XRD) {
-                total_asset_value += self.pools.get(&address).unwrap().amount();
+            if self.assets.contains_key(&XRD) {
+                total_asset_value +=
+                    self.assets.get(&address).unwrap().amount();
             }
 
             // calculate value of other assets based on their current price
-            for (asset_address, vault) in self.pools.iter() {
+            for (asset_address, vault) in self.assets.iter() {
                 if asset_address != &XRD {
                     let (price, _) = self
                         .fidenaro
@@ -271,7 +272,7 @@ mod trade_vault {
             self.deposits.push(deposit_transaction);
 
             let pool = self
-                .pools
+                .assets
                 .entry(address)
                 .or_insert_with(|| Vault::new(address));
 
@@ -295,10 +296,10 @@ mod trade_vault {
                 "Wrong tokens sent. You need to send share tokens."
             );
 
-            //take fund from pools and put into a Vec<Bucket> called tokens
+            //take fund from assets and put into a Vec<Bucket> called tokens
             let mut tokens = Vec::new();
             let your_share = share_tokens.amount() / self.total_share_tokens;
-            for value in self.pools.values_mut() {
+            for value in self.assets.values_mut() {
                 let amount = your_share * value.amount();
                 tokens.push(value.take(amount));
             }
@@ -370,11 +371,11 @@ mod trade_vault {
             pool_address: ComponentAddress,
         ) {
             assert!(
-                self.pools.contains_key(&from_token_address),
+                self.assets.contains_key(&from_token_address),
                 "This asset cannot be swapped as it is not part of the !"
             );
 
-            let from_pool = self.pools.get_mut(&from_token_address).unwrap();
+            let from_pool = self.assets.get_mut(&from_token_address).unwrap();
             let from_token = from_pool.take(from_token_amount).as_fungible();
 
             let mut pool_adapter = self
@@ -387,7 +388,7 @@ mod trade_vault {
             let to_token_amount = to_tokens.amount();
 
             let pool = self
-                .pools
+                .assets
                 .entry(to_tokens.resource_address())
                 .or_insert_with(|| Vault::new(to_tokens.resource_address()));
 

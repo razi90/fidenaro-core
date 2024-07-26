@@ -56,7 +56,7 @@ fn can_swap() -> Result<(), RuntimeError> {
         environment: ref mut env,
         mut protocol,
         radiswap,
-        ..
+        resources,
     } = ScryptoUnitTestEnv::new()?;
 
     let proof = protocol.trader.0.create_proof_of_all(env)?;
@@ -66,13 +66,25 @@ fn can_swap() -> Result<(), RuntimeError> {
     // Act
     let result = protocol.trade_vault.swap(
         XRD,
-        dec!(100),
+        dec!(50),
         radiswap.pools.bitcoin.try_into().unwrap(),
         env,
     );
 
-    // Assert
+    // // Assert
     assert!(result.is_ok());
+
+    let [xrd_amount, btc_amount] = [XRD, resources.bitcoin].map(|resource| {
+        env.with_component_state::<TradeVaultState, _, _, _>(
+            protocol.trade_vault,
+            |state, env| state.assets.get(&resource).unwrap().amount(env),
+        )
+        .unwrap()
+        .unwrap()
+    });
+
+    assert_eq!(xrd_amount, dec!(50));
+    assert_eq!(btc_amount, dec!(49.999975)); // we expect a price change because of slippage
 
     Ok(())
 }
