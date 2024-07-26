@@ -215,6 +215,12 @@ impl ScryptoUnitTestEnv {
             &mut env,
         )?;
 
+        // Add user factory address
+        fidenaro.set_user_token_resource_address(
+            follower_user_token.0.resource_address(&mut env)?,
+            &mut env,
+        )?;
+
         // Instantiate a trade vault
         let (trade_vault, trade_vault_admin_badge) = TradeVault::instantiate(
             "#0#".to_string(),
