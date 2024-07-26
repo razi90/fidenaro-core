@@ -13,7 +13,7 @@ fn init_env() {
     unsafe {
         INIT.call_once(|| {
             let env = ScryptoSimulatorEnv::new();
-            let snapshot = env.ledger_simulator.create_snapshot();
+            let snapshot = env.environment.create_snapshot();
             ENV = Some(Mutex::new(env));
             SNAPSHOT = Some(Mutex::new(snapshot));
         });
@@ -28,7 +28,7 @@ fn restore_env() {
         {
             let mut env = env_mutex.lock().unwrap();
             let snapshot = snapshot_mutex.lock().unwrap();
-            env.ledger_simulator.restore_snapshot(snapshot.clone());
+            env.environment.restore_snapshot(snapshot.clone());
         }
     }
 }
@@ -66,7 +66,7 @@ fn test_common_user_interactions() {
                     None,
                 )
                 .build();
-            env.ledger_simulator
+            env.environment
                 .execute_manifest_without_auth(manifest)
                 .expect_commit_success();
 
@@ -75,7 +75,7 @@ fn test_common_user_interactions() {
                 .lock_fee_from_faucet()
                 .create_proof_from_account_of_amount(
                     env.protocol.trader.0,
-                    env.protocol.trade_vault_admin_badge,
+                    env.protocol.trade_vault_admin_badge.3,
                     1,
                 )
                 .call_method(
@@ -84,7 +84,7 @@ fn test_common_user_interactions() {
                     (XRD, dec!(10), env.radiswap.pools.bitcoin),
                 )
                 .build();
-            env.ledger_simulator
+            env.environment
                 .execute_manifest_without_auth(manifest)
                 .expect_commit_success();
 
@@ -119,7 +119,7 @@ fn test_common_user_interactions() {
                     None,
                 )
                 .build();
-            env.ledger_simulator
+            env.environment
                 .execute_manifest_without_auth(manifest)
                 .expect_commit_success();
         }

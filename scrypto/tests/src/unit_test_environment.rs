@@ -17,30 +17,9 @@
 
 #![allow(clippy::arithmetic_side_effects)]
 
-use scrypto::prelude::ScryptoNonFungibleBucket;
-
 use crate::prelude::*;
 
 pub type ScryptoUnitTestEnv = Environment<ScryptoUnitTestEnvironmentSpecifier>;
-
-pub trait EnvironmentSpecifier {
-    // Environment
-    type Environment;
-
-    // Components
-    type Fidenaro;
-    type UserFactory;
-    type TradeVault;
-    type SimpleOracle;
-    type Radiswap;
-    type RadiswapAdapter;
-
-    // Badges
-    type Badge;
-
-    // Users
-    // type User;
-}
 
 pub struct ScryptoUnitTestEnvironmentSpecifier;
 
@@ -60,41 +39,7 @@ impl EnvironmentSpecifier for ScryptoUnitTestEnvironmentSpecifier {
     type Badge = Bucket;
 
     // Users
-    // type User = (ComponentAddress, NonFungibleGlobalId);
-}
-
-pub struct Environment<S>
-where
-    S: EnvironmentSpecifier,
-{
-    /* Test Environment */
-    pub environment: S::Environment,
-    /* Various entities */
-    pub resources: ResourceInformation<ResourceAddress>,
-    pub protocol: ProtocolEntities<S>,
-    /* Supported Dexes */
-    pub radiswap: DexEntities<S::Radiswap, S::RadiswapAdapter>,
-}
-
-impl<S> Environment<S>
-where
-    S: EnvironmentSpecifier,
-{
-    const PACKAGE_NAMES: [&'static str; 5] = [
-        "../packages/fidenaro",
-        "../packages/user-factory",
-        "../packages/simple-oracle",
-        "../bootstrapping-helper/radiswap",
-        "../packages/radiswap-adapter",
-    ];
-
-    const RESOURCE_DIVISIBILITIES: ResourceInformation<u8> =
-        ResourceInformation::<u8> {
-            bitcoin: 8,
-            ethereum: 18,
-            usdc: 6,
-            usdt: 6,
-        };
+    type User = NonFungibleBucket;
 }
 
 impl ScryptoUnitTestEnv {
@@ -271,7 +216,7 @@ impl ScryptoUnitTestEnv {
         )?;
 
         // Instantiate a trade vault
-        let (trade_vault, _) = TradeVault::instantiate(
+        let (trade_vault, trade_vault_admin_badge) = TradeVault::instantiate(
             "#0#".to_string(),
             // trader_user_token.non_fungible_local_id().to_string(),
             "Test Vault".to_owned(),
@@ -281,149 +226,13 @@ impl ScryptoUnitTestEnv {
             &mut env,
         )?;
 
-        // // Init user accounts
-        // let (_, _, trader_account) = ledger_simulator.new_account(false);
-        // let (_, _, follower_account) = ledger_simulator.new_account(false);
+        let share_token_manager = env
+            .with_component_state::<TradeVaultState, _, _, _>(
+                trade_vault,
+                |substate, _| substate.share_token_manager.clone(),
+            )?;
 
-        // // Deposit XRD in user accounts
-        // [trader_account, follower_account].map(|account| {
-        //     ledger_simulator
-        //         .execute_manifest(
-        //             ManifestBuilder::new()
-        //                 .lock_fee_from_faucet()
-        //                 .get_free_xrd_from_faucet()
-        //                 .try_deposit_entire_worktop_or_abort(account, None)
-        //                 .build(),
-        //             vec![],
-        //         )
-        //         .expect_commit_success();
-        // });
-
-        // // Init user factory
-        // let binding = ledger_simulator.execute_manifest(
-        //     ManifestBuilder::new()
-        //         .lock_fee_from_faucet()
-        //         .call_function(
-        //             user_factory_package,
-        //             "UserFactory",
-        //             "instantiate",
-        //             (),
-        //         )
-        //         .build(),
-        //     vec![],
-        // );
-        // let transaction_receipt = binding.expect_commit_success();
-
-        // let user_factory = transaction_receipt
-        //     .new_component_addresses()
-        //     .first()
-        //     .copied()
-        //     .unwrap();
-
-        // let user_nft_resource_addresss = transaction_receipt
-        //     .new_resource_addresses()
-        //     .first()
-        //     .copied()
-        //     .unwrap();
-
-        // // Create Fidenaro user NFTs
-        // let [trader_user_nft, follower_user_nft] = [
-        //     (trader_account, "Trader".to_string()),
-        //     (follower_account, "Follower".to_string()),
-        // ]
-        // .map(|(account, user_type)| {
-        //     let bio = user_type.clone() + "Bio";
-        //     let pfp = format!("http://{}-pfp.com", user_type);
-        //     let twitter = user_type.clone() + "Twitter";
-        //     let telegram = user_type.clone() + "Telegram";
-        //     let discord = user_type.clone() + "Discord";
-
-        //     let user_nft_vault_id = ledger_simulator
-        //         .execute_manifest(
-        //             ManifestBuilder::new()
-        //                 .lock_fee_from_faucet()
-        //                 .call_method(
-        //                     user_factory,
-        //                     "create_new_user",
-        //                     (user_type, bio, pfp, twitter, telegram, discord),
-        //                 )
-        //                 .try_deposit_entire_worktop_or_abort(account, None)
-        //                 .build(),
-        //             vec![],
-        //         )
-        //         .expect_commit_success()
-        //         .new_vault_addresses()
-        //         .first()
-        //         .copied()
-        //         .unwrap();
-
-        //     let local_id = ledger_simulator
-        //         .inspect_non_fungible_vault(user_nft_vault_id.into())
-        //         .unwrap()
-        //         .1
-        //         .next()
-        //         .unwrap();
-
-        //     NonFungibleGlobalId::new(user_nft_resource_addresss, local_id)
-        // });
-
-        // // Set user nft resource address in Fidenaro
-        // ledger_simulator
-        //     .execute_manifest_without_auth(
-        //         ManifestBuilder::new()
-        //             .lock_fee_from_faucet()
-        //             .create_proof_from_account_of_amount(
-        //                 account,
-        //                 admin_badge_address,
-        //                 1,
-        //             )
-        //             .call_method(
-        //                 fidenaro,
-        //                 "set_user_token_resource_address",
-        //                 (user_nft_resource_addresss,),
-        //             )
-        //             .build(),
-        //     )
-        //     .expect_commit_success();
-
-        // // Create a trade vault with the trader account as the manager
-        // let transaction_receipt = ledger_simulator.execute_manifest(
-        //     ManifestBuilder::new()
-        //         .lock_fee_from_faucet()
-        //         .call_function(
-        //             trade_vault_package,
-        //             "TradeVault",
-        //             "instantiate",
-        //             (
-        //                 trader_user_nft.local_id().to_string(),
-        //                 "Test Vault",
-        //                 fidenaro,
-        //                 "Vault short description",
-        //             ),
-        //         )
-        //         .try_deposit_entire_worktop_or_abort(trader_account, None)
-        //         .build(),
-        //     vec![],
-        // );
-        // let transaction_result = transaction_receipt.expect_commit_success();
-
-        // let trade_vault = transaction_result
-        //     .new_component_addresses()
-        //     .first()
-        //     .copied()
-        //     .unwrap();
-
-        // let trade_vault_admin_badge = transaction_result
-        //     .new_resource_addresses()
-        //     .first()
-        //     .copied()
-        //     .unwrap();
-
-        // let trade_vault_share_token = transaction_result
-        //     .new_resource_addresses()
-        //     .last()
-        //     .copied()
-        //     .unwrap();
+        let trade_vault_share_token = share_token_manager.address();
 
         Ok(Self {
             environment: env,
@@ -435,14 +244,14 @@ impl ScryptoUnitTestEnv {
                 user_factory,
                 trade_vault_package_address: trade_vault_package,
                 trade_vault,
-                // trade_vault_admin_badge,
-                // trade_vault_share_token,
+                trade_vault_admin_badge: trade_vault_admin_badge.into(),
+                trade_vault_share_token,
                 oracle_package_address: simple_oracle_package,
                 oracle: simple_oracle,
                 protocol_owner_badge,
                 protocol_manager_badge,
-                // trader,
-                // follower,
+                trader: trader_user_token,
+                follower: follower_user_token,
             },
             radiswap: DexEntities {
                 package: radiswap_package,
@@ -451,118 +260,5 @@ impl ScryptoUnitTestEnv {
                 adapter: radiswap_adapter.try_into().unwrap(),
             },
         })
-    }
-}
-
-#[derive(Debug)]
-pub struct ProtocolEntities<S>
-where
-    S: EnvironmentSpecifier,
-{
-    /* Fidenaro */
-    pub fidenaro_package_address: PackageAddress,
-    pub fidenaro: S::Fidenaro,
-    /* User Factory */
-    pub user_factory_package_address: PackageAddress,
-    pub user_factory: S::UserFactory,
-    /* Trade Vault */
-    pub trade_vault_package_address: PackageAddress,
-    pub trade_vault: S::TradeVault,
-    // pub trade_vault_admin_badge: ResourceAddress,
-    // pub trade_vault_share_token: ResourceAddress,
-    /* Oracle */
-    pub oracle_package_address: PackageAddress,
-    pub oracle: S::SimpleOracle,
-    /* Badges */
-    pub protocol_owner_badge: S::Badge,
-    pub protocol_manager_badge: S::Badge,
-    // pub trader: S::User,
-    // pub follower: S::User,
-}
-
-/// A struct that defines the entities that belong to a Decentralized Exchange.
-/// it contains the package address as well as generic items [`T`] which are
-/// the stubs used to call the pools.
-#[derive(Copy, Clone, Debug)]
-pub struct DexEntities<P, A> {
-    /* Packages */
-    pub package: PackageAddress,
-    /* Pools */
-    pub pools: ResourceInformation<P>,
-    /* Adapter */
-    pub adapter_package: PackageAddress,
-    pub adapter: A,
-}
-
-#[derive(Clone, Debug, Copy)]
-pub struct ResourceInformation<T> {
-    pub bitcoin: T,
-    pub ethereum: T,
-    pub usdc: T,
-    pub usdt: T,
-}
-
-impl<T> ResourceInformation<T> {
-    pub fn map<F, O>(&self, mut map: F) -> ResourceInformation<O>
-    where
-        F: FnMut(&T) -> O,
-    {
-        ResourceInformation::<O> {
-            bitcoin: map(&self.bitcoin),
-            ethereum: map(&self.ethereum),
-            usdc: map(&self.usdc),
-            usdt: map(&self.usdt),
-        }
-    }
-
-    pub fn try_map<F, O, E>(
-        &self,
-        mut map: F,
-    ) -> Result<ResourceInformation<O>, E>
-    where
-        F: FnMut(&T) -> Result<O, E>,
-    {
-        Ok(ResourceInformation::<O> {
-            bitcoin: map(&self.bitcoin)?,
-            ethereum: map(&self.ethereum)?,
-            usdc: map(&self.usdc)?,
-            usdt: map(&self.usdt)?,
-        })
-    }
-
-    pub fn iter(self) -> impl Iterator<Item = T> {
-        [self.bitcoin, self.ethereum, self.usdc, self.usdt].into_iter()
-    }
-
-    pub fn zip<O>(
-        self,
-        other: ResourceInformation<O>,
-    ) -> ResourceInformation<(T, O)> {
-        ResourceInformation {
-            bitcoin: (self.bitcoin, other.bitcoin),
-            ethereum: (self.ethereum, other.ethereum),
-            usdc: (self.usdc, other.usdc),
-            usdt: (self.usdt, other.usdt),
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct Configuration {
-    pub fees: Decimal,
-    pub maximum_allowed_price_staleness_in_seconds_seconds: i64,
-    pub maximum_allowed_relative_price_difference: Decimal,
-}
-
-impl Default for Configuration {
-    fn default() -> Self {
-        Self {
-            // 1%
-            fees: dec!(0.01),
-            // 5 Minutes
-            maximum_allowed_price_staleness_in_seconds_seconds: 300i64,
-            // 1%
-            maximum_allowed_relative_price_difference: dec!(0.01),
-        }
     }
 }
