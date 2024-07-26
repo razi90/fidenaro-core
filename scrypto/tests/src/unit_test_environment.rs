@@ -74,7 +74,7 @@ impl ScryptoUnitTestEnv {
         let protocol_manager_rule = protocol_manager_badge
             .resource_address(&mut env)
             .map(|address| rule!(require(address)))?;
-        let protocol_owner_rule = protocol_owner_badge
+        let _protocol_owner_rule = protocol_owner_badge
             .resource_address(&mut env)
             .map(|address| rule!(require(address)))?;
 
