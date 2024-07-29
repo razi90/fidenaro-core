@@ -18,7 +18,8 @@ struct StoredPoolBlueprintInformation {
     /// A map of the pools that the protocol allows trading with. A pool
     /// that is not found in this map for their corresponding blueprint will
     /// not be allowed to be traded with.
-    pub allowed_pools: IndexMap<ComponentAddress, (ResourceAddress, ResourceAddress)>,
+    pub allowed_pools:
+        IndexMap<ComponentAddress, (ResourceAddress, ResourceAddress)>,
 }
 
 /// Represents the information of pools belonging to a particular blueprint.
@@ -43,20 +44,13 @@ mod fidenaro {
         },
         methods {
             // Methods with public access
-            register_vault => PUBLIC;
             get_vaults => PUBLIC;
-            get_fidenaro_withdrawal_fee => PUBLIC;
-            get_stable_coin_resource_address => PUBLIC;
             get_user_token_resource_address => PUBLIC;
-            checked_get_pool_adapter => PUBLIC;
+            get_pool_adapter => PUBLIC;
             get_oracle_adapter => PUBLIC;
 
             // Methods with admin access
-            add_token_to_fee_vaults => restrict_to: [admin, OWNER];
-            add_stable_coin_resource_address => restrict_to: [admin, OWNER];
-            change_withdrawal_fee_fidenaro => restrict_to: [admin, OWNER];
-            withdraw_collected_fee_fidenaro => restrict_to: [admin, OWNER];
-            withdraw_collected_fee_fidenaro_all => restrict_to: [admin, OWNER];
+            withdraw_collected_fee => restrict_to: [admin, OWNER];
             set_user_token_resource_address => restrict_to: [admin, OWNER];
             insert_pool_information => restrict_to: [admin, OWNER];
             set_oracle_adapter => restrict_to: [admin, OWNER];
@@ -72,9 +66,10 @@ mod fidenaro {
         whitelisted_pool_addresses: Vec<ComponentAddress>,
         whitelisted_stable_coin_address: Option<ResourceAddress>,
         fidenaro_withdrawal_fee: Decimal,
-        fee_vaults: HashMap<ResourceAddress, Vault>,
+        fee_vault: Vault,
         user_token_address: Option<ResourceAddress>,
-        pool_information: KeyValueStore<BlueprintId, StoredPoolBlueprintInformation>,
+        pool_information:
+            KeyValueStore<BlueprintId, StoredPoolBlueprintInformation>,
         oracle_adapter: OracleAdapter,
     }
 
@@ -104,7 +99,7 @@ mod fidenaro {
                 whitelisted_pool_addresses: Vec::new(),
                 whitelisted_stable_coin_address: None,
                 fidenaro_withdrawal_fee: dec!(1),
-                fee_vaults: HashMap::new(),
+                fee_vault: Vault::new(XRD),
                 user_token_address: None,
                 pool_information: KeyValueStore::new(),
                 oracle_adapter: oracle_adapter.into(),
@@ -124,46 +119,11 @@ mod fidenaro {
             return (component, admin_badge);
         }
 
-        //vault make use of this method to deposit the fee to the correct vault
-        //if other people decide to use this method it is just free money to the fidenaro admin :D
-        pub fn add_token_to_fee_vaults(&mut self, token: Bucket) {
-            info!("Received fee!");
-            let resource_address = token.resource_address();
-
-            if !self.fee_vaults.contains_key(&resource_address) {
-                let key = resource_address;
-                let value = Vault::new(resource_address);
-                self.fee_vaults.insert(key, value);
-            }
-
-            self.fee_vaults
-                .get_mut(&resource_address)
-                .unwrap()
-                .put(token);
-        }
-
-        pub fn register_vault(
-            &mut self,
-            vault_address: ComponentAddress,
-            user_id: ResourceAddress,
-            share_token_address: ResourceAddress,
-        ) {
-            self.vaults
-                .insert(vault_address, (user_id, share_token_address));
-        }
-
         pub fn get_vaults(
             &mut self,
-        ) -> HashMap<ComponentAddress, (ResourceAddress, ResourceAddress)> {
+        ) -> HashMap<ComponentAddress, (ResourceAddress, ResourceAddress)>
+        {
             self.vaults.clone()
-        }
-
-        pub fn get_fidenaro_withdrawal_fee(&self) -> Decimal {
-            self.fidenaro_withdrawal_fee
-        }
-
-        pub fn get_stable_coin_resource_address(&self) -> ResourceAddress {
-            self.whitelisted_stable_coin_address.unwrap().clone()
         }
 
         pub fn get_user_token_resource_address(&self) -> ResourceAddress {
@@ -174,31 +134,8 @@ mod fidenaro {
         ///methods for fidenaro admin///
         ////////////////////////////////
 
-        pub fn add_stable_coin_resource_address(
-            &mut self,
-            stable_coin_resource_address: ResourceAddress,
-        ) {
-            self.whitelisted_stable_coin_address = Some(stable_coin_resource_address)
-        }
-
-        pub fn change_withdrawal_fee_fidenaro(&mut self, new_fee: Decimal) {
-            assert!(
-                new_fee >= dec!(0) && new_fee <= dec!(5),
-                "Fee need to be in range of 0% to 5%."
-            );
-            self.fidenaro_withdrawal_fee = new_fee;
-        }
-
-        pub fn withdraw_collected_fee_fidenaro(&mut self, address: ResourceAddress) -> Bucket {
-            self.fee_vaults.get_mut(&address).unwrap().take_all()
-        }
-
-        pub fn withdraw_collected_fee_fidenaro_all(&mut self) -> Vec<Bucket> {
-            let mut tokens = Vec::new();
-            for vault in self.fee_vaults.values_mut() {
-                tokens.push(vault.take_all());
-            }
-            tokens
+        pub fn withdraw_collected_fee(&mut self) -> Bucket {
+            self.fee_vault.take_all()
         }
 
         pub fn set_user_token_resource_address(
@@ -232,9 +169,11 @@ mod fidenaro {
                     .allowed_pools
                     .into_iter()
                     .map(|pool_component_address| {
-                        let mut adapter = PoolAdapter::from(pool_information.adapter);
+                        let mut adapter =
+                            PoolAdapter::from(pool_information.adapter);
 
-                        let resources = adapter.resource_addresses(pool_component_address);
+                        let resources =
+                            adapter.resource_addresses(pool_component_address);
 
                         (pool_component_address, resources)
                     })
@@ -276,11 +215,13 @@ mod fidenaro {
         ///
         /// The [`KeyValueEntryRef<'_, PoolBlueprintInformation>`] is returned
         /// to allow the references of the addresses to remain.
-        pub fn checked_get_pool_adapter(
+        pub fn get_pool_adapter(
             &self,
             pool_address: ComponentAddress,
         ) -> Option<PoolAdapter> {
-            let blueprint_id = ScryptoVmV1Api::object_get_blueprint_id(pool_address.as_node_id());
+            let blueprint_id = ScryptoVmV1Api::object_get_blueprint_id(
+                pool_address.as_node_id(),
+            );
             let entry = self
                 .pool_information
                 .get(&blueprint_id)
@@ -419,14 +360,17 @@ mod fidenaro {
         /// * `component`: [`ComponentAddress`] - The address of the pool
         /// component to add to the set of allowed pools.
         pub fn add_allowed_pool(&mut self, pool_address: ComponentAddress) {
-            self.with_pool_blueprint_information_mut(pool_address, |pool_information| {
-                let resources =
-                    PoolAdapter::from(pool_information.adapter).resource_addresses(pool_address);
+            self.with_pool_blueprint_information_mut(
+                pool_address,
+                |pool_information| {
+                    let resources = PoolAdapter::from(pool_information.adapter)
+                        .resource_addresses(pool_address);
 
-                pool_information
-                    .allowed_pools
-                    .insert(pool_address, resources);
-            })
+                    pool_information
+                        .allowed_pools
+                        .insert(pool_address, resources);
+                },
+            )
             .expect(NO_ADAPTER_FOUND_FOR_POOL_ERROR)
         }
 
@@ -458,9 +402,12 @@ mod fidenaro {
         /// * `component`: [`ComponentAddress`] - The address of the pool
         /// component to remove from the set of allowed pools.
         pub fn remove_allowed_pool(&mut self, pool_address: ComponentAddress) {
-            self.with_pool_blueprint_information_mut(pool_address, |pool_information| {
-                pool_information.allowed_pools.swap_remove(&pool_address);
-            })
+            self.with_pool_blueprint_information_mut(
+                pool_address,
+                |pool_information| {
+                    pool_information.allowed_pools.swap_remove(&pool_address);
+                },
+            )
             .expect(NO_ADAPTER_FOUND_FOR_POOL_ERROR)
         }
 
@@ -486,9 +433,13 @@ mod fidenaro {
             callback: F,
         ) -> Option<O>
         where
-            F: FnOnce(&mut KeyValueEntryRefMut<'_, StoredPoolBlueprintInformation>) -> O,
+            F: FnOnce(
+                &mut KeyValueEntryRefMut<'_, StoredPoolBlueprintInformation>,
+            ) -> O,
         {
-            let blueprint_id = ScryptoVmV1Api::object_get_blueprint_id(pool_address.as_node_id());
+            let blueprint_id = ScryptoVmV1Api::object_get_blueprint_id(
+                pool_address.as_node_id(),
+            );
             let entry = self.pool_information.get_mut(&blueprint_id);
             entry.map(|mut entry| callback(&mut entry))
         }

@@ -96,7 +96,7 @@ fn test_fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
         environment: ref mut env,
         mut protocol,
         radiswap,
-        resources,
+        ..
     } = ScryptoUnitTestEnv::new()?;
 
     let proof = protocol.trader.0.create_proof_of_all(env)?;
@@ -112,14 +112,14 @@ fn test_fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
     );
 
     // Assert
-    let result = protocol.fidenaro.withdraw_fees(env);
+    let result = protocol.fidenaro.withdraw_collected_fee(env);
 
     assert!(result.is_ok(), "Fees can be withdrawn.");
 
-    let fees: Bucket = result.unwrap();
+    let fee = result.unwrap();
 
     assert_eq!(
-        fees.amount(env).unwrap(),
+        fee.amount(env).unwrap(),
         dec!(0.5),
         "Collected fees are 0.5 XRD."
     );

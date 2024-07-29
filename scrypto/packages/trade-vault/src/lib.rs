@@ -43,7 +43,7 @@ mod trade_vault {
             fn get_stable_coin_resource_address(&self) -> ResourceAddress;
             fn get_user_token_resource_address(&self) -> ResourceAddress;
             fn get_whitelisted_pool_addresses(&self) -> Vec<ComponentAddress>;
-            fn checked_get_pool_adapter(&self, pool_address: ComponentAddress) -> Option<PoolAdapter>;
+            fn get_pool_adapter(&self, pool_address: ComponentAddress) -> Option<PoolAdapter>;
             fn get_oracle_adapter(&self) -> Option<OracleAdapter>;
             fn is_pool_allowed(&self, pool_address: ComponentAddress) -> bool;
         }
@@ -378,10 +378,8 @@ mod trade_vault {
             let from_pool = self.assets.get_mut(&from_token_address).unwrap();
             let from_token = from_pool.take(from_token_amount).as_fungible();
 
-            let mut pool_adapter = self
-                .fidenaro
-                .checked_get_pool_adapter(pool_address)
-                .unwrap();
+            let mut pool_adapter =
+                self.fidenaro.get_pool_adapter(pool_address).unwrap();
 
             let to_tokens = pool_adapter.swap(pool_address, from_token.into());
             let to_token_address = to_tokens.resource_address();
