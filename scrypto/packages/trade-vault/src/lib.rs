@@ -39,13 +39,12 @@ mod trade_vault {
     extern_blueprint! {
         "package_sim1pkuj90ee40aujtm7p7jpzlr30jymfu5mgzkaf36t626my7ftuhjmnx",
         Fidenaro {
-            fn register_vault(&mut self, vault_address: ComponentAddress, user_id: ResourceAddress, share_token_address: ResourceAddress);
-            fn get_stable_coin_resource_address(&self) -> ResourceAddress;
             fn get_user_token_resource_address(&self) -> ResourceAddress;
             fn get_whitelisted_pool_addresses(&self) -> Vec<ComponentAddress>;
             fn get_pool_adapter(&self, pool_address: ComponentAddress) -> Option<PoolAdapter>;
             fn get_oracle_adapter(&self) -> Option<OracleAdapter>;
-            fn is_pool_allowed(&self, pool_address: ComponentAddress) -> bool;
+            fn get_fee_rate(&self) -> Decimal;
+            fn deposit_fee(&mut self, fee: Bucket);
         }
     }
 
@@ -375,13 +374,23 @@ mod trade_vault {
                 "This asset cannot be swapped as it is not part of the !"
             );
 
-            let from_pool = self.assets.get_mut(&from_token_address).unwrap();
-            let from_token = from_pool.take(from_token_amount).as_fungible();
+            // withdraw tokens from vault
+            let from_vault = self.assets.get_mut(&from_token_address).unwrap();
+            let mut from_token = from_vault.take(from_token_amount);
 
+            // Take fidenaro fee
+            let fee_rate = self.fidenaro.get_fee_rate();
+            let fee_amount = from_token.amount() * fee_rate;
+            let fee = from_token.take(fee_amount);
+            self.fidenaro.deposit_fee(fee);
+
+            info!("Fee amount of {} was deposited to Fidenaro.", fee_amount);
+
+            // swap tokens
             let mut pool_adapter =
                 self.fidenaro.get_pool_adapter(pool_address).unwrap();
 
-            let to_tokens = pool_adapter.swap(pool_address, from_token.into());
+            let to_tokens = pool_adapter.swap(pool_address, from_token);
             let to_token_address = to_tokens.resource_address();
             let to_token_amount = to_tokens.amount();
 
@@ -390,32 +399,31 @@ mod trade_vault {
                 .entry(to_tokens.resource_address())
                 .or_insert_with(|| Vault::new(to_tokens.resource_address()));
 
+            // deposit tokens into vault
             pool.put(to_tokens.into());
 
             // log transaction and trade data
-
-            let mut trade_action = Action::Sell;
-
-            if from_token_address == XRD {
-                trade_action = Action::Buy;
+            let trade_action = if from_token_address == XRD {
+                Action::Buy
+            } else {
+                Action::Sell
             };
 
-            let price;
-            if trade_action == Action::Buy {
-                price = self
-                    .fidenaro
+            let price = if trade_action == Action::Buy {
+                self.fidenaro
                     .get_oracle_adapter()
                     .unwrap()
                     .get_price(to_token_address, XRD)
-                    .0;
+                    .0
             } else {
-                price = self
-                    .fidenaro
+                self.fidenaro
                     .get_oracle_adapter()
                     .unwrap()
-                    .get_price(XRD, from_token_address)
-                    .0;
+                    .get_price(from_token_address, XRD)
+                    .0
             };
+
+            info!("Swapped at the price of {}", price);
 
             let trade = Trade {
                 epoch: Runtime::current_epoch(),

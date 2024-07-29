@@ -48,6 +48,8 @@ mod fidenaro {
             get_user_token_resource_address => PUBLIC;
             get_pool_adapter => PUBLIC;
             get_oracle_adapter => PUBLIC;
+            get_fee_rate => PUBLIC;
+            deposit_fee => PUBLIC;
 
             // Methods with admin access
             withdraw_collected_fee => restrict_to: [admin, OWNER];
@@ -65,8 +67,8 @@ mod fidenaro {
         vaults: HashMap<ComponentAddress, (ResourceAddress, ResourceAddress)>, //all vaults in the dapp (<vault, vaultmanagerbadge, sharetoken>)
         whitelisted_pool_addresses: Vec<ComponentAddress>,
         whitelisted_stable_coin_address: Option<ResourceAddress>,
-        fidenaro_withdrawal_fee: Decimal,
-        fee_vault: Vault,
+        fee_rate: Decimal,
+        fee_vaults: KeyValueStore<ResourceAddress, Vault>,
         user_token_address: Option<ResourceAddress>,
         pool_information:
             KeyValueStore<BlueprintId, StoredPoolBlueprintInformation>,
@@ -98,8 +100,8 @@ mod fidenaro {
                 vaults: HashMap::new(),
                 whitelisted_pool_addresses: Vec::new(),
                 whitelisted_stable_coin_address: None,
-                fidenaro_withdrawal_fee: dec!(1),
-                fee_vault: Vault::new(XRD),
+                fee_rate: dec!(0.01),
+                fee_vaults: KeyValueStore::new(),
                 user_token_address: None,
                 pool_information: KeyValueStore::new(),
                 oracle_adapter: oracle_adapter.into(),
@@ -130,12 +132,38 @@ mod fidenaro {
             self.user_token_address.unwrap().clone()
         }
 
+        pub fn get_fee_rate(&self) -> Decimal {
+            self.fee_rate
+        }
+
+        pub fn deposit_fee(&mut self, fee: Bucket) {
+            let entry = self.fee_vaults.get_mut(&fee.resource_address());
+            if let Some(mut vault) = entry {
+                info!(
+                    "Add fee to existing vault for {:?}",
+                    fee.resource_address()
+                );
+                vault.put(fee)
+            } else {
+                info!("Create new fee vault for {:?}", fee.resource_address());
+                drop(entry);
+                self.fee_vaults
+                    .insert(fee.resource_address(), Vault::with_bucket(fee));
+            }
+        }
+
         ////////////////////////////////
         ///methods for fidenaro admin///
         ////////////////////////////////
 
-        pub fn withdraw_collected_fee(&mut self) -> Bucket {
-            self.fee_vault.take_all()
+        pub fn withdraw_collected_fee(
+            &mut self,
+            resource_address: ResourceAddress,
+        ) -> Bucket {
+            self.fee_vaults
+                .get_mut(&resource_address)
+                .unwrap()
+                .take_all()
         }
 
         pub fn set_user_token_resource_address(

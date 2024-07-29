@@ -84,7 +84,7 @@ fn can_swap() -> Result<(), RuntimeError> {
     });
 
     assert_eq!(xrd_amount, dec!(50));
-    assert_eq!(btc_amount, dec!(49.999975)); // we expect less than 50 BTC because of slippage
+    assert_eq!(btc_amount, dec!(49.49997549)); // we expect less than 50 BTC because of slippage
 
     Ok(())
 }
@@ -96,7 +96,7 @@ fn test_fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
         environment: ref mut env,
         mut protocol,
         radiswap,
-        ..
+        resources,
     } = ScryptoUnitTestEnv::new()?;
 
     let proof = protocol.trader.0.create_proof_of_all(env)?;
@@ -104,24 +104,48 @@ fn test_fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
     let _ = protocol.trade_vault.deposit(proof, bucket, env)?;
 
     // Act
-    let _ = protocol.trade_vault.swap(
-        XRD,
-        dec!(50),
-        radiswap.pools.bitcoin.try_into().unwrap(),
-        env,
-    );
+    let _ = protocol
+        .trade_vault
+        .swap(
+            XRD,
+            dec!(50),
+            radiswap.pools.bitcoin.try_into().unwrap(),
+            env,
+        )
+        .expect("Swap succeeded.");
+
+    let _ = protocol
+        .trade_vault
+        .swap(
+            resources.bitcoin,
+            dec!(10),
+            radiswap.pools.bitcoin.try_into().unwrap(),
+            env,
+        )
+        .expect("Swap succeeded.");
 
     // Assert
-    let result = protocol.fidenaro.withdraw_collected_fee(env);
+    let result_xrd = protocol.fidenaro.withdraw_collected_fee(XRD, env);
+    let result_btc = protocol
+        .fidenaro
+        .withdraw_collected_fee(resources.bitcoin, env);
 
-    assert!(result.is_ok(), "Fees can be withdrawn.");
+    assert!(result_xrd.is_ok(), "Fees in XRD can be withdrawn.");
+    assert!(result_btc.is_ok(), "Fees in BTC can be withdrawn.");
 
-    let fee = result.unwrap();
+    let fee_xrd = result_xrd.unwrap();
+    let fee_btc = result_btc.unwrap();
 
     assert_eq!(
-        fee.amount(env).unwrap(),
+        fee_xrd.amount(env).unwrap(),
         dec!(0.5),
         "Collected fees are 0.5 XRD."
+    );
+
+    assert_eq!(
+        fee_btc.amount(env).unwrap(),
+        dec!(0.1),
+        "Collected fees are 0.1 BTC."
     );
 
     Ok(())
