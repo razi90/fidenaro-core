@@ -88,3 +88,69 @@ fn can_swap() -> Result<(), RuntimeError> {
 
     Ok(())
 }
+
+#[test]
+fn test_fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
+    // Arrange
+    let Environment {
+        environment: ref mut env,
+        mut protocol,
+        radiswap,
+        resources,
+    } = ScryptoUnitTestEnv::new()?;
+
+    let proof = protocol.trader.0.create_proof_of_all(env)?;
+    let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
+    let _ = protocol.trade_vault.deposit(proof, bucket, env)?;
+
+    // Act
+    let _ = protocol.trade_vault.swap(
+        XRD,
+        dec!(50),
+        radiswap.pools.bitcoin.try_into().unwrap(),
+        env,
+    );
+
+    // Assert
+    let result = protocol.fidenaro.withdraw_fees(env);
+
+    assert!(result.is_ok(), "Fees can be withdrawn.");
+
+    let fees: Bucket = result.unwrap();
+
+    assert_eq!(
+        fees.amount(env).unwrap(),
+        dec!(0.5),
+        "Collected fees are 0.5 XRD."
+    );
+
+    Ok(())
+}
+
+#[test]
+fn test_trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
+    // Arrange
+    let Environment {
+        environment: ref mut env,
+        mut protocol,
+        radiswap,
+        resources,
+    } = ScryptoUnitTestEnv::new()?;
+
+    let proof = protocol.trader.0.create_proof_of_all(env)?;
+    let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
+    let _ = protocol.trade_vault.deposit(proof, bucket, env)?;
+
+    // Act
+    let _ = protocol.trade_vault.swap(
+        XRD,
+        dec!(50),
+        radiswap.pools.bitcoin.try_into().unwrap(),
+        env,
+    );
+
+    // Assert
+    todo!();
+
+    Ok(())
+}
