@@ -197,22 +197,19 @@ mod trade_vault {
             user_token_proof: Proof,
             deposit: Bucket,
         ) -> Bucket {
-            let checked_proof = user_token_proof
-                .check(self.fidenaro.get_user_token_resource_address());
+            // Validate user token proof and deposit tokens
+            let checked_proof =
+                self.validate_user_token_proof(user_token_proof);
+            self.validate_deposit_tokens(&deposit);
 
-            let address: ResourceAddress = deposit.resource_address();
-
-            assert!(
-                XRD == address,
-                "Wrong token type sent. Only XRD can be deposited."
-            );
+            // Get user ID
+            let user_id = self.get_user_id(&checked_proof);
 
             // calculate value of all assets
             let mut total_asset_value = Decimal::zero();
 
             if self.assets.contains_key(&XRD) {
-                total_asset_value +=
-                    self.assets.get(&address).unwrap().amount();
+                total_asset_value += self.assets.get(&XRD).unwrap().amount();
             }
 
             // calculate value of other assets based on their current price
@@ -246,11 +243,6 @@ mod trade_vault {
             let share_tokens = resource_manager.mint(amount_to_mint);
             self.total_share_tokens += share_tokens.amount();
 
-            let user_id = checked_proof
-                .as_non_fungible()
-                .non_fungible_local_id()
-                .to_string();
-
             info!(
                 "Minted {} share tokens after a deposit amount of {}",
                 share_tokens.amount(),
@@ -282,10 +274,8 @@ mod trade_vault {
 
             self.deposits.push(deposit_transaction);
 
-            let pool = self
-                .assets
-                .entry(address)
-                .or_insert_with(|| Vault::new(address));
+            let pool =
+                self.assets.entry(XRD).or_insert_with(|| Vault::new(XRD));
 
             pool.put(deposit);
 
@@ -449,6 +439,13 @@ mod trade_vault {
                 share_tokens.resource_address()
                     == self.share_token_manager.address(),
                 "Wrong tokens sent. You need to send share tokens."
+            );
+        }
+
+        fn validate_deposit_tokens(&self, deposit: &Bucket) {
+            assert!(
+                XRD == deposit.resource_address(),
+                "Wrong token type sent. Only XRD can be deposited."
             );
         }
 
