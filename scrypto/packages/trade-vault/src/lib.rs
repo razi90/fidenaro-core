@@ -33,6 +33,12 @@ pub struct Transaction {
     pub user_id: String,
 }
 
+#[derive(Debug, ScryptoSbor)]
+pub struct UserPosition {
+    pub share_amount: Decimal,
+    pub total_deposit: Decimal,
+}
+
 #[blueprint]
 mod trade_vault {
 
@@ -59,7 +65,7 @@ mod trade_vault {
 
             // Methods with admin access
             swap => restrict_to: [fund_manager, OWNER];
-            withdraw_collected_fee_fund_manager => restrict_to: [fund_manager, OWNER];
+            withdraw_collected_trader_fee => restrict_to: [fund_manager, OWNER];
         }
     }
 
@@ -70,12 +76,14 @@ mod trade_vault {
         fund_manager_badge: ResourceAddress,
         share_token_manager: ResourceManager,
         total_share_tokens: Decimal,
-        fees_fund_manager_vault: Vault,
+        trader_fee_vaults: KeyValueStore<ResourceAddress, Vault>,
         fidenaro: Global<Fidenaro>,
         trades: Vec<Trade>,
         deposits: Vec<Transaction>,
         withdrawals: Vec<Transaction>,
         followers: HashMap<String, Decimal>,
+        // positions: KeyValueStore<ResourceAddress, Vault>,
+        user_positions: KeyValueStore<String, UserPosition>,
     }
 
     impl TradeVault {
@@ -159,14 +167,13 @@ mod trade_vault {
                 assets: HashMap::new(),
                 total_share_tokens: dec!(0),
                 share_token_manager,
-                fees_fund_manager_vault: Vault::new(
-                    share_token_manager.address(),
-                ),
+                trader_fee_vaults: KeyValueStore::new(),
                 fidenaro: fidenaro,
                 trades: Vec::new(),
                 deposits: Vec::new(),
                 withdrawals: Vec::new(),
                 followers: HashMap::new(),
+                user_positions: KeyValueStore::new(),
             }
             .instantiate()
             .prepare_to_globalize(OwnerRole::None)
@@ -247,18 +254,33 @@ mod trade_vault {
                 .non_fungible_local_id()
                 .to_string();
 
-            self.followers
-                .entry(user_id.clone())
-                .and_modify(|existing_amount| {
-                    *existing_amount += share_tokens.amount();
-                })
-                .or_insert(share_tokens.amount());
+            // self.followers
+            //     .entry(user_id.clone())
+            //     .and_modify(|existing_amount| {
+            //         *existing_amount += share_tokens.amount();
+            //     })
+            //     .or_insert(share_tokens.amount());
 
             info!(
                 "Minted {} share tokens after a deposit amount of {}",
                 share_tokens.amount(),
                 deposit.amount()
             );
+
+            let entry = self.user_positions.get_mut(&user_id);
+            if let Some(mut user_position) = entry {
+                user_position.share_amount += share_tokens.amount();
+                user_position.total_deposit += deposit.amount();
+            } else {
+                drop(entry);
+                self.user_positions.insert(
+                    user_id.clone(),
+                    UserPosition {
+                        share_amount: share_tokens.amount(),
+                        total_deposit: deposit.amount(),
+                    },
+                );
+            }
 
             let deposit_transaction = Transaction {
                 action: Action::Deposit,
@@ -295,36 +317,74 @@ mod trade_vault {
                 "Wrong tokens sent. You need to send share tokens."
             );
 
-            //take fund from assets and put into a Vec<Bucket> called tokens
-            let mut tokens = Vec::new();
-            let your_share = share_tokens.amount() / self.total_share_tokens;
-            for value in self.assets.values_mut() {
-                let amount = your_share * value.amount();
-                tokens.push(value.take(amount));
-            }
-
-            // update total amount
-            self.total_share_tokens -= share_tokens.amount();
-
-            // update follower values
+            // Get the user id
             let user_id = checked_proof
                 .as_non_fungible()
                 .non_fungible_local_id()
                 .to_string();
 
-            let mut remove_entry = false;
+            // calculate total value of assets for this user
+            let total_user_share_token_amount =
+                self.user_positions.get(&user_id).unwrap().share_amount;
+            let user_vault_equity_in_percent =
+                total_user_share_token_amount / self.total_share_tokens;
+            let user_withdrawal_proportion =
+                share_tokens.amount() / total_user_share_token_amount;
 
-            self.followers.entry(user_id.clone()).and_modify(
-                |existing_amount| {
-                    *existing_amount -= share_tokens.amount();
-                    if existing_amount.is_zero() {
-                        remove_entry = true;
-                    }
-                },
-            );
+            // calculate how much user wants to withdraw
+            let mut total_user_asset_value = Decimal::zero();
 
-            if remove_entry {
-                self.followers.remove(&user_id);
+            if self.assets.contains_key(&XRD) {
+                total_user_asset_value +=
+                    self.assets.get(&XRD).unwrap().amount();
+            }
+
+            // calculate value of other assets based on their current price
+            for (asset_address, vault) in self.assets.iter() {
+                if asset_address != &XRD {
+                    let (price, _) = self
+                        .fidenaro
+                        .get_oracle_adapter()
+                        .unwrap()
+                        .get_price(*asset_address, XRD);
+                    info!("Price: {}", price);
+                    total_user_asset_value +=
+                        user_vault_equity_in_percent * vault.amount() * price;
+                }
+            }
+
+            let withdrawal_value =
+                total_user_asset_value * user_withdrawal_proportion;
+
+            // calculate current user profit
+            let profit = total_user_asset_value
+                - self.user_positions.get(&user_id).unwrap().total_deposit;
+
+            let withdrawal_profit = user_withdrawal_proportion * profit;
+
+            // calculate performance fee
+            let performance_fee = withdrawal_profit * dec!(0.1);
+
+            // calculate withdrawal value without the performance fee
+            let withdrawal_without_performance_fee =
+                withdrawal_value - performance_fee;
+
+            //take fund from assets and put into a Vec<Bucket> called tokens
+            let mut tokens = Vec::new();
+            for value in self.assets.values_mut() {
+                tokens.push(value.take(withdrawal_without_performance_fee));
+                // substract and deposit performance fee
+                let entry =
+                    self.trader_fee_vaults.get_mut(&value.resource_address());
+                if let Some(mut vault) = entry {
+                    vault.put(value.take(performance_fee));
+                } else {
+                    drop(entry);
+                    self.trader_fee_vaults.insert(
+                        value.resource_address(),
+                        Vault::with_bucket(value.take(performance_fee)),
+                    );
+                }
             }
 
             // calculate total value of the withdrawn assets
@@ -342,6 +402,26 @@ mod trade_vault {
                 }
             }
 
+            let mut remove_entry = false;
+
+            if let Some(mut user_position) =
+                self.user_positions.get_mut(&user_id)
+            {
+                user_position.share_amount -= share_tokens.amount();
+                // calculate new value of total deposit
+                let new_total_deposit = user_position.total_deposit
+                    * (1 - user_withdrawal_proportion);
+                user_position.total_deposit -= new_total_deposit;
+
+                if user_position.share_amount.is_zero() {
+                    remove_entry = true;
+                };
+            }
+
+            if remove_entry {
+                self.user_positions.remove(&user_id);
+            }
+
             let withdrawal_transaction = Transaction {
                 action: Action::Withdrawal,
                 epoch: Runtime::current_epoch(),
@@ -351,6 +431,9 @@ mod trade_vault {
             };
 
             self.withdrawals.push(withdrawal_transaction);
+
+            // update total amount
+            self.total_share_tokens -= share_tokens.amount();
 
             // burn sharetokens
             let resource_manager = self.share_token_manager;
@@ -439,8 +522,14 @@ mod trade_vault {
             self.trades.push(trade);
         }
 
-        pub fn withdraw_collected_fee_fund_manager(&mut self) -> Bucket {
-            self.fees_fund_manager_vault.take_all()
+        pub fn withdraw_collected_trader_fee(
+            &mut self,
+            resource_address: ResourceAddress,
+        ) -> Bucket {
+            self.trader_fee_vaults
+                .get_mut(&resource_address)
+                .unwrap()
+                .take_all()
         }
     }
 }

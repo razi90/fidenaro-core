@@ -90,7 +90,7 @@ fn can_swap() -> Result<(), RuntimeError> {
 }
 
 #[test]
-fn test_fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
+fn fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
     // Arrange
     let Environment {
         environment: ref mut env,
@@ -152,7 +152,7 @@ fn test_fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
 }
 
 #[test]
-fn test_trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
+fn trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
     // Arrange
     let Environment {
         environment: ref mut env,
@@ -173,8 +173,21 @@ fn test_trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
         env,
     );
 
+    let _ = protocol
+        .trade_vault
+        .swap(
+            resources.bitcoin,
+            dec!(10),
+            radiswap.pools.bitcoin.try_into().unwrap(),
+            env,
+        )
+        .expect("Swap succeeded.");
+
     // Assert
-    todo!();
+
+    let result = protocol.trade_vault.withdraw_collected_trader_fee(XRD, env);
+
+    assert!(result.is_ok(), "Trader can withdraw his fee.");
 
     Ok(())
 }
