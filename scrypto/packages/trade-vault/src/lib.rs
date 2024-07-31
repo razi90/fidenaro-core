@@ -81,8 +81,6 @@ mod trade_vault {
         trades: Vec<Trade>,
         deposits: Vec<Transaction>,
         withdrawals: Vec<Transaction>,
-        followers: HashMap<String, Decimal>,
-        // positions: KeyValueStore<ResourceAddress, Vault>,
         user_positions: KeyValueStore<String, UserPosition>,
     }
 
@@ -172,7 +170,6 @@ mod trade_vault {
                 trades: Vec::new(),
                 deposits: Vec::new(),
                 withdrawals: Vec::new(),
-                followers: HashMap::new(),
                 user_positions: KeyValueStore::new(),
             }
             .instantiate()
@@ -253,13 +250,6 @@ mod trade_vault {
                 .as_non_fungible()
                 .non_fungible_local_id()
                 .to_string();
-
-            // self.followers
-            //     .entry(user_id.clone())
-            //     .and_modify(|existing_amount| {
-            //         *existing_amount += share_tokens.amount();
-            //     })
-            //     .or_insert(share_tokens.amount());
 
             info!(
                 "Minted {} share tokens after a deposit amount of {}",
