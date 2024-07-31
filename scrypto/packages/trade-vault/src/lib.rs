@@ -308,136 +308,48 @@ mod trade_vault {
             user_token_proof: Proof,
             share_tokens: Bucket,
         ) -> Vec<Bucket> {
-            let checked_proof = user_token_proof
-                .check(self.fidenaro.get_user_token_resource_address());
+            // Validate user token proof and share tokens
+            let checked_proof =
+                self.validate_user_token_proof(user_token_proof);
+            self.validate_share_tokens(&share_tokens);
 
-            assert!(
-                share_tokens.resource_address()
-                    == self.share_token_manager.address(),
-                "Wrong tokens sent. You need to send share tokens."
-            );
+            // Get user ID and user-specific data
+            let user_id = self.get_user_id(&checked_proof);
+            let (user_vault_equity_in_percent, user_withdrawal_proportion) =
+                self.calculate_user_positions(&user_id, &share_tokens);
 
-            // Get the user id
-            let user_id = checked_proof
-                .as_non_fungible()
-                .non_fungible_local_id()
-                .to_string();
-
-            // calculate total value of assets for this user
-            let total_user_share_token_amount =
-                self.user_positions.get(&user_id).unwrap().share_amount;
-            let user_vault_equity_in_percent =
-                total_user_share_token_amount / self.total_share_tokens;
-            let user_withdrawal_proportion =
-                share_tokens.amount() / total_user_share_token_amount;
-
-            // calculate how much user wants to withdraw
-            let mut total_user_asset_value = Decimal::zero();
-
-            if self.assets.contains_key(&XRD) {
-                total_user_asset_value +=
-                    self.assets.get(&XRD).unwrap().amount();
-            }
-
-            // calculate value of other assets based on their current price
-            for (asset_address, vault) in self.assets.iter() {
-                if asset_address != &XRD {
-                    let (price, _) = self
-                        .fidenaro
-                        .get_oracle_adapter()
-                        .unwrap()
-                        .get_price(*asset_address, XRD);
-                    info!("Price: {}", price);
-                    total_user_asset_value +=
-                        user_vault_equity_in_percent * vault.amount() * price;
-                }
-            }
-
+            // Calculate the total asset value and the withdrawal value for the user
+            let total_user_asset_value = self
+                .calculate_total_user_asset_value(user_vault_equity_in_percent);
             let withdrawal_value =
                 total_user_asset_value * user_withdrawal_proportion;
 
-            // calculate current user profit
-            let profit = total_user_asset_value
-                - self.user_positions.get(&user_id).unwrap().total_deposit;
+            // Withdraw assets
+            let mut tokens = self.withdraw_assets(user_withdrawal_proportion);
 
-            let withdrawal_profit = user_withdrawal_proportion * profit;
+            // Calculate profit on the amount which is withdrawn and deposit traders fee if positive
+            let profit_on_withdrawal = self.calculate_profit_on_withdrawal(
+                &user_id,
+                total_user_asset_value,
+                user_withdrawal_proportion,
+            );
 
-            // calculate performance fee
-            let performance_fee = withdrawal_profit * dec!(0.1);
-
-            // calculate withdrawal value without the performance fee
-            let withdrawal_without_performance_fee =
-                withdrawal_value - performance_fee;
-
-            //take fund from assets and put into a Vec<Bucket> called tokens
-            let mut tokens = Vec::new();
-            for value in self.assets.values_mut() {
-                tokens.push(value.take(withdrawal_without_performance_fee));
-                // substract and deposit performance fee
-                let entry =
-                    self.trader_fee_vaults.get_mut(&value.resource_address());
-                if let Some(mut vault) = entry {
-                    vault.put(value.take(performance_fee));
-                } else {
-                    drop(entry);
-                    self.trader_fee_vaults.insert(
-                        value.resource_address(),
-                        Vault::with_bucket(value.take(performance_fee)),
-                    );
-                }
-            }
-
-            // calculate total value of the withdrawn assets
-            let mut withdrawal_asset_value = Decimal::zero();
-            for token in &tokens {
-                if token.resource_address() == XRD {
-                    withdrawal_asset_value += token.amount();
-                } else {
-                    let (price, _) = self
-                        .fidenaro
-                        .get_oracle_adapter()
-                        .unwrap()
-                        .get_price(token.resource_address(), XRD);
-                    withdrawal_asset_value += token.amount() * price;
-                }
-            }
-
-            let mut remove_entry = false;
-
-            if let Some(mut user_position) =
-                self.user_positions.get_mut(&user_id)
-            {
-                user_position.share_amount -= share_tokens.amount();
-                // calculate new value of total deposit
-                let new_total_deposit = user_position.total_deposit
-                    * (1 - user_withdrawal_proportion);
-                user_position.total_deposit -= new_total_deposit;
-
-                if user_position.share_amount.is_zero() {
-                    remove_entry = true;
-                };
-            }
-
-            if remove_entry {
-                self.user_positions.remove(&user_id);
-            }
-
-            let withdrawal_transaction = Transaction {
-                action: Action::Withdrawal,
-                epoch: Runtime::current_epoch(),
-                timestamp: Clock::current_time(TimePrecision::Minute),
-                amount: withdrawal_asset_value,
-                user_id: user_id.clone(),
+            if profit_on_withdrawal.is_positive() {
+                self.substract_trader_fee(&mut tokens);
             };
 
-            self.withdrawals.push(withdrawal_transaction);
+            // Update user positions
+            self.update_user_positions(
+                &user_id,
+                &share_tokens,
+                user_withdrawal_proportion,
+            );
 
-            // update total amount
-            self.total_share_tokens -= share_tokens.amount();
+            // Record the withdrawal transaction
+            self.record_withdrawal_transaction(&user_id, withdrawal_value);
 
-            // burn sharetokens
-            let resource_manager = self.share_token_manager;
-            resource_manager.burn(share_tokens);
+            // Burn the share tokens
+            self.burn_share_tokens(share_tokens);
 
             tokens
         }
@@ -530,6 +442,162 @@ mod trade_vault {
                 .get_mut(&resource_address)
                 .unwrap()
                 .take_all()
+        }
+
+        // Helper Functions
+
+        fn validate_user_token_proof(
+            &self,
+            user_token_proof: Proof,
+        ) -> CheckedProof {
+            user_token_proof
+                .check(self.fidenaro.get_user_token_resource_address())
+        }
+
+        fn validate_share_tokens(&self, share_tokens: &Bucket) {
+            assert!(
+                share_tokens.resource_address()
+                    == self.share_token_manager.address(),
+                "Wrong tokens sent. You need to send share tokens."
+            );
+        }
+
+        fn get_user_id(&self, checked_proof: &CheckedProof) -> String {
+            checked_proof
+                .as_non_fungible()
+                .non_fungible_local_id()
+                .to_string()
+        }
+
+        fn calculate_user_positions(
+            &self,
+            user_id: &String,
+            share_tokens: &Bucket,
+        ) -> (Decimal, Decimal) {
+            let total_user_share_token_amount =
+                self.user_positions.get(user_id).unwrap().share_amount;
+            let user_vault_equity_in_percent =
+                total_user_share_token_amount / self.total_share_tokens;
+            let user_withdrawal_proportion =
+                share_tokens.amount() / total_user_share_token_amount;
+            (user_vault_equity_in_percent, user_withdrawal_proportion)
+        }
+
+        fn calculate_total_user_asset_value(
+            &self,
+            user_vault_equity_in_percent: Decimal,
+        ) -> Decimal {
+            let mut total_user_asset_value = Decimal::zero();
+
+            if let Some(xrd_vault) = self.assets.get(&XRD) {
+                total_user_asset_value += xrd_vault.amount();
+            }
+
+            for (asset_address, vault) in &self.assets {
+                if asset_address != &XRD {
+                    let (price, _) = self
+                        .fidenaro
+                        .get_oracle_adapter()
+                        .unwrap()
+                        .get_price(*asset_address, XRD);
+                    info!("Price: {}", price);
+                    total_user_asset_value +=
+                        user_vault_equity_in_percent * vault.amount() * price;
+                }
+            }
+
+            total_user_asset_value
+        }
+
+        fn calculate_profit_on_withdrawal(
+            &self,
+            user_id: &String,
+            total_user_asset_value: Decimal,
+            user_withdrawal_proportion: Decimal,
+        ) -> Decimal {
+            let user_position = self.user_positions.get(user_id).unwrap();
+            let profit = total_user_asset_value - user_position.total_deposit;
+            let profit_on_withdrawal = if profit.is_positive() {
+                user_withdrawal_proportion * profit
+            } else {
+                dec!(0)
+            };
+            profit_on_withdrawal
+        }
+
+        fn withdraw_assets(
+            &mut self,
+            withdrawal_without_performance_fee: Decimal,
+        ) -> Vec<Bucket> {
+            let mut tokens = Vec::new();
+
+            for value in self.assets.values_mut() {
+                tokens.push(value.take(withdrawal_without_performance_fee));
+            }
+
+            tokens
+        }
+
+        fn substract_trader_fee(&mut self, assets: &mut Vec<Bucket>) {
+            for value in assets {
+                let trader_fee = value.amount() * dec!(0.1);
+                let entry =
+                    self.trader_fee_vaults.get_mut(&value.resource_address());
+                if let Some(mut vault) = entry {
+                    vault.put(value.take(trader_fee));
+                } else {
+                    drop(entry);
+                    self.trader_fee_vaults.insert(
+                        value.resource_address(),
+                        Vault::with_bucket(value.take(trader_fee)),
+                    );
+                }
+            }
+        }
+
+        fn update_user_positions(
+            &mut self,
+            user_id: &String,
+            share_tokens: &Bucket,
+            user_withdrawal_proportion: Decimal,
+        ) {
+            let mut remove_entry = false;
+            if let Some(mut user_position) =
+                self.user_positions.get_mut(user_id)
+            {
+                user_position.share_amount -= share_tokens.amount();
+                let new_total_deposit = user_position.total_deposit
+                    * (1 - user_withdrawal_proportion);
+                user_position.total_deposit -= new_total_deposit;
+
+                if user_position.share_amount.is_zero() {
+                    remove_entry = true;
+                }
+            }
+            if remove_entry {
+                self.user_positions.remove(&user_id);
+            }
+        }
+
+        fn record_withdrawal_transaction(
+            &mut self,
+            user_id: &String,
+            withdrawal_asset_value: Decimal,
+        ) {
+            let withdrawal_transaction = Transaction {
+                action: Action::Withdrawal,
+                epoch: Runtime::current_epoch(),
+                timestamp: Clock::current_time(TimePrecision::Minute),
+                amount: withdrawal_asset_value,
+                user_id: user_id.clone(),
+            };
+
+            self.withdrawals.push(withdrawal_transaction);
+        }
+
+        fn burn_share_tokens(&mut self, share_tokens: Bucket) {
+            self.total_share_tokens -= share_tokens.amount();
+            self.share_token_manager.burn(share_tokens);
         }
     }
 }
