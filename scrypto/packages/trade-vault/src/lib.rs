@@ -293,26 +293,59 @@ mod trade_vault {
                 self.validate_user_token_proof(user_token_proof);
             self.validate_share_tokens(&share_tokens);
 
+            info!(
+                "Amount of share tokens to redeem: {:?}",
+                share_tokens.amount()
+            );
+
             // Get user ID and user-specific data
             let user_id = self.get_user_id(&checked_proof);
-            let (user_vault_equity_in_percent, user_withdrawal_proportion) =
-                self.calculate_user_positions(&user_id, &share_tokens);
+            let (
+                user_vault_equity,
+                user_withdrawal_proportional_to_total_equity,
+                user_withdrawal_proportional_to_his_equity,
+            ) = self.calculate_user_positions(&user_id, &share_tokens);
+
+            info!("User equity in percent: {:?}", user_vault_equity * 100);
+            info!(
+                "User withdrawal proportional to his equity in percent: {:?}",
+                user_withdrawal_proportional_to_total_equity * 100
+            );
+            info!(
+                "User withdrawal proportional to his equity in percent: {:?}",
+                user_withdrawal_proportional_to_his_equity * 100
+            );
 
             // Calculate the total asset value and the withdrawal value for the user
-            let total_user_asset_value = self
-                .calculate_total_user_asset_value(user_vault_equity_in_percent);
-            let withdrawal_value =
-                total_user_asset_value * user_withdrawal_proportion;
+            let total_user_asset_value =
+                self.calculate_total_user_asset_value(user_vault_equity);
+            let withdrawal_value = total_user_asset_value
+                * user_withdrawal_proportional_to_his_equity;
+
+            info!("Total user asset value: {:?}", total_user_asset_value);
+            info!("Withdrawal user asset value: {:?}", withdrawal_value);
 
             // Withdraw assets
-            let mut tokens = self.withdraw_assets(user_withdrawal_proportion);
+            let mut tokens = self
+                .withdraw_assets(user_withdrawal_proportional_to_total_equity);
+
+            info!(
+                "Total XRD withdrawal: {:?}",
+                tokens.first().unwrap().amount()
+            );
+            info!(
+                "Total BTC withdrawal: {:?}",
+                tokens.last().unwrap().amount()
+            );
 
             // Calculate profit on the amount which is withdrawn and deposit traders fee if positive
             let profit_on_withdrawal = self.calculate_profit_on_withdrawal(
                 &user_id,
                 total_user_asset_value,
-                user_withdrawal_proportion,
+                user_withdrawal_proportional_to_his_equity,
             );
+
+            info!("Profit on withdrawal: {:?}", profit_on_withdrawal);
 
             if profit_on_withdrawal.is_positive() {
                 self.substract_trader_fee(&mut tokens);
@@ -322,7 +355,7 @@ mod trade_vault {
             self.update_user_positions(
                 &user_id,
                 &share_tokens,
-                user_withdrawal_proportion,
+                user_withdrawal_proportional_to_his_equity,
             );
 
             // Record the withdrawal transaction
@@ -460,14 +493,20 @@ mod trade_vault {
             &self,
             user_id: &String,
             share_tokens: &Bucket,
-        ) -> (Decimal, Decimal) {
+        ) -> (Decimal, Decimal, Decimal) {
             let total_user_share_token_amount =
                 self.user_positions.get(user_id).unwrap().share_amount;
             let user_vault_equity_in_percent =
                 total_user_share_token_amount / self.total_share_tokens;
-            let user_withdrawal_proportion =
+            let user_withdrawal_proportional_to_total_equity =
                 share_tokens.amount() / total_user_share_token_amount;
-            (user_vault_equity_in_percent, user_withdrawal_proportion)
+            let user_withdrawal_proportional_to_his_equity =
+                share_tokens.amount() / total_user_share_token_amount;
+            (
+                user_vault_equity_in_percent,
+                user_withdrawal_proportional_to_total_equity,
+                user_withdrawal_proportional_to_his_equity,
+            )
         }
 
         fn calculate_total_user_asset_value(
@@ -514,12 +553,25 @@ mod trade_vault {
 
         fn withdraw_assets(
             &mut self,
-            withdrawal_without_performance_fee: Decimal,
+            user_withdrawal_proportion: Decimal,
         ) -> Vec<Bucket> {
             let mut tokens = Vec::new();
 
-            for value in self.assets.values_mut() {
-                tokens.push(value.take(withdrawal_without_performance_fee));
+            for vault in self.assets.values_mut() {
+                // during the withdrawal we are roundind down so it can leave some dust behind
+                // when the last person withdraws we use "take_all" to leave no dust behind
+                if user_withdrawal_proportion.eq(&dec!(1)) {
+                    info!("Withdraw all remaining assets");
+                    tokens.push(vault.take_all());
+                } else {
+                    info!("Withdraw assets partially");
+                    let amount_to_withdraw =
+                        vault.amount() * user_withdrawal_proportion;
+                    tokens.push(vault.take_advanced(
+                        amount_to_withdraw,
+                        WithdrawStrategy::Rounded(RoundingMode::ToZero),
+                    ));
+                }
             }
 
             tokens

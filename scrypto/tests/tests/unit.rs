@@ -90,6 +90,78 @@ fn can_swap() -> Result<(), RuntimeError> {
 }
 
 #[test]
+fn can_withdraw() -> Result<(), RuntimeError> {
+    // Arrange
+    let Environment {
+        environment: ref mut env,
+        mut protocol,
+        radiswap,
+        ..
+    } = ScryptoUnitTestEnv::new()?;
+
+    let proof = protocol.follower.0.create_proof_of_all(env)?;
+    let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
+
+    let share_tokens =
+        protocol
+            .trade_vault
+            .deposit(proof.clone(env).unwrap(), bucket, env)?;
+
+    let _ = protocol
+        .trade_vault
+        .swap(
+            XRD,
+            dec!(50),
+            radiswap.pools.bitcoin.try_into().unwrap(),
+            env,
+        )
+        .expect("Swap succeeded.");
+
+    // Split share bucket to perform partial withdrawal
+    let seventy_percent_bucket = share_tokens.take(dec!(70), env)?;
+    let thirty_percent_bucket = share_tokens.take(dec!(30), env)?;
+
+    // Act
+    let result_seventy_percent = protocol.trade_vault.withdraw(
+        proof.clone(env).unwrap(),
+        seventy_percent_bucket,
+        env,
+    );
+
+    let result_thirty_percent = protocol.trade_vault.withdraw(
+        proof.clone(env).unwrap(),
+        thirty_percent_bucket,
+        env,
+    );
+
+    // Assert
+    assert!(result_seventy_percent.is_ok());
+    assert!(result_thirty_percent.is_ok());
+
+    let assets_seventy_percent = result_seventy_percent.unwrap();
+    let assets_thirty_percent = result_thirty_percent.unwrap();
+
+    assert_eq!(
+        assets_seventy_percent.first().unwrap().amount(env).unwrap(),
+        dec!(35)
+    );
+    assert_eq!(
+        assets_seventy_percent.last().unwrap().amount(env).unwrap(),
+        dec!(34.64998284)
+    );
+    assert_eq!(
+        assets_thirty_percent.first().unwrap().amount(env).unwrap(),
+        dec!(15)
+    );
+    assert_eq!(
+        assets_thirty_percent.last().unwrap().amount(env).unwrap(),
+        dec!(14.84999265)
+    );
+
+    Ok(())
+}
+
+#[test]
 fn fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
     // Arrange
     let Environment {
@@ -161,7 +233,7 @@ fn trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
         resources,
     } = ScryptoUnitTestEnv::new()?;
 
-    let proof = protocol.trader.0.create_proof_of_all(env)?;
+    let proof = protocol.follower.0.create_proof_of_all(env)?;
     let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
     let _ = protocol.trade_vault.deposit(proof, bucket, env)?;
 
