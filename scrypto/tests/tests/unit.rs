@@ -235,31 +235,37 @@ fn trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
 
     let proof = protocol.follower.0.create_proof_of_all(env)?;
     let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
-    let _ = protocol.trade_vault.deposit(proof, bucket, env)?;
 
-    // Act
-    let _ = protocol.trade_vault.swap(
-        XRD,
-        dec!(50),
-        radiswap.pools.bitcoin.try_into().unwrap(),
-        env,
-    );
+    let share_tokens =
+        protocol
+            .trade_vault
+            .deposit(proof.clone(env).unwrap(), bucket, env)?;
 
-    let _ = protocol
+    protocol
         .trade_vault
         .swap(
-            resources.bitcoin,
-            dec!(10),
+            XRD,
+            dec!(50),
             radiswap.pools.bitcoin.try_into().unwrap(),
             env,
         )
         .expect("Swap succeeded.");
 
-    // Assert
+    protocol
+        .oracle
+        .set_price(resources.bitcoin, XRD, dec!(10), env)
+        .expect("Changed BTC price.");
 
+    protocol
+        .trade_vault
+        .withdraw(proof.clone(env).unwrap(), share_tokens, env)
+        .expect("User withdraws his funds");
+
+    // Act
     let result = protocol.trade_vault.withdraw_collected_trader_fee(XRD, env);
 
-    assert!(result.is_ok(), "Trader can withdraw his fee.");
+    // Assert
+    assert!(result.is_ok(), "Trader successfully withdraws earned fees.");
 
     Ok(())
 }

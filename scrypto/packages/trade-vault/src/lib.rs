@@ -348,7 +348,7 @@ mod trade_vault {
             info!("Profit on withdrawal: {:?}", profit_on_withdrawal);
 
             if profit_on_withdrawal.is_positive() {
-                self.substract_trader_fee(&mut tokens);
+                self.substract_trader_fee(&mut tokens, profit_on_withdrawal);
             };
 
             // Update user positions
@@ -577,18 +577,29 @@ mod trade_vault {
             tokens
         }
 
-        fn substract_trader_fee(&mut self, assets: &mut Vec<Bucket>) {
+        fn substract_trader_fee(
+            &mut self,
+            assets: &mut Vec<Bucket>,
+            profit: Decimal,
+        ) {
             for value in assets {
-                let trader_fee = value.amount() * dec!(0.1);
+                let trader_fee_amount = profit * dec!(0.1);
                 let entry =
                     self.trader_fee_vaults.get_mut(&value.resource_address());
+                let trader_fee = value.take_advanced(
+                    trader_fee_amount,
+                    WithdrawStrategy::Rounded(
+                        RoundingMode::ToNearestMidpointToEven,
+                    ),
+                );
+                info!("Trader earned: {:?}", trader_fee_amount);
                 if let Some(mut vault) = entry {
-                    vault.put(value.take(trader_fee));
+                    vault.put(trader_fee);
                 } else {
                     drop(entry);
                     self.trader_fee_vaults.insert(
                         value.resource_address(),
-                        Vault::with_bucket(value.take(trader_fee)),
+                        Vault::with_bucket(trader_fee),
                     );
                 }
             }
