@@ -262,10 +262,30 @@ fn trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
         .expect("User withdraws his funds");
 
     // Act
-    let result = protocol.trade_vault.withdraw_collected_trader_fee(XRD, env);
+    let result_xrd =
+        protocol.trade_vault.withdraw_collected_trader_fee(XRD, env);
+    let result_btc = protocol
+        .trade_vault
+        .withdraw_collected_trader_fee(resources.bitcoin, env);
 
     // Assert
-    assert!(result.is_ok(), "Trader successfully withdraws earned fees.");
+    assert!(result_xrd.is_ok(), "Fees in XRD can be withdrawn.");
+    assert!(result_btc.is_ok(), "Fees in BTC can be withdrawn.");
+
+    let fee_xrd = result_xrd.unwrap();
+    let fee_btc = result_btc.unwrap();
+
+    assert_eq!(
+        fee_xrd.amount(env).unwrap(),
+        dec!(4.082568394747731285),
+        "Correct amount of XRD withdrawn."
+    );
+
+    assert_eq!(
+        fee_btc.amount(env).unwrap(),
+        dec!(4.04174071),
+        "Correct amount of BTC withdrawn."
+    );
 
     Ok(())
 }

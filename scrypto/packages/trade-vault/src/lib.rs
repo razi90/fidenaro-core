@@ -326,29 +326,34 @@ mod trade_vault {
             info!("Withdrawal user asset value: {:?}", withdrawal_value);
 
             // Withdraw assets
-            let mut tokens = self
+            let mut withdrawn_assets = self
                 .withdraw_assets(user_withdrawal_proportional_to_total_equity);
 
             info!(
                 "Total XRD withdrawal: {:?}",
-                tokens.first().unwrap().amount()
+                withdrawn_assets.first().unwrap().amount()
             );
             info!(
                 "Total BTC withdrawal: {:?}",
-                tokens.last().unwrap().amount()
+                withdrawn_assets.last().unwrap().amount()
             );
 
             // Calculate profit on the amount which is withdrawn and deposit traders fee if positive
-            let profit_on_withdrawal = self.calculate_profit_on_withdrawal(
-                &user_id,
-                total_user_asset_value,
-                user_withdrawal_proportional_to_his_equity,
-            );
+            let (profit_on_withdrawal, profit_proportional_to_withdrawal) =
+                self.calculate_profit_on_withdrawal(
+                    &user_id,
+                    total_user_asset_value,
+                    user_withdrawal_proportional_to_his_equity,
+                );
 
             info!("Profit on withdrawal: {:?}", profit_on_withdrawal);
 
             if profit_on_withdrawal.is_positive() {
-                self.substract_trader_fee(&mut tokens, profit_on_withdrawal);
+                info!("Trader earned: {:?}", profit_on_withdrawal * dec!(0.1));
+                self.substract_trader_fee(
+                    &mut withdrawn_assets,
+                    profit_proportional_to_withdrawal,
+                );
             };
 
             // Update user positions
@@ -364,7 +369,7 @@ mod trade_vault {
             // Burn the share tokens
             self.burn_share_tokens(share_tokens);
 
-            tokens
+            withdrawn_assets
         }
 
         //////////////////////////////
@@ -540,7 +545,7 @@ mod trade_vault {
             user_id: &String,
             total_user_asset_value: Decimal,
             user_withdrawal_proportion: Decimal,
-        ) -> Decimal {
+        ) -> (Decimal, Decimal) {
             let user_position = self.user_positions.get(user_id).unwrap();
             let profit = total_user_asset_value - user_position.total_deposit;
             let profit_on_withdrawal = if profit.is_positive() {
@@ -548,7 +553,10 @@ mod trade_vault {
             } else {
                 dec!(0)
             };
-            profit_on_withdrawal
+            let profit_proportional_to_withdrawal =
+                profit / total_user_asset_value;
+
+            (profit_on_withdrawal, profit_proportional_to_withdrawal)
         }
 
         fn withdraw_assets(
@@ -580,25 +588,30 @@ mod trade_vault {
         fn substract_trader_fee(
             &mut self,
             assets: &mut Vec<Bucket>,
-            profit: Decimal,
+            profit_proportional_to_withdrawal: Decimal,
         ) {
-            for value in assets {
-                let trader_fee_amount = profit * dec!(0.1);
-                let entry =
-                    self.trader_fee_vaults.get_mut(&value.resource_address());
-                let trader_fee = value.take_advanced(
-                    trader_fee_amount,
+            for bucket in assets {
+                let amount_to_take_off = bucket.amount()
+                    * profit_proportional_to_withdrawal
+                    * dec!(0.1);
+                let trader_fee = bucket.take_advanced(
+                    amount_to_take_off,
                     WithdrawStrategy::Rounded(
                         RoundingMode::ToNearestMidpointToEven,
                     ),
                 );
-                info!("Trader earned: {:?}", trader_fee_amount);
+                info!(
+                    "To deposit to traders fee vault: {:?}",
+                    amount_to_take_off
+                );
+                let entry =
+                    self.trader_fee_vaults.get_mut(&bucket.resource_address());
                 if let Some(mut vault) = entry {
                     vault.put(trader_fee);
                 } else {
                     drop(entry);
                     self.trader_fee_vaults.insert(
-                        value.resource_address(),
+                        bucket.resource_address(),
                         Vault::with_bucket(trader_fee),
                     );
                 }
