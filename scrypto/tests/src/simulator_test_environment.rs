@@ -17,6 +17,8 @@
 
 #![allow(clippy::arithmetic_side_effects)]
 
+use scrypto_test::utils::dump_manifest_to_file_system;
+
 use crate::prelude::*;
 
 pub type ScryptoSimulatorEnv =
@@ -237,6 +239,29 @@ impl ScryptoSimulatorEnv {
             .copied()
             .unwrap();
 
+        // let manifest_builder =
+        //     ManifestBuilder::new().lock_fee_from_faucet().call_function(
+        //         radiswap_adapter_package,
+        //         "RadiswapAdapter",
+        //         "instantiate",
+        //         (
+        //             rule!(allow_all),
+        //             rule!(allow_all),
+        //             MetadataInit::default(),
+        //             OwnerRole::None,
+        //             None::<ManifestAddressReservation>,
+        //         ),
+        //     );
+
+        // dump_manifest_to_file_system(
+        //     manifest_builder.object_names(),
+        //     &manifest_builder.build(),
+        //     "./transaction_manifest",
+        //     Some("instantiate_radiswap_adapter"),
+        //     &NetworkDefinition::stokenet(),
+        // )
+        // .err();
+
         // Add radiswap pools to Fidenaro
         ledger_simulator
             .execute_manifest_without_auth(
@@ -261,6 +286,33 @@ impl ScryptoSimulatorEnv {
                     .build(),
             )
             .expect_commit_success();
+
+        // let manifest_builder =
+        //     ManifestBuilder::new().lock_fee_from_faucet().call_method(
+        //         fidenaro,
+        //         "insert_pool_information",
+        //         (
+        //             RadiswapInterfaceScryptoTestStub::blueprint_id(
+        //                 radiswap_package,
+        //             ),
+        //             PoolBlueprintInformation {
+        //                 adapter: radiswap_adapter,
+        //                 allowed_pools: radiswap_pools
+        //                     .iter()
+        //                     .map(|pool| pool.try_into().unwrap())
+        //                     .collect(),
+        //             },
+        //         ),
+        //     );
+
+        // dump_manifest_to_file_system(
+        //     manifest_builder.object_names(),
+        //     &manifest_builder.build(),
+        //     "./insert_pool_information",
+        //     Some("create_non_fungible"),
+        //     &NetworkDefinition::stokenet(),
+        // )
+        // .err();
 
         // Init user accounts
         let (trader_public_key, trader_private_key, trader_account) =
@@ -372,16 +424,27 @@ impl ScryptoSimulatorEnv {
         let transaction_receipt = ledger_simulator.execute_manifest(
             ManifestBuilder::new()
                 .lock_fee_from_faucet()
-                .call_function(
+                .create_proof_from_account_of_non_fungible(
+                    trader_account,
+                    trader_user_nft.clone(),
+                )
+                .create_proof_from_auth_zone_of_non_fungibles(
+                    trader_user_nft.resource_address(),
+                    indexset!(trader_user_nft.local_id().clone()),
+                    "proof",
+                )
+                .call_function_with_name_lookup(
                     trade_vault_package,
                     "TradeVault",
                     "instantiate",
-                    (
-                        trader_user_nft.local_id().to_string(),
-                        "Test Vault",
-                        fidenaro,
-                        "Vault short description",
-                    ),
+                    |lookup| {
+                        (
+                            lookup.proof("proof"),
+                            "Test Vault",
+                            fidenaro,
+                            "Vault short description",
+                        )
+                    },
                 )
                 .try_deposit_entire_worktop_or_abort(trader_account, None)
                 .build(),

@@ -59,7 +59,7 @@ fn test_common_user_interactions() {
                 .call_method_with_name_lookup(
                     env.protocol.trade_vault,
                     "deposit",
-                    |lookup| (lookup.proof("proof"), (lookup.bucket("bucket"))),
+                    |lookup| (lookup.proof("proof"), lookup.bucket("bucket")),
                 )
                 .try_deposit_entire_worktop_or_abort(
                     env.protocol.follower.0,

@@ -46,7 +46,6 @@ mod trade_vault {
         "package_sim1pkuj90ee40aujtm7p7jpzlr30jymfu5mgzkaf36t626my7ftuhjmnx",
         Fidenaro {
             fn get_user_token_resource_address(&self) -> ResourceAddress;
-            fn get_whitelisted_pool_addresses(&self) -> Vec<ComponentAddress>;
             fn get_pool_adapter(&self, pool_address: ComponentAddress) -> Option<PoolAdapter>;
             fn get_oracle_adapter(&self) -> Option<OracleAdapter>;
             fn get_fee_rate(&self) -> Decimal;
@@ -86,7 +85,7 @@ mod trade_vault {
 
     impl TradeVault {
         pub fn instantiate(
-            user_token_id: String,
+            user_token_proof: Proof,
             vault_name: String,
             fidenaro: ComponentAddress,
             short_description: String,
@@ -127,7 +126,14 @@ mod trade_vault {
                 .create_with_no_initial_supply();
 
             let fidenaro: Global<Fidenaro> = fidenaro.into();
-            let manager_user_id = user_token_id;
+
+            // Get user ID
+            let checked_proof = user_token_proof
+                .check(fidenaro.get_user_token_resource_address());
+            let manager_user_id = checked_proof
+                .as_non_fungible()
+                .non_fungible_local_id()
+                .to_string();
 
             let fund_metadata_config = metadata! {
                 roles {

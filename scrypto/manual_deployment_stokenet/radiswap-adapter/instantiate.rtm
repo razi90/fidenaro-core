@@ -1,0 +1,10 @@
+CALL_FUNCTION
+    Address("package_tdx_2_1pkf33ly2m4uhgpqycd3f3xhfdfn37hc60p2pyuw3mqt7fn2gu6nfrp")
+    "RadiswapAdapter"
+    "instantiate"
+    Enum<0u8>()
+    Enum<0u8>()
+    Map<String, Tuple>()
+    Enum<0u8>()
+    Enum<0u8>()
+;

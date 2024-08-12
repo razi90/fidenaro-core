@@ -1,0 +1,13 @@
+CALL_FUNCTION
+    Address("package_tdx_2_1phlwavgq39japmv8k2sev946tcs8u2lt8czeyy6rwupuuvwmceapkj")
+    "Radiswap"
+    "new"
+    Enum<0u8>()
+    Address("resource_tdx_2_1tkr36auhr7jpn07yvktk3u6s5stcm9vrdgf0xhdym9gv096v4q7thf")
+    Address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc")
+;
+CALL_METHOD
+    Address("account_tdx_2_12ygy30qjq3w3gsrmwvm7y4e9y46kn9vyphyd54rd9ljqe63v9k05qe")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;

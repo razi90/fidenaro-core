@@ -1,0 +1,21 @@
+CALL_METHOD
+    Address("account_tdx_2_12ygy30qjq3w3gsrmwvm7y4e9y46kn9vyphyd54rd9ljqe63v9k05qe")
+    "create_proof_of_amount"
+    Address("resource_tdx_2_1tkevdjhgnueddndm45mxfqaldfs7k8uwecxq2cx0k5tw2jf7nmly0q")
+    Decimal("1");
+CALL_METHOD
+    Address("component_tdx_2_1cqw0avjgx93x3t03gssxdk5q0s6ng66gsfan3tah6zemgyk9mugpmw")
+    "insert_pool_information"
+    Tuple(
+        Address("package_tdx_2_1phlwavgq39japmv8k2sev946tcs8u2lt8czeyy6rwupuuvwmceapkj"),
+        "Radiswap"
+    )
+    Tuple(
+        Address("component_tdx_2_1cplnletx5g6g3tx6ncnr6a5px0cvtly8f8rn9d07g8hm94mn4ls4ll"),
+        Array<Address>(
+            Address("component_tdx_2_1cqk5q0urws09maq08r9ct9lupe9w9t98cjrquk9rs0jtdhe0rxutcz"),
+            Address("component_tdx_2_1cqkfz44yz3ztat5s6ysgp5fdgd39zpetx8t5jkpu8l96nlu7j0a92c"),
+            Address("component_tdx_2_1cz4auwf8lxkqklhv8kuy4l7lwnmdhk5276jqadq87w7gzmq4vhe4m5"),
+            Address("component_tdx_2_1cz4r89c0372qm6yqc0fjqwvtjy7tuh5pl7nj6c289y29nmffln34qn")
+        )
+    );

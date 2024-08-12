@@ -9,6 +9,9 @@ members = [
     "libraries/ports-interface",
     "libraries/scrypto-interface",
     "libraries/common",
+    "libraries/package-loader",
+    "libraries/gateway-client",
+    "tools/publishing-tool",
     "tests",
 ]
 
@@ -25,10 +28,11 @@ radix-common = { git = "https://github.com/radixdlt/radixdlt-scrypto", version =
 radix-transactions = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
 radix-engine = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
 radix-engine-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
+radix-substate-store-interface = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
 
 scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", version = "1.2.0" }
 
-state-manager = { git = "https://github.com/radixdlt/babylon-node", rev = "63a8267196995fef0830e4fbf0271bea65c90ab1" }
+state-manager = { git = "https://github.com/radixdlt/babylon-node", tag = "v1.2.1" }
 
 ports-interface = { path = "./libraries/ports-interface" }
 scrypto-interface = { path = "./libraries/scrypto-interface" }

@@ -30,7 +30,9 @@ define_error! {
 
 macro_rules! pool {
     ($address: expr) => {
-        $crate::blueprint_interface::RadiswapInterfaceScryptoStub::from($address)
+        $crate::blueprint_interface::RadiswapInterfaceScryptoStub::from(
+            $address,
+        )
     };
 }
 
@@ -47,13 +49,14 @@ pub mod adapter {
             owner_role: OwnerRole,
             address_reservation: Option<GlobalAddressReservation>,
         ) -> Global<RadiswapAdapter> {
-            let address_reservation = address_reservation.unwrap_or_else(|| {
-                Runtime::allocate_component_address(BlueprintId {
-                    package_address: Runtime::package_address(),
-                    blueprint_name: Runtime::blueprint_name(),
-                })
-                .0
-            });
+            let address_reservation =
+                address_reservation.unwrap_or_else(|| {
+                    Runtime::allocate_component_address(BlueprintId {
+                        package_address: Runtime::package_address(),
+                        blueprint_name: Runtime::blueprint_name(),
+                    })
+                    .0
+                });
 
             Self {}
                 .instantiate()
@@ -68,16 +71,21 @@ pub mod adapter {
     }
 
     impl PoolAdapterInterfaceTrait for RadiswapAdapter {
-        fn swap(&mut self, pool_address: ComponentAddress, input_bucket: Bucket) -> Bucket {
+        fn swap(
+            &mut self,
+            pool_address: ComponentAddress,
+            input_bucket: Bucket,
+        ) -> Bucket {
             let mut pool = pool!(pool_address);
             pool.swap(input_bucket)
         }
 
         fn price(&mut self, pool_address: ComponentAddress) -> Price {
             let pool = pool!(pool_address);
-            let vault_amounts = pool.vault_amounts();
+            let vault_amounts = pool.vault_reserves();
 
-            let (resource_address1, resource_address2) = self.resource_addresses(pool_address);
+            let (resource_address1, resource_address2) =
+                self.resource_addresses(pool_address);
             let amount1 = *vault_amounts
                 .get(&resource_address1)
                 .expect(FAILED_TO_GET_VAULT_ERROR);
@@ -97,10 +105,12 @@ pub mod adapter {
             pool_address: ComponentAddress,
         ) -> (ResourceAddress, ResourceAddress) {
             let pool = pool!(pool_address);
-            let mut keys = pool.vault_amounts().into_keys();
+            let mut keys = pool.vault_reserves().into_keys();
 
-            let resource_address1 = keys.next().expect(FAILED_TO_GET_RESOURCE_ADDRESSES_ERROR);
-            let resource_address2 = keys.next().expect(FAILED_TO_GET_RESOURCE_ADDRESSES_ERROR);
+            let resource_address1 =
+                keys.next().expect(FAILED_TO_GET_RESOURCE_ADDRESSES_ERROR);
+            let resource_address2 =
+                keys.next().expect(FAILED_TO_GET_RESOURCE_ADDRESSES_ERROR);
 
             (resource_address1, resource_address2)
         }

@@ -30,6 +30,6 @@ define_interface! {
             #[manifest_type = "ManifestBucket"]
             input_bucket: Bucket
         ) -> Bucket;
-        fn vault_amounts(&self) -> IndexMap<ResourceAddress, Decimal>;
+        fn vault_reserves(&self) -> IndexMap<ResourceAddress, Decimal>;
     }
 }

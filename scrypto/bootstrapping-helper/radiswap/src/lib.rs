@@ -1,7 +1,12 @@
 use scrypto::prelude::*;
 
 #[blueprint]
-#[events(InstantiationEvent, AddLiquidityEvent, RemoveLiquidityEvent, SwapEvent)]
+#[events(
+    InstantiationEvent,
+    AddLiquidityEvent,
+    RemoveLiquidityEvent,
+    SwapEvent
+)]
 mod radiswap {
     struct Radiswap {
         pool_component: Global<TwoResourcePool>,
@@ -64,7 +69,10 @@ mod radiswap {
         /// holders of the pool units directly from the pool. In this case this is just a nice proxy
         /// so that users are only interacting with one component and do not need to know about the
         /// address of Radiswap and the address of the Radiswap pool.
-        pub fn remove_liquidity(&mut self, pool_units: Bucket) -> (Bucket, Bucket) {
+        pub fn remove_liquidity(
+            &mut self,
+            pool_units: Bucket,
+        ) -> (Bucket, Bucket) {
             let pool_units_amount = pool_units.amount();
             let (bucket1, bucket2) = self.pool_component.redeem(pool_units);
 
@@ -80,14 +88,15 @@ mod radiswap {
         }
 
         pub fn swap(&mut self, input_bucket: Bucket) -> Bucket {
-            let mut reserves = self.vault_amounts();
+            let mut reserves = self.vault_reserves();
 
             let input_amount = input_bucket.amount();
 
             let input_reserves = reserves
                 .remove(&input_bucket.resource_address())
                 .expect("Resource does not belong to the pool");
-            let (output_resource_address, output_reserves) = reserves.into_iter().next().unwrap();
+            let (output_resource_address, output_reserves) =
+                reserves.into_iter().next().unwrap();
 
             let output_amount = input_amount
                 .checked_mul(output_reserves)
@@ -107,7 +116,7 @@ mod radiswap {
             self.withdraw(output_resource_address, output_amount)
         }
 
-        pub fn vault_amounts(&self) -> IndexMap<ResourceAddress, Decimal> {
+        pub fn vault_reserves(&self) -> IndexMap<ResourceAddress, Decimal> {
             self.pool_component.get_vault_amounts()
         }
 
@@ -115,7 +124,11 @@ mod radiswap {
             self.pool_component.protected_deposit(bucket)
         }
 
-        fn withdraw(&mut self, resource_address: ResourceAddress, amount: Decimal) -> Bucket {
+        fn withdraw(
+            &mut self,
+            resource_address: ResourceAddress,
+            amount: Decimal,
+        ) -> Bucket {
             self.pool_component.protected_withdraw(
                 resource_address,
                 amount,
