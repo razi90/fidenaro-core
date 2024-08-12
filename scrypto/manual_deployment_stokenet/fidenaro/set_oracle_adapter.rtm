@@ -1,0 +1,10 @@
+CALL_METHOD
+    Address("account_tdx_2_12ygy30qjq3w3gsrmwvm7y4e9y46kn9vyphyd54rd9ljqe63v9k05qe")
+    "create_proof_of_amount"
+    Address("resource_tdx_2_1tkevdjhgnueddndm45mxfqaldfs7k8uwecxq2cx0k5tw2jf7nmly0q")
+    Decimal("1");
+CALL_METHOD
+    Address("component_tdx_2_1cqw0avjgx93x3t03gssxdk5q0s6ng66gsfan3tah6zemgyk9mugpmw")
+    "set_oracle_adapter"
+    Address("component_tdx_2_1cz5cyn6rnhpjpjd33p5umvfuwtx8937gc869klnkegzkckxgx6l7sn")
+;

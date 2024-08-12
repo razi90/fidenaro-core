@@ -87,8 +87,10 @@ mod fidenaro {
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata(metadata! {
                     init {
-                        "name" => "Fidenaro admin badge", updatable;
-                        "description" => "Administrator badge for the Fidenaro component", updatable;
+                        "name" => "Fidenaro Protocol Manager", updatable;
+                        "symbol" => "FIDPM", updatable;
+                        "description" => "A badge with the authority to manage the Fidenaro protocol.", updatable;
+                        "tags" => ["badge"], updatable;
                         "info_url" => Url::of("https://fidenaro.com"), updatable;
                         "icon_url" => Url::of("https://fidenaro.com/images/LogoFidenaro.png"), updatable;
                     }

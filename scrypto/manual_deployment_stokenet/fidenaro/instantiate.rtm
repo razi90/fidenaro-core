@@ -1,0 +1,21 @@
+CALL_FUNCTION
+    Address("package_tdx_2_1ph4lpgrkwq7anlsngk4834n069wpwc7t305365uqz36ecjknxvvth4")
+    "Fidenaro"
+    "instantiate"
+    Enum<OwnerRole::Updatable>(
+        Enum<AccessRule::Protected>(
+            Enum<AccessRuleNode::ProofRule>(
+                Enum<ProofRule::Require>(
+                    Enum<ResourceOrNonFungible::Resource>(
+                        Address("resource_tdx_2_1tkevdjhgnueddndm45mxfqaldfs7k8uwecxq2cx0k5tw2jf7nmly0q")
+                    )
+                )
+            )
+        )
+    )
+    Address("component_tdx_2_1cz5cyn6rnhpjpjd33p5umvfuwtx8937gc869klnkegzkckxgx6l7sn")
+    ;
+CALL_METHOD
+    Address("account_tdx_2_12ygy30qjq3w3gsrmwvm7y4e9y46kn9vyphyd54rd9ljqe63v9k05qe")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP");

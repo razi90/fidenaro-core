@@ -223,8 +223,7 @@ impl ScryptoUnitTestEnv {
 
         // Instantiate a trade vault
         let (trade_vault, trade_vault_admin_badge) = TradeVault::instantiate(
-            "#0#".to_string(),
-            // trader_user_token.non_fungible_local_id().to_string(),
+            trader_user_token.0.create_proof_of_all(&mut env)?,
             "Test Vault".to_owned(),
             fidenaro.try_into().unwrap(),
             "Vault short description".to_owned(),

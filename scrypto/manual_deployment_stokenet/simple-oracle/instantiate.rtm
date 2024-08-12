@@ -1,0 +1,17 @@
+CALL_FUNCTION
+    Address("package_tdx_2_1p5wsktuatsujnf5l4qmanqx5qjf9t2hxvhwy9dpdd3gq8g8mx9078s")
+    "SimpleOracle"
+    "instantiate"
+    Enum<2u8>(
+        Enum<0u8>(
+            Enum<0u8>(
+                Enum<1u8>(
+                    Address("resource_tdx_2_1tkevdjhgnueddndm45mxfqaldfs7k8uwecxq2cx0k5tw2jf7nmly0q")
+                )
+            )
+        )
+    )
+    Map<String, Tuple>()
+    Enum<0u8>()
+    Enum<0u8>()
+;
