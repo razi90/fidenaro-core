@@ -85,7 +85,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
     const totalFollowers = managedVaults?.reduce((total, vault) => total + vault.followers.length, 0);
 
     // Calculate the total equity from managed vaults
-    const totalEquity = managedVaults?.reduce((total, vault) => total + vault.totalEquity, 0);
+    const totalEquity = managedVaults?.reduce((total, vault) => total + vault.tvlInXrd, 0);
 
     // Calculate the total PnL as manager
     const managerPnL = managedVaults?.reduce((total, vault) => total + vault.calculatePnL(), 0);

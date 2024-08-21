@@ -100,6 +100,9 @@ export const fetchUserInfoById = async (userId: string): Promise<User> => {
         }
 
         user = await getUserDataFromNft(user)
+        user.account = await getUserAccout(userId)
+        let userLedgerData = await gatewayApi.state.getEntityDetailsVaultAggregated(user.account);
+        user.assets = getUserAssets(userLedgerData)
 
         return user;
     } catch (error) {
@@ -151,8 +154,13 @@ function getUserAssets(userLedgerData: any) {
     let assets = new Map<string, number>()
     for (const item of userLedgerData.fungible_resources.items) {
         let address = item.resource_address
-        let amount = item.vaults.items[0].amount;
+        let amount = parseFloat(item.vaults.items[0].amount);
         assets.set(address, amount)
     }
     return assets;
+}
+
+async function getUserAccout(userId: string): Promise<string> {
+    let userNftHolderData = await gatewayApi.state.getNonFungibleLocation(USER_NFT_RESOURCE_ADDRESS, [userId]);
+    return userNftHolderData[0].owning_vault_parent_ancestor_address!
 }

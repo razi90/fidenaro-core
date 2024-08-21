@@ -48,10 +48,10 @@ const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
                     <Box maxW="6xl" minH="xl" width="100vw" >
                         <VStack spacing={4}>
                             <PrimerCard cardTitle={"My Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                                <VaultTable smallHeader='' tableData={undefined} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
+                                <VaultTable tableData={undefined} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
                             </PrimerCard>
                             <PrimerCard cardTitle={"Following Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                                <VaultTable smallHeader='' tableData={undefined} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
+                                <VaultTable tableData={undefined} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
                             </PrimerCard>
                         </VStack>
                     </Box >
@@ -77,10 +77,10 @@ const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
                 <Box maxW="6xl" minH="xl" width="100vw" >
                     <VStack spacing={4}>
                         <PrimerCard cardTitle={"My Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                            <VaultTable smallHeader='' tableData={my_vaults} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
+                            <VaultTable tableData={my_vaults} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
                         </PrimerCard>
                         <PrimerCard cardTitle={"Following Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                            <VaultTable smallHeader='' tableData={following_faults} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
+                            <VaultTable tableData={following_faults} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
                         </PrimerCard>
                     </VStack>
                 </Box >

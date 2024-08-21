@@ -8,14 +8,16 @@ import {
     Tbody,
     Tfoot,
     SkeletonText,
+    Stack,
 } from '@chakra-ui/react';
 import React from 'react';
+import Chart from "react-apexcharts";
 import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
-import { USDollar, addressToAsset } from '../../libs/entities/Asset';
+import { addressToAsset } from '../../libs/entities/Asset';
 import { AssetStats } from '../../libs/entities/Vault';
 import { convertToDollarString } from '../../libs/etc/StringOperations';
-
+import { ApexOptions } from 'apexcharts';
 
 
 interface VaultAssetTable {
@@ -32,7 +34,34 @@ interface VaultAssetTableProps {
     isLoading: boolean;
 }
 
+
 export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, isLoading }) => {
+    const pieChartOptions: ApexOptions = {
+        chart: {
+            type: 'pie',
+        },
+        labels: data ? Array.from(data.keys()).map(key => addressToAsset(key as string).ticker) : [],
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }],
+        legend: {
+            position: 'right',
+            offsetY: 0,
+            height: 230,
+        },
+    };
+
+    const pieChartData = data ? Array.from(data.values()).map(value => value.valueInUSD) : [];
+
+
     const renderRow = (key: string | number, value?: AssetStats) => {
         if (isLoading) {
             return (
@@ -58,31 +87,44 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
     };
 
     return (
-        <Card w="50%" ml={4} p={6} pt={10}>
+        <Card w="100%" ml={4} p={6} pt={10}>
             <CardTitle cardTitle={title} isLoading={isLoading} />
-            <Table size="sm">
-                <Thead>
-                    <Tr>
-                        <Th>Symbol</Th>
-                        <Th>Coin</Th>
-                        <Th isNumeric>Amount</Th>
-                        <Th isNumeric>Value</Th>
-                    </Tr>
-                </Thead>
-                <Tbody>
-                    {isLoading
-                        ? Array.from({ length: 5 }).map((_, index) => renderRow(index))
-                        : Array.from(data!.entries()).map(([key, value]) => renderRow(key, value))}
-                </Tbody>
-                <Tfoot>
-                    <Tr>
-                        <Th>Symbol</Th>
-                        <Th>Coin</Th>
-                        <Th isNumeric>Amount</Th>
-                        <Th isNumeric>Value</Th>
-                    </Tr>
-                </Tfoot>
-            </Table>
+            <Stack direction="row" spacing={8}>
+                <Card w="50%">
+                    <Table size="sm">
+                        <Thead>
+                            <Tr>
+                                <Th>Symbol</Th>
+                                <Th>Coin</Th>
+                                <Th isNumeric>Amount</Th>
+                                <Th isNumeric>Value</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {isLoading
+                                ? Array.from({ length: 5 }).map((_, index) => renderRow(index))
+                                : Array.from(data!.entries()).map(([key, value]) => renderRow(key, value))}
+                        </Tbody>
+                        <Tfoot>
+                            <Tr>
+                                <Th>Symbol</Th>
+                                <Th>Coin</Th>
+                                <Th isNumeric>Amount</Th>
+                                <Th isNumeric>Value</Th>
+                            </Tr>
+                        </Tfoot>
+                    </Table>
+                </Card>
+                <Card w="50%" display="flex" justifyContent="center" alignItems="center">
+                    <Chart
+                        options={pieChartOptions}
+                        series={pieChartData}
+                        type="pie"
+                        width="150%"
+                        height="350"
+                    />
+                </Card>
+            </Stack>
         </Card>
     );
 };
