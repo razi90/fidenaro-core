@@ -92,7 +92,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
         if (value < 0) return;
 
         setAmount(value);
-        setIsBalanceError(Number(value) > (vault?.assets.get(fromToken.address) || 0));
+        setIsBalanceError(Number(value) > (vault?.assets.get(fromToken.address)?.amount || 0));
     };
 
     const trade = async () => {
@@ -229,7 +229,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
                                                 ))}
 
                                             </Select>
-                                            <InputRightAddon minW={"100px"} children={<Text> <TruncatedNumberValue content={(vault?.assets.get(fromToken?.address) || 0) + ""} /> </Text>
+                                            <InputRightAddon minW={"100px"} children={<Text> <TruncatedNumberValue content={(vault?.assets.get(fromToken?.address)?.amount || 0) + ""} /> </Text>
                                             } opacity={0.5} />
                                         </InputGroup>
                                         <InputGroup>
@@ -243,7 +243,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
                                                     <option key={token.address} value={token.address}>{token.ticker}</option>
                                                 ))}
                                             </Select>
-                                            <InputRightAddon minW={"100px"} children={<Text> <TruncatedNumberValue content={(vault?.assets.get(toToken?.address) || 0) + ""} /> </Text>
+                                            <InputRightAddon minW={"100px"} children={<Text> <TruncatedNumberValue content={(vault?.assets.get(toToken?.address)?.amount || 0) + ""} /> </Text>
                                             } opacity={0.5} />
                                         </InputGroup>
                                         <Divider />
@@ -269,9 +269,9 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
 
                                 <ModalFooter>
                                     <Stack>
-                                        <Box>
+                                        {/* <Box>
                                             <Checkbox>I confirm that I have read and agreed to the <Link>Terms and Conditions</Link> and fully understand all the associated risks.</Checkbox>
-                                        </Box>
+                                        </Box> */}
                                         <Box display="flex" justifyContent='flex-end'>
                                             <CancelButton onClick={onClose} />
 

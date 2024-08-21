@@ -1,3 +1,4 @@
+import { Transaction } from "../transaction/TransactionDataService";
 import { Asset } from "./Asset";
 import { User } from "./User";
 
@@ -72,11 +73,4 @@ export enum TradeAction {
     Buy = "Buy",
     Sell = "Sell",
     Default = "Default"
-}
-
-export interface Transaction {
-    userId: string;
-    unixTimestamp: number;
-    action: string;
-    amount: number;
 }

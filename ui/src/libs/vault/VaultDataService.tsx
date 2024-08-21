@@ -1,4 +1,4 @@
-import { AssetStats, Trade, TradeAction, Transaction, Vault } from '../entities/Vault';
+import { AssetStats, Trade, TradeAction, Vault } from '../entities/Vault';
 import { vaultPerformanceCandleChartData } from './VaultPerformanceData';
 import { vaultProfitabilityChartData } from './VaultProfitabilityData';
 import { Asset, addressToAsset } from '../entities/Asset';
@@ -6,6 +6,7 @@ import { gatewayApi } from '../radix-dapp-toolkit/rdt';
 import { TRADE_VAULT_STORE } from '../fidenaro/Config';
 import { fetchUserInfoById } from '../user/UserDataService';
 import { fetchPriceList, PriceData } from '../price/PriceDataService';
+import { Transaction } from '../transaction/TransactionDataService';
 
 export const fetchVaultList = async (): Promise<Vault[]> => {
     console.time("fetchVaultList total time");  // Start timer for the entire function
@@ -13,31 +14,18 @@ export const fetchVaultList = async (): Promise<Vault[]> => {
     try {
         let tradeVaults: Vault[] = [];
 
-        console.time("tradeVaultComponentAddresses extraction time"); // Start timer for the second step
         let tradeVaultComponentAddresses: string[] = await getAllTradeVaultAddresses();
-        console.timeEnd("tradeVaultComponentAddresses extraction time"); // End timer for the second step
 
-        console.time("vaultLedgerData retrieval time"); // Start timer for the third step
         let vaultLedgerDataAggregated: any = await gatewayApi.state.getEntityDetailsVaultAggregated(tradeVaultComponentAddresses);
-        console.timeEnd("vaultLedgerData retrieval time"); // End timer for the third step
 
-        console.time("getVaultById total time"); // Start timer for the parallel execution
         const vaultPromises = vaultLedgerDataAggregated.map((vaultLedgerData: any) => {
-            console.time(`getVaultById time for ${vaultLedgerData.address}`); // Start timer for each individual vault fetch
-            return getVaultData(vaultLedgerData).finally(() => {
-                console.timeEnd(`getVaultById time for ${vaultLedgerData.address}`); // End timer for each individual vault fetch
-            });
+            return getVaultData(vaultLedgerData)
         });
 
         tradeVaults = await Promise.all(vaultPromises);
-        console.timeEnd("getVaultById total time"); // End timer for the parallel execution
-
-        console.timeEnd("fetchVaultList total time");  // End timer for the entire function
-
         return tradeVaults;
     } catch (error) {
         console.log("fetchVaultList error.");
-        console.timeEnd("fetchVaultList total time");  // Ensure that the total time is still logged in case of an error
         throw error;
     }
 }
@@ -285,26 +273,15 @@ function getFollowerIds(follower_field: any): string[] {
     return followers;
 }
 
-function getVaultComponentAddress(vault: any) {
-    return vault.key.value
-}
-
 /* Dummy Functions have to be replaced by original data */
 
 export const fetchVaultPerformanceSeries = async () => {
-    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
     try {
-        // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
-        // return response.data;
-        //const candleChartData: VaultCandleChart[] = vaultPerformanceCandleChartData
         return vaultPerformanceCandleChartData;
     } catch (error) {
         throw error;
     }
 }
-
-
-
 
 export const fetchVaultFollowerChartData = async () => {
 
@@ -438,3 +415,16 @@ function calculateActiveDays(vault_fields: any): number {
     return daysSince(parseInt(getFieldValueByKey(vault_fields, "creation_date")))
 }
 
+async function getVaultTransactions(id: string) {
+    let transactions = await gatewayApi.stream.innerClient.streamTransactions(
+        {
+            streamTransactionsRequest: {
+                affected_global_entities_filter: [id],
+                opt_ins: {
+                    receipt_events: true
+                }
+            }
+        }
+    )
+    console.log(transactions)
+}
