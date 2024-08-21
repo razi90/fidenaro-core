@@ -1,0 +1,30 @@
+CALL_METHOD
+    Address("account_tdx_2_128e6t8ndgagtrrcytfsmjup4unfpr5k5ar9eeumg9rxrlrwt4yuk62")
+    "create_proof_of_non_fungibles"
+    Address("resource_tdx_2_1n22jcklhma2rqr20m4uwr52g72ma9lgywm49lew03ey7kfhctfzft2")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("#0#")
+    )
+;
+CREATE_PROOF_FROM_AUTH_ZONE_OF_NON_FUNGIBLES
+    Address("resource_tdx_2_1n22jcklhma2rqr20m4uwr52g72ma9lgywm49lew03ey7kfhctfzft2")
+    Array<NonFungibleLocalId>(
+        NonFungibleLocalId("#0#")
+    )
+    Proof("proof")
+;
+CALL_FUNCTION
+    Address("package_tdx_2_1pkwqa3v4n5cn47krz690ajff602q7l69lsnfdfegz0ez9nl5usryc9")
+    "TradeVault"
+    "instantiate"
+    Proof("proof")
+    "Test Vault"
+    Address("component_tdx_2_1cq2edjd2y6d8h0zzsjhvhvnl8m6urt92f69rqa5vsyujvdqy2du53s")
+    "Vault short description"
+;
+CALL_METHOD
+    Address("account_tdx_2_128e6t8ndgagtrrcytfsmjup4unfpr5k5ar9eeumg9rxrlrwt4yuk62")
+    "try_deposit_batch_or_abort"
+    Expression("ENTIRE_WORKTOP")
+    Enum<0u8>()
+;

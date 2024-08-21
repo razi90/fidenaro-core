@@ -20,7 +20,7 @@ const CreateVaultButton: React.FC = () => {
     }
 
     const createVault = async () => {
-        // build manifast to create a trade vault
+        // build manifest to create a trade vault
         let manifest = `
             CALL_METHOD
                 Address("${componentAddress}")
@@ -37,7 +37,7 @@ const CreateVaultButton: React.FC = () => {
 
         console.log('new_vault manifest: ', manifest)
 
-        // send manifast to extension for signing
+        // send manifest to extension for signing
         const result = await rdt.walletApi
             .sendTransaction({
                 transactionManifest: manifest,

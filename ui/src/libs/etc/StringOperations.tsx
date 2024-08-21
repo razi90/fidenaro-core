@@ -1,8 +1,16 @@
+export function convertToXRDString(amount: number | undefined): string {
+    if (typeof amount === "undefined") {
+        return "N/A"
+    } else {
+        return "XRD " + amount!
+    }
+}
+
 export function convertToDollarString(amount: number | undefined): string {
     if (typeof amount === "undefined") {
         return "N/A"
     } else {
-        return amount!.toFixed(2) + " $"
+        return "$ " + amount!.toFixed(2)
     }
 }
 

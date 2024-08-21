@@ -4,7 +4,7 @@ CALL_METHOD
     Address("resource_tdx_2_1tkevdjhgnueddndm45mxfqaldfs7k8uwecxq2cx0k5tw2jf7nmly0q")
     Decimal("1");
 CALL_METHOD
-    Address("component_tdx_2_1cqw0avjgx93x3t03gssxdk5q0s6ng66gsfan3tah6zemgyk9mugpmw")
+    Address("component_tdx_2_1cq2edjd2y6d8h0zzsjhvhvnl8m6urt92f69rqa5vsyujvdqy2du53s")
     "set_user_token_resource_address"
     Address("resource_tdx_2_1n22jcklhma2rqr20m4uwr52g72ma9lgywm49lew03ey7kfhctfzft2")
 ;

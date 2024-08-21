@@ -1,40 +1,52 @@
-import { FaBitcoin, FaDollarSign, FaEthereum, FaQuestion } from "react-icons/fa6";
-import { FidenaroIcon } from '../../components/Icon/FidenaroIcon';
+import { FaBitcoin, FaCannabis, FaDollarSign, FaEthereum, FaHandshake, FaQuestion } from "react-icons/fa6";
+import { FidenaroIcon, FidenaroImageIcon } from '../../components/Icon/FidenaroIcon';
 
 export interface Asset {
     name: string;
     ticker: string;
     symbol: JSX.Element;
     address: string;
-    radiswap_address: string;
-    pool_address: string;
+    price_key: string;
 }
 
+export const Radix: Asset = {
+    name: "Radix",
+    ticker: "XRD",
+    symbol: <FidenaroImageIcon imageSrc="/images/LogoRadix.png" altText="Radix Logo" />,
+    address: "resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc",
+    price_key: "5c2102805d871d77971fa419bfc4659768f350a4178d95836a12f35da4d950c7974c805da66318c6318c61f5a61b4c6318c6318cf794aa8d295f14e6318c6318c6",
+};
+
 export const Bitcoin: Asset = {
-    name: "Bitcoin",
-    ticker: "BTC",
+    name: "Radix Wrapped Bitcoin",
+    ticker: "xwBTC",
     symbol: <FidenaroIcon icon={FaBitcoin} color="orange.400" />,
-    address: "resource_tdx_2_1tha9cuxskpvauvk334hjzjshx8e2tgkvut60gzefsf6rkmdrmmmwkq",
-    radiswap_address: "component_tdx_2_1crtmr37fh8x8g9u70cuujzhrgrvju64xe638see906wwqrkmfa7ssd",
-    pool_address: "pool_tdx_2_1c4td9gt2uknh2gf2uwalpwqrqnkj0z2xa6d5mr4jcnk2uxfhc2eaun",
+    address: "resource_tdx_2_1t4vmx0vezqqrcqhzlt0sxcphw63n73fsxve3nvrn8y5c5dyxk3fxuf",
+    price_key: "5c2102805d59b33d9910003c02e2fadf03603776a33f4530333319b07339298a3486805da66318c6318c61f5a61b4c6318c6318cf794aa8d295f14e6318c6318c6",
 };
 
 export const Ethereum: Asset = {
-    name: "Ethereum",
-    ticker: "ETH",
+    name: "Radix Wrapped Ether",
+    ticker: "xETH",
     symbol: <FidenaroIcon icon={FaEthereum} color="pElement.200" />,
-    address: "resource_tdx_2_1t4xmth6aznqwudljmh26symdvfvy6u4xde9m2ehuw9ga3etd0l25ns",
-    radiswap_address: "component_tdx_2_1crwj7ggc4uvgmrn206jv0zkqw4u6r4ucrt6nlgkjsq90a4puqk4tcp",
-    pool_address: "pool_tdx_2_1ckktmzsj3qw6y2rdqcaz4d7zqk7ermqycreadwx5kn8hlwhcrnruu4",
+    address: "resource_tdx_2_1tkky3adz9kjyv534amy29uxrqg28uvr8ygm09g4wwr37zajrn0zldg",
+    price_key: "5c2102805dac48f5a22da4465235eec8a2f0c302147e30672236f2a2ae70e3e17643805da66318c6318c61f5a61b4c6318c6318cf794aa8d295f14e6318c6318c6",
 };
 
 export const USDollar: Asset = {
-    name: "US Dollar",
-    ticker: "USD",
-    symbol: <FidenaroIcon icon={FaDollarSign} color="green.600" />,
-    address: "resource_tdx_2_1thvujr4nrueay2q4ny4ppagty0qyywa6af7ehm4ch996cljpcsnncz",
-    radiswap_address: "Unknown",
-    pool_address: "Unknown",
+    name: "xUSDC",
+    ticker: "xUSDC",
+    symbol: <FidenaroImageIcon imageSrc="/images/LogoXUSDC.png" altText="xUSDC Logo" />,
+    address: "resource_tdx_2_1tkr36auhr7jpn07yvktk3u6s5stcm9vrdgf0xhdym9gv096v4q7thf",
+    price_key: "5c2102805d871d77971fa419bfc4659768f350a4178d95836a12f35da4d950c7974c805da66318c6318c61f5a61b4c6318c6318cf794aa8d295f14e6318c6318c6",
+};
+
+export const Hug: Asset = {
+    name: "Hug",
+    ticker: "HUG",
+    symbol: <FidenaroImageIcon imageSrc="/images/LogoHug.png" altText="Hug Logo" />,
+    address: "resource_tdx_2_1thtxzder4ncupdg47h6zktdnl6p4yqznttv6nuxvzcsntfhthz6m6m",
+    price_key: "5c2102805dd6613723acf1c0b515f5f42b2db3fe835200535ad9a9f0cc162135a6eb805da66318c6318c61f5a61b4c6318c6318cf794aa8d295f14e6318c6318c6",
 };
 
 export const Unknown: Asset = {
@@ -42,18 +54,21 @@ export const Unknown: Asset = {
     ticker: "Unknown",
     symbol: <FidenaroIcon icon={FaQuestion} color="pElement.200" />,
     address: "Unknown",
-    radiswap_address: "Unknown",
-    pool_address: "Unknown",
+    price_key: "Unknown",
 };
 
 export function addressToAsset(address: string): Asset {
     switch (address) {
-        case "resource_tdx_2_1tha9cuxskpvauvk334hjzjshx8e2tgkvut60gzefsf6rkmdrmmmwkq":
+        case Radix.address:
+            return Radix;
+        case Bitcoin.address:
             return Bitcoin;
-        case "resource_tdx_2_1t4xmth6aznqwudljmh26symdvfvy6u4xde9m2ehuw9ga3etd0l25ns":
+        case Ethereum.address:
             return Ethereum;
-        case "resource_tdx_2_1thvujr4nrueay2q4ny4ppagty0qyywa6af7ehm4ch996cljpcsnncz":
+        case USDollar.address:
             return USDollar;
+        case Hug.address:
+            return Hug;
         default:
             return USDollar;
     }

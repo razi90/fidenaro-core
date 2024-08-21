@@ -1,5 +1,5 @@
 CALL_FUNCTION
-    Address("package_tdx_2_1ph4lpgrkwq7anlsngk4834n069wpwc7t305365uqz36ecjknxvvth4")
+    Address("package_tdx_2_1pkfw4hry7zrprl5wfk7kqlf396urzx9d73utpz8h0yqz9rks3ysxus")
     "Fidenaro"
     "instantiate"
     Enum<OwnerRole::Updatable>(

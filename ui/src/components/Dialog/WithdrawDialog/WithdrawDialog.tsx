@@ -1,10 +1,9 @@
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage, useSteps, Divider, Progress, Button, InputGroup, InputLeftAddon } from "@chakra-ui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { USER_NFT_RESOURCE_ADDRESS, fetchUserInfo } from "../../../libs/user/UserDataService";
+import { fetchUserInfo } from "../../../libs/user/UserDataService";
 import { User } from "../../../libs/entities/User";
 
-import ConfirmButton from "../../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
@@ -13,6 +12,8 @@ import { enqueueSnackbar } from "notistack";
 import { cancelButtonStyle } from "../../Button/Dialog/CancelButton.tsx/Styled";
 import { TruncatedNumberValue } from "../../Text/TruncatedValue";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
+import { USER_NFT_RESOURCE_ADDRESS } from "../../../libs/fidenaro/Config";
+import { ManifestBuilder, address, decimal, array, ValueKind, nonFungibleLocalId, proof, bucket, expression, enumeration, RadixEngineToolkit, NetworkId } from "@radixdlt/radix-engine-toolkit";
 
 interface WithdrawDialogProps {
     isOpen: boolean,
@@ -93,54 +94,63 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({ isOpen, setIsOpen, vaul
             return
         }
 
-        // build manifast to create a trade vault
-        let manifest = `
-            CALL_METHOD
-                Address("${user?.account}")
-                "withdraw"
-                Address("${USER_NFT_RESOURCE_ADDRESS}")
-                Decimal("1")
-                ;
-            TAKE_ALL_FROM_WORKTOP
-                Address("${USER_NFT_RESOURCE_ADDRESS}")
-                Bucket("user_token")
-                ;
-            CREATE_PROOF_FROM_BUCKET_OF_NON_FUNGIBLES
-                Bucket("user_token")
-                Array<NonFungibleLocalId>(NonFungibleLocalId("${user?.id}"))
-                Proof("user_token_proof")
-                ;
-            CALL_METHOD
-                Address("${user?.account}")
-                "withdraw"
-                Address("${vault?.shareTokenAddress}")
-                Decimal("${inputValue}")
-                ;
-            TAKE_ALL_FROM_WORKTOP
-                Address("${vault?.shareTokenAddress}")
-                Bucket("shares")
-                ;
-            CALL_METHOD
-                Address("${vault?.id}")
-                "withdraw"
-                Proof("user_token_proof")
-                Bucket("shares")
-                ;
-            RETURN_TO_WORKTOP
-                Bucket("user_token");
-            CALL_METHOD
-                Address("${user?.account}")
-                "deposit_batch"
-                Expression("ENTIRE_WORKTOP")
-                ;
-            `
+        // build manifest to withdraw from vautl
+        let transactionManifest = new ManifestBuilder()
+            .callMethod(
+                user?.account!,
+                "withdraw",
+                [
+                    address(vault?.shareTokenAddress!),
+                    decimal(inputValue)
+                ]
+            )
+            .callMethod(
+                user?.account!,
+                "create_proof_of_non_fungibles",
+                [
+                    address(
+                        USER_NFT_RESOURCE_ADDRESS
+                    ),
+                    array(ValueKind.NonFungibleLocalId, nonFungibleLocalId(user?.id!)),
+                ]
+            )
+            .createProofFromAuthZoneOfNonFungibles(
+                USER_NFT_RESOURCE_ADDRESS,
+                [user?.id!],
+                (builder, proofId) => builder.takeAllFromWorktop(
+                    vault?.shareTokenAddress!,
+                    (builder, bucketId) => builder.callMethod(
+                        vault?.id!,
+                        "withdraw",
+                        [
+                            proof(proofId),
+                            bucket(bucketId)
+                        ]
+                    )
+                )
+            )
+            .callMethod(
+                user?.account!,
+                "try_deposit_batch_or_abort",
+                [
+                    expression("EntireWorktop"),
+                    enumeration(0)
+                ]
+            )
+            .build();
 
-        console.log('deposit manifest: ', manifest)
+        let convertedInstructions = await RadixEngineToolkit.Instructions.convert(
+            transactionManifest.instructions,
+            NetworkId.Stokenet,
+            "String"
+        );
 
-        // send manifast to extension for signing
+        console.log('deposit manifest: ', convertedInstructions.value)
+
+        // send manifest to extension for signing
         const result = await rdt.walletApi
             .sendTransaction({
-                transactionManifest: manifest,
+                transactionManifest: convertedInstructions.value.toString(),
                 version: 1,
             })
 

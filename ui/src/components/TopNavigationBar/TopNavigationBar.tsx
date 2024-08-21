@@ -86,7 +86,7 @@ export default function TopNavigationBar() {
 
                         <FeedbackButton />
 
-                        <GetFusdButton />
+                        {/* <GetFusdButton /> */}
 
                         <CreateVaultButton user="John Smith" />
 

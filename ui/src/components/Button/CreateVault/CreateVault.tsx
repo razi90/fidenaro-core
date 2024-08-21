@@ -1,14 +1,14 @@
 import {
     Button,
     Tooltip,
+    Text
 } from '@chakra-ui/react';
 import React from 'react';
 import { useState } from 'react';
 
 import { defaultLinkButtonStyle } from '../DefaultLinkButton/Styled';
-import { FaPlus } from 'react-icons/fa';
 import CreateVaultDialog from '../../Dialog/CreateVaultDialog/CreateVaultDialog';
-
+import { BsSafe } from "react-icons/bs";
 
 interface CreateVaultButtonProps {
     user: string
@@ -27,7 +27,7 @@ export const CreateVaultButton: React.FC<CreateVaultButtonProps> = ({ user }) =>
                     sx={defaultLinkButtonStyle}
                     title="Create Vault"
                 >
-                    <FaPlus />
+                    <Text pr={1}>Create Vault</Text> <BsSafe fontSize="1.5em" />
                 </Button>
             </Tooltip>
 

@@ -1,0 +1,21 @@
+{
+  "name": "oracle-bot",
+  "version": "1.0.0",
+  "main": "main.js",
+  "dependencies": {
+    "@radixdlt/babylon-gateway-api-sdk": "1.6.1",
+    "@radixdlt/radix-engine-toolkit": "1.0.5",
+    "@types/secure-random": "1.1.3",
+    "axios": "^1.7.4",
+    "secure-random": "^1.1.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "tsc && node main.js"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/node": "^22.4.1",
+    "typescript": "^5.5.4"
+  }
+}

@@ -2,12 +2,12 @@ import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody,
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { FaDiscord, FaTelegram, FaTwitter } from "react-icons/fa";
 import { User } from "../../../libs/entities/User";
-import { USER_NFT_RESOURCE_ADDRESS, fetchUserInfo } from "../../../libs/user/UserDataService";
+import { fetchUserInfo } from "../../../libs/user/UserDataService";
 import { useEffect, useState } from "react";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { enqueueSnackbar } from "notistack";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
-import { FidenaroComponentAddress } from "../../../libs/fidenaro/Config";
+import { FIDENARO_COMPONENT_ADDRESS, USER_NFT_RESOURCE_ADDRESS } from "../../../libs/fidenaro/Config";
 import Filter from 'bad-words';
 
 interface ProfileEditDialogProps {
@@ -143,7 +143,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
             Proof("user_token_proof")
                 ;
             CALL_METHOD
-            Address("${FidenaroComponentAddress}")
+            Address("${FIDENARO_COMPONENT_ADDRESS}")
             "update_user_data"
             Proof("user_token_proof")
             Map<String, String>(

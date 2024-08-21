@@ -15,7 +15,7 @@ import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
 import { Transaction } from '../../libs/entities/Vault';
-import { convertToDollarString, formatUnixTimestampToUTC } from '../../libs/etc/StringOperations';
+import { convertToXRDString, formatUnixTimestampToUTC } from '../../libs/etc/StringOperations';
 
 interface VaultFlowHistoryTableProps {
     title: string;
@@ -102,8 +102,8 @@ export const VaultFlowHistoryTable: React.FC<VaultFlowHistoryTableProps> = ({ ti
                                         <Td>{item.action}</Td>
                                         <Td isNumeric style={{ color: item.action === 'Withdrawal' ? 'red' : 'black' }}>
                                             {item.action === 'Withdrawal' ?
-                                                `- ${convertToDollarString(item.amount)}` :
-                                                convertToDollarString(item.amount)
+                                                `- ${convertToXRDString(item.amount)}` :
+                                                convertToXRDString(item.amount)
                                             }
                                         </Td>
                                     </Tr>

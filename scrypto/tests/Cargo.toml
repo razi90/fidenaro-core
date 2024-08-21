@@ -17,6 +17,9 @@ user-factory = { path = "../packages/user-factory", features = ["test"] }
 trade-vault = { path = "../packages/trade-vault", features = ["test"] }
 simple-oracle = { path = "../packages/simple-oracle", features = ["test"] }
 radiswap = { path = "../bootstrapping-helper/radiswap", features = ["test"] }
+trade-engine = { path = "../bootstrapping-helper/trade-engine", features = [
+    "test",
+] }
 radiswap-adapter = { path = "../packages/radiswap-adapter", features = [
     "test",
     "manifest-builder-stubs",

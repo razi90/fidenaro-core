@@ -38,18 +38,25 @@ pub struct UserPosition {
     pub share_amount: Decimal,
     pub total_deposit: Decimal,
 }
-
 #[blueprint]
 mod trade_vault {
 
     extern_blueprint! {
-        "package_sim1pkuj90ee40aujtm7p7jpzlr30jymfu5mgzkaf36t626my7ftuhjmnx",
+        "package_tdx_2_1pkfw4hry7zrprl5wfk7kqlf396urzx9d73utpz8h0yqz9rks3ysxus",
         Fidenaro {
+            fn register_vault(&mut self, vault_address: ComponentAddress, manager_badge_address: ResourceAddress, share_token_address: ResourceAddress);
             fn get_user_token_resource_address(&self) -> ResourceAddress;
             fn get_pool_adapter(&self, pool_address: ComponentAddress) -> Option<PoolAdapter>;
             fn get_oracle_adapter(&self) -> Option<OracleAdapter>;
             fn get_fee_rate(&self) -> Decimal;
             fn deposit_fee(&mut self, fee: Bucket);
+        }
+    }
+
+    extern_blueprint! {
+        "package_tdx_2_1phjktp5w3aqhag2sh46ajkrryw538waxdqakj3u0s3jjveujpw7gks",
+        TradeEngine {
+            fn open_position(&mut self, from_token: Bucket, to_token_address: ResourceAddress, to_token_amount: Decimal) -> Bucket;
         }
     }
 
@@ -64,6 +71,7 @@ mod trade_vault {
 
             // Methods with admin access
             swap => restrict_to: [fund_manager, OWNER];
+            open_position => restrict_to: [fund_manager, OWNER];
             withdraw_collected_trader_fee => restrict_to: [fund_manager, OWNER];
         }
     }
@@ -81,6 +89,7 @@ mod trade_vault {
         deposits: Vec<Transaction>,
         withdrawals: Vec<Transaction>,
         user_positions: KeyValueStore<String, UserPosition>,
+        trade_engine: Global<TradeEngine>,
     }
 
     impl TradeVault {
@@ -89,6 +98,7 @@ mod trade_vault {
             vault_name: String,
             fidenaro: ComponentAddress,
             short_description: String,
+            trade_engine: ComponentAddress,
         ) -> (Global<TradeVault>, FungibleBucket) {
             let (address_reservation, component_address) =
                 Runtime::allocate_component_address(TradeVault::blueprint_id());
@@ -125,7 +135,7 @@ mod trade_vault {
                 })
                 .create_with_no_initial_supply();
 
-            let fidenaro: Global<Fidenaro> = fidenaro.into();
+            let mut fidenaro: Global<Fidenaro> = fidenaro.into();
 
             // Get user ID
             let checked_proof = user_token_proof
@@ -134,6 +144,15 @@ mod trade_vault {
                 .as_non_fungible()
                 .non_fungible_local_id()
                 .to_string();
+
+            // Register vault
+            fidenaro.register_vault(
+                component_address,
+                fund_manager_badge.resource_address(),
+                share_token_manager.address(),
+            );
+
+            let trade_engine: Global<TradeEngine> = trade_engine.into();
 
             let fund_metadata_config = metadata! {
                 roles {
@@ -172,11 +191,12 @@ mod trade_vault {
                 total_share_tokens: dec!(0),
                 share_token_manager,
                 trader_fee_vaults: KeyValueStore::new(),
-                fidenaro: fidenaro,
+                fidenaro,
                 trades: Vec::new(),
                 deposits: Vec::new(),
                 withdrawals: Vec::new(),
                 user_positions: KeyValueStore::new(),
+                trade_engine,
             }
             .instantiate()
             .prepare_to_globalize(OwnerRole::None)
@@ -390,7 +410,7 @@ mod trade_vault {
         ) {
             assert!(
                 self.assets.contains_key(&from_token_address),
-                "This asset cannot be swapped as it is not part of the !"
+                "This asset cannot be swapped as it is not part of the allowed pool list!"
             );
 
             // withdraw tokens from vault
@@ -456,6 +476,121 @@ mod trade_vault {
             };
 
             self.trades.push(trade);
+        }
+
+        pub fn open_position(
+            &mut self,
+            from_token_address: ResourceAddress,
+            to_token_address: ResourceAddress,
+            from_token_amount: Decimal,
+        ) {
+            assert!(
+                self.assets.contains_key(&from_token_address),
+                "This asset cannot be swapped as it is not part of the allowed pool list!"
+            );
+
+            // withdraw tokens from vault
+            let from_vault = self.assets.get_mut(&from_token_address).unwrap();
+            let mut from_token = from_vault.take(from_token_amount);
+
+            // Take fidenaro fee
+            let fee_rate = self.fidenaro.get_fee_rate();
+            let fee_amount = from_token.amount() * fee_rate;
+            let fee = from_token.take(fee_amount);
+            self.fidenaro.deposit_fee(fee);
+
+            info!("Fee amount of {} was deposited to Fidenaro.", fee_amount);
+
+            // Calculate amount to buy
+            let price = if from_token_address == XRD {
+                self.fidenaro
+                    .get_oracle_adapter()
+                    .unwrap()
+                    .get_price(to_token_address, XRD)
+                    .0
+            } else {
+                self.fidenaro
+                    .get_oracle_adapter()
+                    .unwrap()
+                    .get_price(from_token_address, XRD)
+                    .0
+            };
+
+            info!("Current price {}.", price);
+
+            let mut to_token_amount = if from_token_address == XRD {
+                (from_token_amount - fee_amount) / price
+            } else {
+                (from_token_amount - fee_amount) * price
+            };
+
+            let decoder =
+                AddressBech32Decoder::new(&NetworkDefinition::stokenet());
+
+            let mut decimal_places = 18;
+
+            if to_token_address == ResourceAddress::try_from_bech32(&decoder, "resource_tdx_2_1t4vmx0vezqqrcqhzlt0sxcphw63n73fsxve3nvrn8y5c5dyxk3fxuf").unwrap() {
+                decimal_places = 8;
+            } else if to_token_address == ResourceAddress::try_from_bech32(&decoder, "resource_tdx_2_1tkr36auhr7jpn07yvktk3u6s5stcm9vrdgf0xhdym9gv096v4q7thf").unwrap() {
+                decimal_places = 6;
+            };
+
+            to_token_amount = to_token_amount
+                .checked_round(decimal_places, RoundingMode::ToZero)
+                .unwrap();
+
+            info!("Amount to buy {}.", to_token_amount);
+
+            // swap tokens
+            let to_tokens = self.trade_engine.open_position(
+                from_token,
+                to_token_address,
+                to_token_amount,
+            );
+
+            // deposit tokens into vault
+            let pool = self
+                .assets
+                .entry(to_tokens.resource_address())
+                .or_insert_with(|| Vault::new(to_tokens.resource_address()));
+
+            pool.put(to_tokens.into());
+
+            // // log transaction and trade data
+            // let trade_action = if from_token_address == XRD {
+            //     Action::Buy
+            // } else {
+            //     Action::Sell
+            // };
+
+            // let price = if trade_action == Action::Buy {
+            //     self.fidenaro
+            //         .get_oracle_adapter()
+            //         .unwrap()
+            //         .get_price(to_token_address, XRD)
+            //         .0
+            // } else {
+            //     self.fidenaro
+            //         .get_oracle_adapter()
+            //         .unwrap()
+            //         .get_price(from_token_address, XRD)
+            //         .0
+            // };
+
+            // info!("Swapped at the price of {}", price);
+
+            // let trade = Trade {
+            //     epoch: Runtime::current_epoch(),
+            //     timestamp: Clock::current_time(TimePrecision::Minute),
+            //     trade_action,
+            //     from: from_token_address,
+            //     from_amount: from_token_amount,
+            //     to: to_token_address,
+            //     to_amount: to_token_amount,
+            //     price,
+            // };
+
+            // self.trades.push(trade);
         }
 
         pub fn withdraw_collected_trader_fee(

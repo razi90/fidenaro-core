@@ -1,44 +1,67 @@
-import { Trade, TradeAction, Transaction, Vault } from '../entities/Vault';
+import { AssetStats, Trade, TradeAction, Transaction, Vault } from '../entities/Vault';
 import { vaultPerformanceCandleChartData } from './VaultPerformanceData';
 import { vaultProfitabilityChartData } from './VaultProfitabilityData';
 import { Asset, addressToAsset } from '../entities/Asset';
-import { rdt } from '../radix-dapp-toolkit/rdt';
-import { FidenaroComponentAddress } from '../fidenaro/Config';
+import { gatewayApi } from '../radix-dapp-toolkit/rdt';
+import { TRADE_VAULT_STORE } from '../fidenaro/Config';
 import { fetchUserInfoById } from '../user/UserDataService';
-import { fetchPriceList } from '../price/PriceDataService';
+import { fetchPriceList, PriceData } from '../price/PriceDataService';
 
 export const fetchVaultList = async (): Promise<Vault[]> => {
+    console.time("fetchVaultList total time");  // Start timer for the entire function
+
     try {
-        let tradeVaults: Vault[] = []
-        let fidenaroComponentLedgerData = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(FidenaroComponentAddress)
-        let tradeVaultComponentAddresses: string[] = getAllTradeVaultAddresses(fidenaroComponentLedgerData)
-        for (const address of tradeVaultComponentAddresses) {
-            let vault = await getVaultById(address);
-            tradeVaults.push(vault);
-        }
+        let tradeVaults: Vault[] = [];
+
+        console.time("tradeVaultComponentAddresses extraction time"); // Start timer for the second step
+        let tradeVaultComponentAddresses: string[] = await getAllTradeVaultAddresses();
+        console.timeEnd("tradeVaultComponentAddresses extraction time"); // End timer for the second step
+
+        console.time("vaultLedgerData retrieval time"); // Start timer for the third step
+        let vaultLedgerDataAggregated: any = await gatewayApi.state.getEntityDetailsVaultAggregated(tradeVaultComponentAddresses);
+        console.timeEnd("vaultLedgerData retrieval time"); // End timer for the third step
+
+        console.time("getVaultById total time"); // Start timer for the parallel execution
+        const vaultPromises = vaultLedgerDataAggregated.map((vaultLedgerData: any) => {
+            console.time(`getVaultById time for ${vaultLedgerData.address}`); // Start timer for each individual vault fetch
+            return getVaultData(vaultLedgerData).finally(() => {
+                console.timeEnd(`getVaultById time for ${vaultLedgerData.address}`); // End timer for each individual vault fetch
+            });
+        });
+
+        tradeVaults = await Promise.all(vaultPromises);
+        console.timeEnd("getVaultById total time"); // End timer for the parallel execution
+
+        console.timeEnd("fetchVaultList total time");  // End timer for the entire function
+
         return tradeVaults;
     } catch (error) {
-        console.log("fetchVaultList error.")
+        console.log("fetchVaultList error.");
+        console.timeEnd("fetchVaultList total time");  // Ensure that the total time is still logged in case of an error
         throw error;
     }
 }
 
-export const getVaultById = async (address: string): Promise<Vault> => {
-    try {
+export const getVaultDataById = async (vault_id: string): Promise<Vault> => {
+    let vaultLedgerData: any = await gatewayApi.state.getEntityDetailsVaultAggregated(vault_id);
 
-        // fetch data from ledged by the address
-        let vaultLedgerData: any = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(address)
+    return getVaultData(vaultLedgerData)
+}
+
+export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
+
+    try {
+        let id = vaultLedgerData.address
         let name = getMetaData(vaultLedgerData, "name")
         let description = getMetaData(vaultLedgerData, "description")
 
         let vault_fields = vaultLedgerData.details.state.fields
         let shareTokenAddress = getFieldValueByKey(vault_fields, "share_token_manager")
         let manager_badge_address = getFieldValueByKey(vault_fields, "fund_manager_badge")
-        let fee = parseFloat(getFieldValueByKey(vault_fields, "fee"))
+        let fee = 0.1
 
         let followers = getFollowerIds(vault_fields)
         let tradeHistory = getTrades(vault_fields)
-        let assets = getAssets(vaultLedgerData.fungible_resources.items)
         let manager_id = getFieldValueByKey(vault_fields, "manager_user_id")
         let manager = await fetchUserInfoById(manager_id)
 
@@ -46,7 +69,8 @@ export const getVaultById = async (address: string): Promise<Vault> => {
         let withdrawals = getWithdrawals(vault_fields)
 
         const priceList = await fetchPriceList()
-        const totalEquity = calculateTotalEquity(assets, priceList)
+        const assets = getAssets(vaultLedgerData.fungible_resources.items, priceList)
+        const totalEquity = calculateTotalEquity(assets)
 
         const totalShareTokenAmount = parseFloat(getFieldValueByKey(vault_fields, "total_share_tokens"));
 
@@ -65,7 +89,7 @@ export const getVaultById = async (address: string): Promise<Vault> => {
 
         let vault: Vault = {
             name,
-            id: address,
+            id,
             description,
             shareTokenAddress,
             manager_badge_address,
@@ -105,9 +129,6 @@ export const getVaultById = async (address: string): Promise<Vault> => {
                     return accumulator + current.amount;
                 }, 0);
 
-                console.log(totalUserDeposits)
-                console.log(totalUserWithdrawals)
-
                 if (totalUserDeposits > totalUserWithdrawals) {
                     return totalUserDeposits - totalUserWithdrawals
                 } else {
@@ -126,33 +147,33 @@ export const getVaultById = async (address: string): Promise<Vault> => {
         }
 
         return vault
+
     } catch (error) {
         console.error('Error fetching user info:', error);
         throw error;
     }
 }
 
-const getAllTradeVaultAddresses = (fidenaroComponentLedgerData: any): string[] => {
-    let componentAddresses: string[] = []
-    fidenaroComponentLedgerData.details.state.fields.forEach((field: any) => {
-        if (field.field_name == "vaults") {
-            field.entries.forEach((vault: any) => {
-                componentAddresses.push(getVaultComponentAddress(vault))
-            })
+const getAllTradeVaultAddresses = async (): Promise<string[]> => {
+    let tradeVaultKeyValueStore = await gatewayApi.state.innerClient.keyValueStoreKeys(
+        {
+            stateKeyValueStoreKeysRequest: {
+                key_value_store_address: TRADE_VAULT_STORE
+            }
         }
+    );
+
+    let componentAddresses: string[] = []
+    tradeVaultKeyValueStore.items.forEach((item: any) => {
+        componentAddresses.push(item.key.programmatic_json.value)
     });
 
     return componentAddresses
 }
 
 const getMetaData = (vaultLedgerData: any, key: string): string => {
-    let metaData = 'N/A'
-    vaultLedgerData.metadata.items.forEach((item: any) => {
-        if (item.key == key) {
-            metaData = item.value.programmatic_json.fields.at(0).value;
-        }
-    });
-    return metaData
+    const item = vaultLedgerData.metadata.items.find((item: any) => item.key === key);
+    return item ? item.value.programmatic_json.fields.at(0).value : 'N/A';
 }
 
 function getTrades(vault_fields: any): Trade[] {
@@ -198,14 +219,21 @@ function daysSince(unixTimestamp: number): number {
     return daysPassed;
 }
 
-function getAssets(ledgerAssetData: any): Map<string, number> {
-    let assets = new Map<string, number>()
+function getAssets(ledgerAssetData: any, priceList: Map<string, PriceData>): Map<string, AssetStats> {
+    let assets = new Map<string, AssetStats>()
 
     for (const asset_item of ledgerAssetData) {
         let asset = addressToAsset(asset_item.resource_address)
-        let amount = asset_item.vaults.items[0].amount
+        let amount = parseFloat(asset_item.vaults.items[0].amount)
         if (amount != 0) { // Ignore entry for the share token of the vault
-            assets.set(asset.address, amount)
+            let valueInUSD = amount * priceList.get(asset_item.resource_address)?.priceInUSD!;
+            let valueInXRD = amount * priceList.get(asset_item.resource_address)?.priceInXRD!;
+            let stats: AssetStats = {
+                amount,
+                valueInUSD,
+                valueInXRD
+            }
+            assets.set(asset.address, stats)
         }
     }
 
@@ -349,13 +377,11 @@ export const fetchVaultProfitabilityData = async () => {
     }
 }
 
-function calculateTotalEquity(assets: Map<string, number>, priceList: Map<string, number>): number {
+function calculateTotalEquity(assets: Map<string, AssetStats>): number {
     let equity = 0
-    assets.forEach((value, key) => {
-        let price = priceList.get(key);
-        equity += value * price!;
+    assets.forEach((value, _) => {
+        equity += value.valueInUSD
     });
-
     return equity
 }
 

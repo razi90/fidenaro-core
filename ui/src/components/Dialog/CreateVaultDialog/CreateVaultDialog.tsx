@@ -1,17 +1,18 @@
-import { Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, InputGroup, InputLeftElement, Icon, Checkbox, Textarea, Button } from "@chakra-ui/react";
+import { Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, Textarea, Button } from "@chakra-ui/react";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
 import { useQuery } from "@tanstack/react-query";
 // import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
-import { FidenaroComponentAddress } from "../../../libs/fidenaro/Config";
+import { FIDENARO_COMPONENT_ADDRESS, TRADE_ENGINE_COMPONENT_ADDRESS, TRADE_VAULT_PACKAGE_ADDRESS, USER_NFT_RESOURCE_ADDRESS } from "../../../libs/fidenaro/Config";
 import { SetStateAction, useState } from "react";
 import { useSnackbar } from "notistack";
 import { User } from "../../../libs/entities/User";
-import { USER_NFT_RESOURCE_ADDRESS, fetchUserInfo } from "../../../libs/user/UserDataService";
+import { fetchUserInfo } from "../../../libs/user/UserDataService";
 import Filter from 'bad-words';
 import { WalletDataState } from "@radixdlt/radix-dapp-toolkit";
 import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
+import { address, array, bucket, decimal, enumeration, expression, ManifestBuilder, NetworkId, nonFungibleLocalId, proof, RadixEngineToolkit, str, ValueKind } from "@radixdlt/radix-engine-toolkit";
 
 
 interface CreateVaultDialogProps {
@@ -106,38 +107,57 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
             return
         }
 
-        // build manifast to create a trade vault
-        let manifest = `
-            CALL_METHOD
-                Address("${user?.account}")
-                "withdraw"
-                Address("${USER_NFT_RESOURCE_ADDRESS}")
-                Decimal("1")
-                ;
-            TAKE_ALL_FROM_WORKTOP
-                Address("${USER_NFT_RESOURCE_ADDRESS}")
-                Bucket("user_token")
-                ;
-            CALL_METHOD
-                Address("${FidenaroComponentAddress}")
-                "new_vault"
-                Bucket("user_token")
-                "${vaultName}"
-                "${vaultDescription}"
-                ;
-            CALL_METHOD
-                Address("${user?.account}")
-                "deposit_batch"
-                Expression("ENTIRE_WORKTOP")
-                ;
-            `
+        // build manifest to create a trade vault
+        let transactionManifest = new ManifestBuilder()
+            .callMethod(
+                user?.account!,
+                "create_proof_of_non_fungibles",
+                [
+                    address(
+                        USER_NFT_RESOURCE_ADDRESS
+                    ),
+                    array(ValueKind.NonFungibleLocalId, nonFungibleLocalId(user?.id!)),
+                ]
+            )
+            .createProofFromAuthZoneOfNonFungibles(
+                USER_NFT_RESOURCE_ADDRESS,
+                [user?.id!],
+                (builder, proofId) => builder.callFunction(
+                    TRADE_VAULT_PACKAGE_ADDRESS,
+                    "TradeVault",
+                    "instantiate",
+                    [
+                        proof(proofId),
+                        str(vaultName),
+                        address(FIDENARO_COMPONENT_ADDRESS),
+                        str(vaultDescription),
+                        address(TRADE_ENGINE_COMPONENT_ADDRESS)
+                    ]
 
-        console.log('new_vault manifest: ', manifest)
+                )
+            )
+            .callMethod(
+                user?.account!,
+                "try_deposit_batch_or_abort",
+                [
+                    expression("EntireWorktop"),
+                    enumeration(0)
+                ]
+            )
+            .build();
 
-        // send manifast to extension for signing
+        let convertedInstructions = await RadixEngineToolkit.Instructions.convert(
+            transactionManifest.instructions,
+            NetworkId.Stokenet,
+            "String"
+        );
+
+        console.log('new_vault manifest: ', convertedInstructions.value)
+
+        // send manifest to extension for signing
         const result = await rdt.walletApi
             .sendTransaction({
-                transactionManifest: manifest,
+                transactionManifest: convertedInstructions.value.toString(),
                 version: 1,
             })
 

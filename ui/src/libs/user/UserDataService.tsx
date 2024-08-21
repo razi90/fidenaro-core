@@ -1,6 +1,8 @@
 import { User } from '../entities/User';
-import { rdt } from '../radix-dapp-toolkit/rdt';
+import { USER_NFT_RESOURCE_ADDRESS } from '../fidenaro/Config';
+import { gatewayApi, rdt } from '../radix-dapp-toolkit/rdt';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
+import { fetchConnectedWallet } from '../wallet/WalletDataService';
 
 interface NonFungibleData {
     data: {
@@ -14,11 +16,9 @@ interface NonFungibleData {
     };
 }
 
-export const USER_NFT_RESOURCE_ADDRESS = "resource_tdx_2_1n22jcklhma2rqr20m4uwr52g72ma9lgywm49lew03ey7kfhctfzft2"
-
 export const fetchUserInfo = async (): Promise<User> => {
     try {
-        const walletData: WalletDataState = await rdt.walletApi.getWalletData();
+        const walletData: WalletDataState = await fetchConnectedWallet();
         let user: User = {
             account: undefined,
             persona: undefined,
@@ -39,7 +39,7 @@ export const fetchUserInfo = async (): Promise<User> => {
         user.account = walletData.accounts[0].address;
         user.persona = walletData.persona?.label
 
-        let userLedgerData = await rdt.gatewayApi.state.getEntityDetailsVaultAggregated(user.account);
+        let userLedgerData = await gatewayApi.state.getEntityDetailsVaultAggregated(user.account);
 
         user.id = getId(userLedgerData)
 
@@ -109,7 +109,7 @@ export const fetchUserInfoById = async (userId: string): Promise<User> => {
 }
 
 async function getUserDataFromNft(user: User): Promise<User> {
-    let userTokenLedgerData = await rdt.gatewayApi.state.getNonFungibleData(USER_NFT_RESOURCE_ADDRESS, user.id)
+    let userTokenLedgerData = await gatewayApi.state.getNonFungibleData(USER_NFT_RESOURCE_ADDRESS, user.id)
 
     const typedLedgerData = userTokenLedgerData as unknown as NonFungibleData;
 
