@@ -36,11 +36,12 @@ impl<S> Environment<S>
 where
     S: EnvironmentSpecifier,
 {
-    pub const PACKAGE_NAMES: [&'static str; 5] = [
+    pub const PACKAGE_NAMES: [&'static str; 6] = [
         "../packages/fidenaro",
         "../packages/user-factory",
         "../packages/simple-oracle",
         "../bootstrapping-helper/radiswap",
+        "../bootstrapping-helper/trade-engine",
         "../packages/radiswap-adapter",
     ];
 

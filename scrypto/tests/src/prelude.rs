@@ -31,6 +31,7 @@ pub use ::fidenaro::fidenaro_test::*;
 pub use ::fidenaro::*;
 pub use ::radiswap_adapter::adapter_test::*;
 pub use ::simple_oracle::simple_oracle_test::*;
+pub use ::trade_engine::trade_engine_test::*;
 pub use ::trade_vault::trade_vault_test::*;
 pub use ::user_factory::user_factory_test::*;
 

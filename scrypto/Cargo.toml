@@ -9,10 +9,11 @@ members = [
     "libraries/ports-interface",
     "libraries/scrypto-interface",
     "libraries/common",
-    "libraries/package-loader",
-    "libraries/gateway-client",
-    "tools/publishing-tool",
+    # "libraries/package-loader",
+    # "libraries/gateway-client",
+    # "tools/publishing-tool",
     "tests",
+    "bootstrapping-helper/trade-engine",
 ]
 
 [workspace.package]

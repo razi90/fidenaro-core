@@ -89,8 +89,8 @@ const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setI
                 <Box sx={leftNavigationDividerBoxStyle(isMinimized)}>
                     {isMinimized ? null : <Text as='b'>More</Text>}
                 </Box>
-
-                <LeftNavigationButton link="/faq" title="FAQ" icon={FaQuestion} navIsMinimized={isMinimized} />
+                {/*
+                <LeftNavigationButton link="/faq" title="FAQ" icon={FaQuestion} navIsMinimized={isMinimized} /> */}
                 <LeftNavigationButton link="https://docs.fidenaro.com/" title="Documentation" icon={FaBookOpen} navIsMinimized={isMinimized} />
 
                 <Box>

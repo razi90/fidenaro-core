@@ -1,16 +1,20 @@
 import { DataRequestBuilder, RadixDappToolkit, RadixNetwork, WalletDataState } from '@radixdlt/radix-dapp-toolkit';
-import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchConnectedWallet } from '../wallet/WalletDataService';
+import { GatewayApiClient } from '@radixdlt/babylon-gateway-api-sdk'
+import { QueryClient } from '@tanstack/react-query';
 
 
 
 export const rdt = RadixDappToolkit({
     dAppDefinitionAddress:
-        'account_tdx_2_12954qeldtzat828639l460w4utrvv3dmt8unmhthga5ak3tj3rd7wj',
+        'account_tdx_2_12ygy30qjq3w3gsrmwvm7y4e9y46kn9vyphyd54rd9ljqe63v9k05qe',
     networkId: RadixNetwork.Stokenet,
     applicationName: 'Fidenaro',
     applicationVersion: '0.1.0',
 });
+
+export const gatewayApi = GatewayApiClient.initialize(
+    rdt.gatewayApi.clientConfig,
+)
 
 
 export const initRadixDappToolkit = (queryClient: QueryClient) => {

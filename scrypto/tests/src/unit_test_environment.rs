@@ -79,7 +79,7 @@ impl ScryptoUnitTestEnv {
             .map(|address| rule!(require(address)))?;
 
         // Publishing the various packages to the testing environment
-        let [fidenaro_package, user_factory_package, simple_oracle_package, radiswap_package, radiswap_adapter_package] =
+        let [fidenaro_package, user_factory_package, simple_oracle_package, radiswap_package, trade_engine_package, radiswap_adapter_package] =
             Self::PACKAGE_NAMES.map(|name| {
                 PackageFactory::compile_and_publish(
                     name,
@@ -93,6 +93,14 @@ impl ScryptoUnitTestEnv {
         std::env::set_var(
             "FIDENARO_PACKAGE_ADDRESS",
             fidenaro_package
+                .display(&AddressBech32Encoder::for_simulator())
+                .to_string(),
+        );
+
+        // Convert the trade engine package address to the Bech32 representation "package_sim1..." to use it to replace it in the blueprint of the trade vault
+        std::env::set_var(
+            "TRADE_ENGINE_PACKAGE_ADDRESS",
+            trade_engine_package
                 .display(&AddressBech32Encoder::for_simulator())
                 .to_string(),
         );
@@ -144,6 +152,20 @@ impl ScryptoUnitTestEnv {
 
                 Ok::<_, RuntimeError>(radiswap_pool)
             })?;
+
+        // Instantiate trade engine
+        let mut trade_engine =
+            TradeEngine::instantiate(trade_engine_package, &mut env)?;
+
+        let xrd_bucket =
+            ResourceManager(XRD).mint_fungible(dec!(100_000_000), &mut env)?;
+        trade_engine.deposit_resource(xrd_bucket, &mut env)?;
+
+        resource_addresses.try_map(|resource_address| {
+            let resource = ResourceManager(*resource_address)
+                .mint_fungible(dec!(100_000_000), &mut env)?;
+            trade_engine.deposit_resource(resource, &mut env)
+        })?;
 
         // Instantiate a simple oracle
         let mut simple_oracle = SimpleOracle::instantiate(
@@ -227,6 +249,7 @@ impl ScryptoUnitTestEnv {
             "Test Vault".to_owned(),
             fidenaro.try_into().unwrap(),
             "Vault short description".to_owned(),
+            trade_engine.try_into().unwrap(),
             trade_vault_package,
             &mut env,
         )?;

@@ -3,7 +3,7 @@ import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
 import { useQuery } from "@tanstack/react-query";
-import { FidenaroComponentAddress } from "../../../libs/fidenaro/Config";
+import { FIDENARO_COMPONENT_ADDRESS } from "../../../libs/fidenaro/Config";
 import { useState } from "react";
 import { enqueueSnackbar, useSnackbar } from "notistack";
 import { WalletDataState } from "@radixdlt/radix-dapp-toolkit";
@@ -114,7 +114,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
 
         let manifest = `
             CALL_METHOD
-                Address("${FidenaroComponentAddress}")
+                Address("${FIDENARO_COMPONENT_ADDRESS}")
                 "new_user"
                 "${userName}"
                 "${userBio}"

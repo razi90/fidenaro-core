@@ -8,12 +8,13 @@ import { User } from "../../../libs/entities/User";
 import ConfirmButton from "../../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { Vault } from "../../../libs/entities/Vault";
-import { Asset, Bitcoin, Ethereum, USDollar, addressToAsset } from "../../../libs/entities/Asset";
+import { Asset, Bitcoin, Ethereum, Hug, Radix, USDollar, addressToAsset } from "../../../libs/entities/Asset";
 import { enqueueSnackbar } from "notistack";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
 import { TruncatedNumberValue } from "../../Text/TruncatedValue";
 import { cancelButtonStyle } from "../../Button/Dialog/CancelButton.tsx/Styled";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
+import { ManifestBuilder, address, decimal, RadixEngineToolkit, NetworkId } from "@radixdlt/radix-engine-toolkit";
 
 interface TradeDialogProps {
     isOpen: boolean,
@@ -62,7 +63,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
     const [toToken, setToToken] = useState<Asset>(Bitcoin);
     const [amount, setAmount] = useState('');
 
-    const tokens = [USDollar, Ethereum, Bitcoin];
+    const tokens = [Radix, USDollar, Ethereum, Bitcoin, Hug];
 
     // read user data
     const { data: user, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
@@ -108,14 +109,6 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
             return;
         }
 
-        // Check if the selected
-        if (!amount || Number(amount) === 0) {
-            setIsLoading(false);
-            setActiveStep(0);
-            enqueueSnackbar('Please enter an amount greater than 0', { variant: 'error' });
-            return;
-        }
-
         // Check if the fromToken and toToken are the same
         if (fromToken.address === toToken.address) {
             setIsLoading(false);
@@ -133,37 +126,45 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
             return;
         }
 
-        // get the pool from the asset, which is not the stable coin
-        let poolAddress = addressToAsset((fromToken.address === USDollar.address ? toToken.address : fromToken.address)).radiswap_address;
+        // build manifest to open a position
+        let transactionManifest = new ManifestBuilder()
+            .callMethod(
+                user?.account!,
+                "create_proof_of_amount",
+                [
+                    address(
+                        vault?.manager_badge_address!
+                    ),
+                    decimal(1),
+                ]
+            )
+            .callMethod(
+                vault?.id!,
+                "open_position",
+                [
+                    address(
+                        fromToken.address
+                    ),
+                    address(
+                        toToken.address
+                    ),
+                    decimal(amount),
+                ]
+            )
+            .build();
 
-        // build manifast to create a trade vault
-        let manifest = `
-            CALL_METHOD
-                Address("${user?.account}")
-                "create_proof_of_amount"
-                Address("${vault?.manager_badge_address}")
-                Decimal("1")
-            ;
-            CALL_METHOD
-                Address("${vault?.id}")
-                "swap"
-                Address("${fromToken.address}")
-                Decimal("${amount}")
-                Address("${poolAddress}")
-            ;
-            CALL_METHOD
-                Address("${user?.account}")
-                "deposit_batch"
-                Expression("ENTIRE_WORKTOP")
-            ;
-            `
+        let convertedInstructions = await RadixEngineToolkit.Instructions.convert(
+            transactionManifest.instructions,
+            NetworkId.Stokenet,
+            "String"
+        );
 
-        console.log('trade manifest: ', manifest)
+        console.log('trade manifest: ', convertedInstructions.value)
 
-        // send manifast to extension for signing
+        // send manifest to extension for signing
         const result = await rdt.walletApi
             .sendTransaction({
-                transactionManifest: manifest,
+                transactionManifest: convertedInstructions.value.toString(),
                 version: 1,
             })
 

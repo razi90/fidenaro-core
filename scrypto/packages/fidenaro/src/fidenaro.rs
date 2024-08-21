@@ -44,7 +44,7 @@ mod fidenaro {
         },
         methods {
             // Methods with public access
-            get_vaults => PUBLIC;
+            register_vault => PUBLIC;
             get_user_token_resource_address => PUBLIC;
             get_pool_adapter => PUBLIC;
             get_oracle_adapter => PUBLIC;
@@ -64,9 +64,8 @@ mod fidenaro {
     }
 
     struct Fidenaro {
-        vaults: HashMap<ComponentAddress, (ResourceAddress, ResourceAddress)>, //all vaults in the dapp (<vault, vaultmanagerbadge, sharetoken>)
-        whitelisted_pool_addresses: Vec<ComponentAddress>,
-        whitelisted_stable_coin_address: Option<ResourceAddress>,
+        vaults:
+            KeyValueStore<ComponentAddress, (ResourceAddress, ResourceAddress)>,
         fee_rate: Decimal,
         fee_vaults: KeyValueStore<ResourceAddress, Vault>,
         user_token_address: Option<ResourceAddress>,
@@ -99,9 +98,7 @@ mod fidenaro {
                 .into();
 
             let component: Global<Fidenaro> = Self {
-                vaults: HashMap::new(),
-                whitelisted_pool_addresses: Vec::new(),
-                whitelisted_stable_coin_address: None,
+                vaults: KeyValueStore::new(),
                 fee_rate: dec!(0.01),
                 fee_vaults: KeyValueStore::new(),
                 user_token_address: None,
@@ -123,11 +120,16 @@ mod fidenaro {
             return (component, admin_badge);
         }
 
-        pub fn get_vaults(
+        pub fn register_vault(
             &mut self,
-        ) -> HashMap<ComponentAddress, (ResourceAddress, ResourceAddress)>
-        {
-            self.vaults.clone()
+            vault_address: ComponentAddress,
+            manager_badge_address: ResourceAddress,
+            share_token_address: ResourceAddress,
+        ) {
+            self.vaults.insert(
+                vault_address,
+                (manager_badge_address, share_token_address),
+            );
         }
 
         pub fn get_user_token_resource_address(&self) -> ResourceAddress {

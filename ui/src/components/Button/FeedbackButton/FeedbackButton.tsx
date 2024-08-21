@@ -8,7 +8,6 @@ import {
     ModalCloseButton,
     ModalBody,
     ModalFooter,
-    Input,
     Tooltip,
     Text,
     Textarea,
@@ -16,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import axios from 'axios';
 import { defaultLinkButtonStyle } from '../DefaultLinkButton/Styled';
-import { MdOutlineFeedback } from "react-icons/md";
+import { MdOutlineRateReview } from "react-icons/md";
 import { defaultHighlightedLinkButtonStyle } from '../DefaultHighlightedLinkButton/Styled';
 import CancelButton from '../Dialog/CancelButton.tsx/CancelButton';
 import { useSnackbar } from 'notistack';
@@ -104,7 +103,7 @@ function FeedbackDialog() {
                     size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
                     title="Send us your feedback"
                 >
-                    <Text pr={1}>Send Feedback</Text> <MdOutlineFeedback />
+                    <Text pr={1}>Send Feedback</Text> <MdOutlineRateReview fontSize="1.5em" />
 
                 </Button>
             </Tooltip>

@@ -7,7 +7,7 @@ interface PnlTextProps {
 
 const PnlText: React.FC<PnlTextProps> = ({ value }) => {
     return (
-        <Text color={value >= 0 ? 'green.500' : 'red.500'} >$ <TruncatedNumberValue content={value + ""} /></Text>
+        <Text color={value >= 0 ? 'green.500' : 'red.500'} >XRD <TruncatedNumberValue content={value + ""} /></Text>
     )
 }
 

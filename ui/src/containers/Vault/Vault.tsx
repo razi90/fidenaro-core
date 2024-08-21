@@ -1,7 +1,6 @@
 import React from 'react';
 import {
     Box,
-    ButtonGroup,
     Center,
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
@@ -23,14 +22,14 @@ import { DescriptionCard } from '../../components/Card/DescriptionCard';
 import { ManagerCard } from '../../components/Card/ManagerCard';
 import { DepositButton } from '../../components/Button/DepositButton/DepositButton';
 import { WithdrawButton } from '../../components/Button/WithdrawButton/WithdrawButton';
-import { fetchVaultPerformanceSeries, fetchVaultProfitabilityData, fetchVaultFollowerChartData, fetchVaultTotalChartData, fetchVaultTodayChartData, getVaultById } from '../../libs/vault/VaultDataService';
+import { fetchVaultPerformanceSeries, fetchVaultProfitabilityData, fetchVaultFollowerChartData, fetchVaultTotalChartData, getVaultDataById } from '../../libs/vault/VaultDataService';
 import { User } from '../../libs/entities/User';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { useParams } from 'react-router-dom';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 import { TradeButton } from '../../components/Button/TradeButton/TradeButton';
-import { convertToDollarString, convertToPercent } from '../../libs/etc/StringOperations';
+import { convertToDollarString, convertToPercent, convertToXRDString } from '../../libs/etc/StringOperations';
 import { VaultFlowHistoryTable } from '../../components/Table/VaultFlowHistoryTable';
 
 
@@ -46,7 +45,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
 
     const { data: vault, isLoading: isVaultFetchLoading, isError } = useQuery({
         queryKey: ['vault_list'],
-        queryFn: () => getVaultById(id!),
+        queryFn: () => getVaultDataById(id!),
     });
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
     const { data: candleChartData, isLoading: isCandleChartLoading, isError: isCandleChartFetchError } = useQuery({ queryKey: ['candle_chart'], queryFn: fetchVaultPerformanceSeries });
@@ -97,17 +96,6 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             <Flex >
                                 <ValueCard value={vault?.activeDays} description={"Active Days"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={vault?.followers.length} description={"Follower"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                <Flex m={2} >
-                                    <ChartCard
-                                        cardTitle={""}
-                                        cardWidth={"200"}
-                                        cardHeight={"100"}
-                                        chartType={"area"}
-                                        chartHeight={"120"}
-                                        chartWidth={"200"}
-                                        chartSeries={followerChartData}
-                                        isLoading={isFollowerChartLoading} />
-                                </Flex>
                             </Flex >
                             <Flex justifyContent='flex-end' w={"100%"} mt={6} px={2}  >
                                 {
@@ -125,36 +113,6 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                         <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto' isLoading={isVaultFetchLoading || isUserFetchLoading}>
                             <Flex >
                                 <StatCard title="Vault ROI" value={convertToPercent(vault?.calculateROI())} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-
-                                <Flex flex='1' m={2} >
-                                    <ChartCard
-                                        cardTitle={""}
-                                        cardWidth={"100%"}
-                                        cardHeight={"110"}
-                                        chartType={"area"}
-                                        chartHeight={"110"}
-                                        chartWidth={"100%"}
-                                        chartSeries={totalChartData}
-                                        isLoading={isTotalChartLoading} />
-
-                                </Flex>
-                            </Flex>
-                            {/* <Flex >
-                                <StatCard title="Today" value="57 %" isLoading={isVaultFetchLoading || isUserFetchLoading} />
-
-                                <Flex flex='1' m={2} >
-                                    <ChartCard
-                                        cardTitle={""}
-                                        cardWidth={"100%"}
-                                        cardHeight={"110"}
-                                        chartType={"area"}
-                                        chartHeight={"110"}
-                                        chartWidth={"100%"}
-                                        chartSeries={todayChartData}
-                                        isLoading={isTodayChartLoading} />
-                                </Flex>
-                            </Flex> */}
-                            <Flex >
                                 <ValueCard value={convertToDollarString(vault?.totalEquity)} description={"Equity"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={convertToDollarString(vault?.followerEquity)} description={"Equity Follower"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={convertToDollarString(vault?.managerEquity)} description={"Equity Manager"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
@@ -168,37 +126,16 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                         <ValueCard value={convertToDollarString(userShareValue)} description={"My Share Value"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                     </Flex>
                                     <Flex >
-                                        <ValueCard value={convertToDollarString(userDepositSum)} description={"My Deposits"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                        <ValueCard value={convertToDollarString(userWithdrawalSum)} description={"My Withdrawals"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                        <ValueCard value={convertToXRDString(userDepositSum)} description={"My Deposits"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                        <ValueCard value={convertToXRDString(userWithdrawalSum)} description={"My Withdrawals"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                     </Flex>
                                 </>
                             )}
 
                         </PrimerCard>
                     </Flex >
-                    <Flex p={4}>
-                        <ChartCard
-                            cardTitle={"Performance"}
-                            cardWidth={"100%"}
-                            cardHeight={"300"}
-                            chartType={"candlestick"}
-                            chartHeight={"300"}
-                            chartWidth={"98%"}
-                            chartSeries={candleChartData}
-                            isLoading={isCandleChartLoading} />
-                    </Flex>
 
-                    <Flex p={4}>
-                        <ProfitBarChartCard
-                            cardTitle={"Profitability"}
-                            cardWidth={"50%"}
-                            cardHeight={"400"}
-                            chartType={"bar"}
-                            chartHeight={"400"}
-                            chartWidth={"100%"}
-                            chartSeries={profitabilityChartData}
-                            isLoading={isProfitabilityChartLoading}
-                        />
+                    <Flex>
                         <VaultAssetTable title='Assets' data={vault?.assets} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                     </Flex >
 

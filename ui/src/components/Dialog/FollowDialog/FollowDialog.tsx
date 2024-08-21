@@ -1,18 +1,20 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage, Stepper, StepIndicator, Step, StepStatus, StepIcon, StepSeparator, useSteps, Divider, Progress, Button, InputGroup, InputLeftElement, InputLeftAddon } from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage, useSteps, Divider, Progress, Button, InputGroup, InputLeftAddon } from "@chakra-ui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { USER_NFT_RESOURCE_ADDRESS, fetchUserInfo } from "../../../libs/user/UserDataService";
+import { fetchUserInfo } from "../../../libs/user/UserDataService";
 import { User } from "../../../libs/entities/User";
 
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
-import { USDollar } from "../../../libs/entities/Asset";
+import { Radix, USDollar } from "../../../libs/entities/Asset";
 import { Vault } from "../../../libs/entities/Vault";
 import { enqueueSnackbar } from "notistack";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { cancelButtonStyle } from "../../Button/Dialog/CancelButton.tsx/Styled";
 import { TruncatedNumberValue } from "../../Text/TruncatedValue";
+import { USER_NFT_RESOURCE_ADDRESS } from "../../../libs/fidenaro/Config";
+import { ManifestBuilder, address, array, ValueKind, nonFungibleLocalId, proof, expression, enumeration, RadixEngineToolkit, NetworkId, decimal, bucket } from "@radixdlt/radix-engine-toolkit";
 
 
 
@@ -61,7 +63,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
         return <Box>Error loading user data</Box>;
     }
 
-    let userUsdAmount = user?.assets.get(USDollar.address) ?? 0;
+    let userUsdAmount = user?.assets.get(Radix.address) ?? 0;
 
     // balance error handling
     const handleChange = (e: { target: { value: any; }; }) => {
@@ -97,55 +99,63 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
             return
         }
 
+        // build manifest to deposit into a vault
+        let transactionManifest = new ManifestBuilder()
+            .callMethod(
+                user?.account!,
+                "withdraw",
+                [
+                    address(Radix.address),
+                    decimal(inputValue)
+                ]
+            )
+            .callMethod(
+                user?.account!,
+                "create_proof_of_non_fungibles",
+                [
+                    address(
+                        USER_NFT_RESOURCE_ADDRESS
+                    ),
+                    array(ValueKind.NonFungibleLocalId, nonFungibleLocalId(user?.id!)),
+                ]
+            )
+            .createProofFromAuthZoneOfNonFungibles(
+                USER_NFT_RESOURCE_ADDRESS,
+                [user?.id!],
+                (builder, proofId) => builder.takeAllFromWorktop(
+                    Radix.address,
+                    (builder, bucketId) => builder.callMethod(
+                        vault?.id!,
+                        "deposit",
+                        [
+                            proof(proofId),
+                            bucket(bucketId)
+                        ]
+                    )
+                )
+            )
+            .callMethod(
+                user?.account!,
+                "try_deposit_batch_or_abort",
+                [
+                    expression("EntireWorktop"),
+                    enumeration(0)
+                ]
+            )
+            .build();
 
-        // build manifast to create a trade vault
-        let manifest = `
-            CALL_METHOD
-                Address("${user?.account}")
-                "withdraw"
-                Address("${USER_NFT_RESOURCE_ADDRESS}")
-                Decimal("1")
-                ;
-            TAKE_ALL_FROM_WORKTOP
-                Address("${USER_NFT_RESOURCE_ADDRESS}")
-                Bucket("user_token")
-                ;
-            CREATE_PROOF_FROM_BUCKET_OF_NON_FUNGIBLES
-                Bucket("user_token")
-                Array<NonFungibleLocalId>(NonFungibleLocalId("${user?.id}"))
-                Proof("user_token_proof")
-                ;
-            CALL_METHOD
-                Address("${user?.account}")
-                "withdraw"
-                Address("${USDollar.address}")
-                Decimal("${inputValue}")
-                ;
-            TAKE_ALL_FROM_WORKTOP
-                Address("${USDollar.address}")
-                Bucket("usd")
-                ;
-            CALL_METHOD
-                Address("${vault?.id}")
-                "deposit"
-                Proof("user_token_proof")
-                Bucket("usd")
-                ;
-            RETURN_TO_WORKTOP
-                Bucket("user_token");
-            CALL_METHOD
-                Address("${user?.account}")
-                "deposit_batch"
-                Expression("ENTIRE_WORKTOP")
-                ;
-            `
+        let convertedInstructions = await RadixEngineToolkit.Instructions.convert(
+            transactionManifest.instructions,
+            NetworkId.Stokenet,
+            "String"
+        );
 
-        console.log('deposit manifest: ', manifest)
+        console.log('deposit manifest: ', convertedInstructions.value)
 
-        // send manifast to extension for signing
+        // send manifest to extension for signing
         const result = await rdt.walletApi
             .sendTransaction({
-                transactionManifest: manifest,
+                transactionManifest: convertedInstructions.value.toString(),
                 version: 1,
             })
 

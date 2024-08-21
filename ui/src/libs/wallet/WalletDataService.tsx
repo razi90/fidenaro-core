@@ -3,7 +3,7 @@ import { rdt } from "../radix-dapp-toolkit/rdt";
 
 export const fetchConnectedWallet = async () => {
     try {
-        const walletData: WalletDataState = rdt.walletApi.getWalletData();
+        const walletData: WalletDataState = rdt.walletApi.getWalletData()!;
 
         return walletData;
     } catch (error) {

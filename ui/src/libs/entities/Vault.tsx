@@ -18,7 +18,7 @@ export interface Vault {
     profitShare: number;
     manager: User;
     tradeHistory: Trade[];
-    assets: Map<string, number>;
+    assets: Map<string, AssetStats>;
     deposits: Transaction[];
     withdrawals: Transaction[];
     shareTokenAmount: number,
@@ -28,6 +28,12 @@ export interface Vault {
     calculateUserInvestedEquity: (userId: string | undefined) => number;
     calculateUserPnL: (userId: string | undefined, userShareAmount: number) => number;
     calculateUserROI: (userId: string | undefined, userShareAmount: number) => number;
+}
+
+export interface AssetStats {
+    amount: number;
+    valueInUSD: number;
+    valueInXRD: number;
 }
 
 export interface VaultPerformance {
