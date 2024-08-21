@@ -34,18 +34,17 @@ import { IoEnterOutline } from "react-icons/io5";
 import { User } from '../../../libs/entities/User';
 import { TradeButton } from '../../Button/TradeButton/TradeButton';
 import ResetButton from '../../Button/ResetButton/ResetButton';
-import { convertToDollarString, convertToPercent } from '../../../libs/etc/StringOperations';
+import { convertToPercent, convertToXRDString } from '../../../libs/etc/StringOperations';
 
 
 
 interface VaultTableProps {
-    smallHeader: string;
     tableData: Vault[] | undefined;
     isLoading: boolean;
     user: User | undefined;
     isConnected: boolean;
 }
-const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoading, user, isConnected }) => {
+const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isConnected }) => {
 
     const [isDataLoaded, setIsDataLoaded] = useState(false);
 
@@ -156,7 +155,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                     <Flex>
 
                         <Spacer />
-                        <Text>{smallHeader}</Text>
+
                         <Spacer />
                         <HStack>
                             <ResetButton onClick={resetFilters} />
@@ -213,9 +212,9 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                         <Th>Total</Th>
                                         <Th>Active Days</Th>
                                         <Th>Follower</Th>
-                                        <Th>Performance</Th>
-                                        <Th>Equity</Th>
-                                        <Th></Th>
+                                        {/* <Th>Performance</Th> */}
+                                        <Th>TVL</Th>
+                                        {/* <Th></Th> */}
                                     </Tr>
                                 </Thead>
                                 <Tbody>
@@ -242,11 +241,11 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                         {/* <SortableTh column="today" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Today</SortableTh> */}
                                         <SortableTh column="activeDays" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >Active Days</SortableTh>
                                         <SortableTh column="followers" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Followers</SortableTh>
-                                        <Th isNumeric>
+                                        {/* <Th isNumeric>
                                             Performance
-                                        </Th>
-                                        <SortableTh column="totalEquity" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >Equity</SortableTh>
-                                        <Th></Th>
+                                        </Th> */}
+                                        <SortableTh column="tvlInXrd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL</SortableTh>
+                                        {/* <Th></Th> */}
                                     </Tr>
                                 </Thead>
                                 <Tbody >
@@ -266,15 +265,15 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                                     </Button>
                                                 </Tooltip>
                                             </Td>
-                                            <Td isNumeric color={entry.calculateROI() >= 0 ? 'green.500' : 'red.500'}>
+                                            <Td color={entry.calculateROI() >= 0 ? 'green.500' : 'red.500'}>
                                                 {convertToPercent(entry.calculateROI())}
                                             </Td>
                                             {/* <Td isNumeric color={entry.today >= 0 ? 'green.500' : 'red.500'}>
                                                 {entry.today} %
                                             </Td> */}
-                                            <Td isNumeric>{entry.activeDays}</Td>
-                                            <Td isNumeric>{entry.followers.length}</Td>
-                                            <Td width={performanceFieldWidth}>
+                                            <Td>{entry.activeDays}</Td>
+                                            <Td>{entry.followers.length}</Td>
+                                            {/* <Td width={performanceFieldWidth}>
 
                                                 <MinimalChartCard
                                                     cardTitle={""}
@@ -285,9 +284,9 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                                     chartWidth={"100%"}
                                                     chartData={entry.tradeHistory}
                                                     isLoading={false} />
-                                            </Td>
-                                            <Td isNumeric>{convertToDollarString(entry.totalEquity)}</Td>
-                                            <Td>
+                                            </Td> */}
+                                            <Td>{convertToXRDString(entry.tvlInXrd)}</Td>
+                                            {/* <Td>
                                                 {
                                                     user?.id === entry.manager.id ?
                                                         (
@@ -297,7 +296,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ smallHeader, tableData, isLoadi
                                                         )
                                                 }
 
-                                            </Td>
+                                            </Td> */}
                                         </Tr>
                                     ))}
                                 </Tbody>

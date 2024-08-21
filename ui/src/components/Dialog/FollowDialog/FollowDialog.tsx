@@ -1,4 +1,4 @@
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage, useSteps, Divider, Progress, Button, InputGroup, InputLeftAddon } from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Box, Stack, FormControl, FormErrorMessage, useSteps, Divider, Progress, Button, InputGroup, InputLeftAddon } from "@chakra-ui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { fetchUserInfo } from "../../../libs/user/UserDataService";
@@ -7,14 +7,14 @@ import { User } from "../../../libs/entities/User";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
-import { Radix, USDollar } from "../../../libs/entities/Asset";
+import { Radix } from "../../../libs/entities/Asset";
 import { Vault } from "../../../libs/entities/Vault";
 import { enqueueSnackbar } from "notistack";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { cancelButtonStyle } from "../../Button/Dialog/CancelButton.tsx/Styled";
-import { TruncatedNumberValue } from "../../Text/TruncatedValue";
 import { USER_NFT_RESOURCE_ADDRESS } from "../../../libs/fidenaro/Config";
 import { ManifestBuilder, address, array, ValueKind, nonFungibleLocalId, proof, expression, enumeration, RadixEngineToolkit, NetworkId, decimal, bucket } from "@radixdlt/radix-engine-toolkit";
+import { convertToXRDString } from "../../../libs/etc/StringOperations";
 
 
 
@@ -63,7 +63,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
         return <Box>Error loading user data</Box>;
     }
 
-    let userUsdAmount = user?.assets.get(Radix.address) ?? 0;
+    let userXrdAmount = user?.assets.get(Radix.address) ?? 0;
 
     // balance error handling
     const handleChange = (e: { target: { value: any; }; }) => {
@@ -73,7 +73,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
         if (value < 0) return;
 
         setInputValue(value);
-        setIsBalanceError(Number(value) > userUsdAmount!);
+        setIsBalanceError(Number(value) > userXrdAmount!);
     };
 
 
@@ -206,7 +206,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
                                 <ModalBody>
                                     <Text>You are about to Follow the Strategy <b>{vault?.name}</b>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
                                     <Box my={4}>
-                                        <Text>Wallet balance <Text as='b'><TruncatedNumberValue content={userUsdAmount + ""} /> USD</Text></Text>
+                                        <Text as='b' >Wallet balance: {convertToXRDString(userXrdAmount)}</Text>
                                         <InputGroup>
                                             <InputLeftAddon children="Deposit" opacity={0.7} />
                                             <FormControl isInvalid={isBalanceError}>
@@ -228,9 +228,6 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
 
 
                                     </Box>
-                                    {/* <Box my={4}>
-<Text>Your profit share: {100 - vault?.profitShare}%</Text>
-</Box> */}
                                     <Box my={4} color="orange.400">
                                         <Text fontSize='xs'>⚠️ Please be informed that following a strategy using Covesting Copy-trading Module involves risk of capital loss. Following a strategy could result in a partial or complete loss of your funds, therefore, you should not operate with funds you cannot afford to lose.</Text>
                                     </Box>
@@ -269,7 +266,7 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
                                 <ModalBody>
                                     <Text>You followed successfully the Strategy of <b>{vault?.name}</b>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
                                     <Box my={4}>
-                                        <Text>Wallet balance <Text as='b'><TruncatedNumberValue content={userUsdAmount + ""} /> USD</Text></Text>
+                                        <Text as='b' >Wallet balance: {convertToXRDString(userXrdAmount)}</Text>
                                     </Box>
                                 </ModalBody>
                                 <ModalFooter>

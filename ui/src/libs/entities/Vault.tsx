@@ -12,7 +12,8 @@ export interface Vault {
     today: number;
     activeDays: number;
     followers: string[];
-    totalEquity: number;
+    tvlInXrd: number;
+    tvlInUsd: number;
     managerEquity: number;
     followerEquity: number;
     pricePerShare: number;

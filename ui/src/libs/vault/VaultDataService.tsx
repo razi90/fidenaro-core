@@ -9,8 +9,6 @@ import { fetchPriceList, PriceData } from '../price/PriceDataService';
 import { Transaction } from '../transaction/TransactionDataService';
 
 export const fetchVaultList = async (): Promise<Vault[]> => {
-    console.time("fetchVaultList total time");  // Start timer for the entire function
-
     try {
         let tradeVaults: Vault[] = [];
 
@@ -58,7 +56,8 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
 
         const priceList = await fetchPriceList()
         const assets = getAssets(vaultLedgerData.fungible_resources.items, priceList)
-        const totalEquity = calculateTotalEquity(assets)
+        const tvlInUsd = calculateTotalEquityInUSD(assets)
+        const tvlInXrd = calculateTotalEquityInXRD(assets)
 
         const totalShareTokenAmount = parseFloat(getFieldValueByKey(vault_fields, "total_share_tokens"));
 
@@ -67,10 +66,11 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
         let pricePerShare = 0;
 
         if (totalShareTokenAmount !== 0) {
-            const managerShareTokenAmount = getManagerShareTokenAmount(vault_fields, manager_id);
-            managerEquity = totalEquity * (managerShareTokenAmount / totalShareTokenAmount);
-            followerEquity = totalEquity - managerEquity;
-            pricePerShare = totalEquity / totalShareTokenAmount
+            const managerShareTokenAmount = getManagerShareTokenAmount(manager.assets, shareTokenAddress);
+            console.log(managerShareTokenAmount)
+            managerEquity = tvlInXrd * (managerShareTokenAmount / totalShareTokenAmount);
+            followerEquity = tvlInXrd - managerEquity;
+            pricePerShare = tvlInXrd / totalShareTokenAmount
         }
 
         let activeDays = calculateActiveDays(vault_fields)
@@ -85,7 +85,8 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
             today: 0,
             activeDays,
             followers,
-            totalEquity,
+            tvlInUsd,
+            tvlInXrd,
             managerEquity,
             followerEquity,
             pricePerShare,
@@ -354,7 +355,7 @@ export const fetchVaultProfitabilityData = async () => {
     }
 }
 
-function calculateTotalEquity(assets: Map<string, AssetStats>): number {
+function calculateTotalEquityInUSD(assets: Map<string, AssetStats>): number {
     let equity = 0
     assets.forEach((value, _) => {
         equity += value.valueInUSD
@@ -362,17 +363,16 @@ function calculateTotalEquity(assets: Map<string, AssetStats>): number {
     return equity
 }
 
-function getManagerShareTokenAmount(fields: any, manager_id: string): number {
-    let amount = 0
-    fields.forEach((field: any) => {
-        if (field.field_name == "followers") {
-            field.entries.forEach((entry: any) => {
-                if (entry.key.value == manager_id)
-                    amount = entry.value.value
-            })
-        }
-    })
-    return amount;
+function calculateTotalEquityInXRD(assets: Map<string, AssetStats>): number {
+    let equity = 0
+    assets.forEach((value, _) => {
+        equity += value.valueInXRD
+    });
+    return equity
+}
+
+function getManagerShareTokenAmount(assets: Map<string, number>, shareTokenAddress: string): number {
+    return assets.get(shareTokenAddress)!;
 }
 
 function getDeposits(fields: any): Transaction[] {

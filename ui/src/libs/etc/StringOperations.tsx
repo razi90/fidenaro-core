@@ -2,7 +2,7 @@ export function convertToXRDString(amount: number | undefined): string {
     if (typeof amount === "undefined") {
         return "N/A"
     } else {
-        return "XRD " + amount!
+        return "XRD " + amount!.toFixed(2)
     }
 }
 

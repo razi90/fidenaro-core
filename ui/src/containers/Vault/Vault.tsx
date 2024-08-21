@@ -20,14 +20,14 @@ import { DescriptionCard } from '../../components/Card/DescriptionCard';
 import { ManagerCard } from '../../components/Card/ManagerCard';
 import { DepositButton } from '../../components/Button/DepositButton/DepositButton';
 import { WithdrawButton } from '../../components/Button/WithdrawButton/WithdrawButton';
-import { fetchVaultPerformanceSeries, fetchVaultProfitabilityData, fetchVaultFollowerChartData, fetchVaultTotalChartData, getVaultDataById } from '../../libs/vault/VaultDataService';
+import { getVaultDataById } from '../../libs/vault/VaultDataService';
 import { User } from '../../libs/entities/User';
 import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { useParams } from 'react-router-dom';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 import { TradeButton } from '../../components/Button/TradeButton/TradeButton';
-import { convertToDollarString, convertToPercent, convertToXRDString } from '../../libs/etc/StringOperations';
+import { convertToPercent, convertToXRDString } from '../../libs/etc/StringOperations';
 import { VaultFlowHistoryTable } from '../../components/Table/VaultFlowHistoryTable';
 import { fetchTradeHistory } from '../../libs/transaction/TransactionDataService';
 
@@ -46,18 +46,17 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
         queryKey: ['vault_list'],
         queryFn: () => getVaultDataById(id!),
     });
+
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+
     const { data: tradeHistory, isLoading: isTradeHistoryFetchLoading, isError: isTradeHistoryFetchError } = useQuery({
         queryKey: ['trade_history'],
         queryFn: () => fetchTradeHistory(id!),
     })
-    const { data: candleChartData, isLoading: isCandleChartLoading, isError: isCandleChartFetchError } = useQuery({ queryKey: ['candle_chart'], queryFn: fetchVaultPerformanceSeries });
-    const { data: followerChartData, isLoading: isFollowerChartLoading, isError: isFollowerChartFetchError } = useQuery({ queryKey: ['follower_chart'], queryFn: fetchVaultFollowerChartData });
-    const { data: totalChartData, isLoading: isTotalChartLoading, isError: isTotalChartFetchError } = useQuery({ queryKey: ['total_chart'], queryFn: fetchVaultTotalChartData });
-    const { data: profitabilityChartData, isLoading: isProfitabilityChartLoading, isError: isProfitabilityChartFetchError } = useQuery({ queryKey: ['profitability_chart'], queryFn: fetchVaultProfitabilityData });
+
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
-    if (isError || isUserFetchError || isCandleChartFetchError || isProfitabilityChartFetchError || isTradeHistoryFetchError) {
+    if (isError || isUserFetchError || isTradeHistoryFetchError) {
         // Return error JSX if an error occurs during fetching
         enqueueSnackbar("Error loading user data", { variant: "error" });
     }
@@ -67,14 +66,6 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
     let userTransactions = [...(vault?.withdrawals || []), ...(vault?.deposits || [])]
         .sort((a, b) => b.unixTimestamp - a.unixTimestamp)
         .filter(transaction => transaction.userId === user?.id);
-
-    let userDepositSum = vault?.deposits.filter(transaction => transaction.userId === user?.id).reduce((accumulator, current) => {
-        return accumulator + current.amount;
-    }, 0);
-
-    let userWithdrawalSum = vault?.withdrawals.filter(transaction => transaction.userId === user?.id).reduce((accumulator, current) => {
-        return accumulator + current.amount;
-    }, 0);
 
     return (
 
@@ -115,21 +106,17 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                         <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto' isLoading={isVaultFetchLoading || isUserFetchLoading}>
                             <Flex >
                                 <StatCard title="Vault ROI" value={convertToPercent(vault?.calculateROI())} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                <ValueCard value={convertToDollarString(vault?.totalEquity)} description={"Equity"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                <ValueCard value={convertToDollarString(vault?.followerEquity)} description={"Equity Follower"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                <ValueCard value={convertToDollarString(vault?.managerEquity)} description={"Equity Manager"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                <ValueCard value={convertToXRDString(vault?.tvlInXrd)} description={"TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                <ValueCard value={convertToXRDString(vault?.followerEquity)} description={"Follower TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                <ValueCard value={convertToXRDString(vault?.managerEquity)} description={"Manager TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                             </Flex>
 
                             {userShareTokenAmount !== 0 && (
                                 <>
                                     <Flex >
                                         <StatCard title="Your ROI" value={convertToPercent(vault?.calculateUserROI(user?.id, userShareValue))} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                        <ValueCard value={convertToDollarString(vault?.calculateUserPnL(user?.id, userShareValue))} description={"Your PnL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                        <ValueCard value={convertToDollarString(userShareValue)} description={"My Share Value"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                    </Flex>
-                                    <Flex >
-                                        <ValueCard value={convertToXRDString(userDepositSum)} description={"My Deposits"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                        <ValueCard value={convertToXRDString(userWithdrawalSum)} description={"My Withdrawals"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                        <ValueCard value={convertToXRDString(vault?.calculateUserPnL(user?.id, userShareValue))} description={"Your PnL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                        <ValueCard value={convertToXRDString(userShareValue)} description={"Your TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                     </Flex>
                                 </>
                             )}
@@ -148,11 +135,10 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                     <Box p={4}>
                         <VaultFlowHistoryTable title='My Transaction History' data={userTransactions} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                     </Box>
+
                 </Box >
             </Center >
         </Box >
     )
-    // }
-    //}
 }
 export default Vault;
