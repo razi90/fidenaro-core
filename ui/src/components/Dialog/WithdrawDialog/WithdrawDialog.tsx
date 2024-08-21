@@ -231,9 +231,9 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({ isOpen, setIsOpen, vaul
 
                                 <ModalFooter>
                                     <Stack>
-                                        <Box>
+                                        {/* <Box>
                                             <Checkbox>I confirm that I have read and agreed to the <Link>Terms and Conditions</Link> and fully understand all the associated risks.</Checkbox>
-                                        </Box>
+                                        </Box> */}
                                         <Box display="flex" justifyContent='flex-end'>
                                             <CancelButton onClick={onClose} />
 

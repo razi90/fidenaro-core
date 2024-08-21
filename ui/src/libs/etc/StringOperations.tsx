@@ -24,5 +24,19 @@ export function convertToPercent(roi: number | undefined): string {
 
 export function formatUnixTimestampToUTC(timestamp: number): string {
     const date = new Date(timestamp * 1000); // Convert to milliseconds
-    return date.toISOString().replace('T', ' ').substr(0, 19) + ' UTC';
+    return date.toISOString().replace('T', ' ').substr(0, 19);
+}
+
+
+export function convertTimeStamp(timestamp: string): string {
+    const date = new Date(timestamp);
+
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth() + 1; // Months are zero-indexed
+    const day = date.getUTCDate();
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const seconds = date.getUTCSeconds();
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
 }

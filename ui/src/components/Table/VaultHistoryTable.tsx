@@ -14,12 +14,12 @@ import {
 import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
-import { Trade } from '../../libs/entities/Vault';
-import { convertToDollarString, formatUnixTimestampToUTC } from '../../libs/etc/StringOperations';
+import { convertTimeStamp, convertToDollarString } from '../../libs/etc/StringOperations';
+import { TradeEventData } from '../../libs/transaction/TransactionDataService';
 
 interface VaultHistoryTableProps {
     title: string;
-    data: Trade[] | undefined;
+    data: TradeEventData[] | undefined;
     isLoading: boolean;
 }
 
@@ -107,7 +107,6 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                             <Thead>
                                 <Tr>
                                     <Th>Time</Th>
-                                    <Th>Action</Th>
                                     <Th>From</Th>
                                     <Th isNumeric> Amount</Th>
                                     <Th>To</Th>
@@ -118,13 +117,12 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                             <Tbody>
                                 {data?.map((item, index) => (
                                     <Tr sx={tableStyle} key={index}>
-                                        <Td>{formatUnixTimestampToUTC(item.unixTimestamp)}</Td>
-                                        <Td>{item.action}</Td>
-                                        <Td>{item.from.ticker}</Td>
-                                        <Td isNumeric>{item.from_amount}</Td>
-                                        <Td>{item.to.ticker}</Td>
-                                        <Td isNumeric>{item.to_amount}</Td>
-                                        <Td isNumeric>{convertToDollarString(item.price)}</Td>
+                                        <Td>{convertTimeStamp(item.round_timestamp)}</Td>
+                                        <Td>{item.trade_details.from.ticker}</Td>
+                                        <Td isNumeric>{item.trade_details.from_amount}</Td>
+                                        <Td>{item.trade_details.to.ticker}</Td>
+                                        <Td isNumeric>{item.trade_details.to_amount}</Td>
+                                        <Td isNumeric>{convertToDollarString(item.trade_details.price)}</Td>
                                         {/* <Td>
                                             <RadixTansactionLink content={item.transaction} />
                                         </Td> */}
@@ -134,7 +132,6 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                             <Tfoot>
                                 <Tr>
                                     <Th>Time</Th>
-                                    <Th>Action</Th>
                                     <Th>From</Th>
                                     <Th isNumeric> Amount</Th>
                                     <Th>To</Th>
@@ -144,9 +141,8 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                             </Tfoot>
                         </Table>
                     </Card >
-                )}
-
-
+                )
+            }
         </>
     );
 };

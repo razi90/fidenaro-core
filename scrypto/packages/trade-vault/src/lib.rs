@@ -38,7 +38,18 @@ pub struct UserPosition {
     pub share_amount: Decimal,
     pub total_deposit: Decimal,
 }
+
+#[derive(ScryptoSbor, ScryptoEvent)]
+struct TradeEvent {
+    from: ResourceAddress,
+    from_amount: Decimal,
+    to: ResourceAddress,
+    to_amount: Decimal,
+    price: Decimal,
+}
+
 #[blueprint]
+#[events(TradeEvent)]
 mod trade_vault {
 
     extern_blueprint! {
@@ -556,41 +567,13 @@ mod trade_vault {
 
             pool.put(to_tokens.into());
 
-            // // log transaction and trade data
-            // let trade_action = if from_token_address == XRD {
-            //     Action::Buy
-            // } else {
-            //     Action::Sell
-            // };
-
-            // let price = if trade_action == Action::Buy {
-            //     self.fidenaro
-            //         .get_oracle_adapter()
-            //         .unwrap()
-            //         .get_price(to_token_address, XRD)
-            //         .0
-            // } else {
-            //     self.fidenaro
-            //         .get_oracle_adapter()
-            //         .unwrap()
-            //         .get_price(from_token_address, XRD)
-            //         .0
-            // };
-
-            // info!("Swapped at the price of {}", price);
-
-            // let trade = Trade {
-            //     epoch: Runtime::current_epoch(),
-            //     timestamp: Clock::current_time(TimePrecision::Minute),
-            //     trade_action,
-            //     from: from_token_address,
-            //     from_amount: from_token_amount,
-            //     to: to_token_address,
-            //     to_amount: to_token_amount,
-            //     price,
-            // };
-
-            // self.trades.push(trade);
+            Runtime::emit_event(TradeEvent {
+                from: from_token_address,
+                from_amount: from_token_amount,
+                to: to_token_address,
+                to_amount: to_token_amount,
+                price,
+            });
         }
 
         pub fn withdraw_collected_trader_fee(

@@ -4,8 +4,6 @@ import {
     Center,
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
-import { ChartCard } from '../../components/Chart/ChartCard';
-import { ProfitBarChartCard } from '../../components/Chart/ProfitBarChartCard';
 
 import { Flex } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
@@ -31,6 +29,7 @@ import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 import { TradeButton } from '../../components/Button/TradeButton/TradeButton';
 import { convertToDollarString, convertToPercent, convertToXRDString } from '../../libs/etc/StringOperations';
 import { VaultFlowHistoryTable } from '../../components/Table/VaultFlowHistoryTable';
+import { fetchTradeHistory } from '../../libs/transaction/TransactionDataService';
 
 
 interface VaultProps {
@@ -48,13 +47,17 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
         queryFn: () => getVaultDataById(id!),
     });
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    const { data: tradeHistory, isLoading: isTradeHistoryFetchLoading, isError: isTradeHistoryFetchError } = useQuery({
+        queryKey: ['trade_history'],
+        queryFn: () => fetchTradeHistory(id!),
+    })
     const { data: candleChartData, isLoading: isCandleChartLoading, isError: isCandleChartFetchError } = useQuery({ queryKey: ['candle_chart'], queryFn: fetchVaultPerformanceSeries });
     const { data: followerChartData, isLoading: isFollowerChartLoading, isError: isFollowerChartFetchError } = useQuery({ queryKey: ['follower_chart'], queryFn: fetchVaultFollowerChartData });
     const { data: totalChartData, isLoading: isTotalChartLoading, isError: isTotalChartFetchError } = useQuery({ queryKey: ['total_chart'], queryFn: fetchVaultTotalChartData });
     const { data: profitabilityChartData, isLoading: isProfitabilityChartLoading, isError: isProfitabilityChartFetchError } = useQuery({ queryKey: ['profitability_chart'], queryFn: fetchVaultProfitabilityData });
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
-    if (isError || isUserFetchError || isCandleChartFetchError || isProfitabilityChartFetchError) {
+    if (isError || isUserFetchError || isCandleChartFetchError || isProfitabilityChartFetchError || isTradeHistoryFetchError) {
         // Return error JSX if an error occurs during fetching
         enqueueSnackbar("Error loading user data", { variant: "error" });
     }
@@ -72,7 +75,6 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
     let userWithdrawalSum = vault?.withdrawals.filter(transaction => transaction.userId === user?.id).reduce((accumulator, current) => {
         return accumulator + current.amount;
     }, 0);
-
 
     return (
 
@@ -140,7 +142,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                     </Flex >
 
                     <Box p={4}>
-                        <VaultHistoryTable title='Trade History' data={vault?.tradeHistory} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                        <VaultHistoryTable title='Trade History' data={tradeHistory} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                     </Box>
 
                     <Box p={4}>

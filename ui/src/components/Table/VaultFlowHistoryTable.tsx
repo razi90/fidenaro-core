@@ -14,8 +14,8 @@ import {
 import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
-import { Transaction } from '../../libs/entities/Vault';
 import { convertToXRDString, formatUnixTimestampToUTC } from '../../libs/etc/StringOperations';
+import { Transaction } from '../../libs/transaction/TransactionDataService';
 
 interface VaultFlowHistoryTableProps {
     title: string;
