@@ -6,11 +6,17 @@ export function convertToXRDString(amount: number | undefined): string {
     }
 }
 
-export function convertToDollarString(amount: number | undefined): string {
+// Function overload signatures
+export function convertToDollarString(amount: number | undefined): string;
+export function convertToDollarString(amount: number | undefined, decimal_places: number): string;
+
+// Single function implementation that handles both overloads
+export function convertToDollarString(amount: number | undefined, decimal_places?: number): string {
     if (typeof amount === "undefined") {
-        return "N/A"
+        return "N/A";
     } else {
-        return "$ " + amount!.toFixed(2)
+        const decimals = decimal_places !== undefined ? decimal_places : 2;
+        return "$ " + amount.toFixed(decimals);
     }
 }
 

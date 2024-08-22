@@ -21,11 +21,11 @@ import {
 } from "./Styled";
 import FeedbackButton from "../Button/FeedbackButton/FeedbackButton";
 import { CreateVaultButton } from "../Button/CreateVault/CreateVault";
-import GetFusdButton from "../Button/GetFUSD/GetFUSDButton";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Joyride, { Step } from 'react-joyride';
-import { Button } from '@chakra-ui/react';
+
+import PriceTicker from "../PriceTicker/PriceTicker";
 
 
 
@@ -84,9 +84,11 @@ export default function TopNavigationBar() {
                         <Text color="black" fontSize='2xl'>Fidenaro</Text>
                         <Spacer />
 
-                        <FeedbackButton />
+                        <PriceTicker />
 
-                        {/* <GetFusdButton /> */}
+                        <Spacer />
+
+                        <FeedbackButton />
 
                         <CreateVaultButton user="John Smith" />
 

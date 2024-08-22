@@ -25,7 +25,7 @@ import { ChartCard } from '../../components/Chart/ChartCard';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 import { useParams } from 'react-router-dom';
-import { convertToDollarString } from '../../libs/etc/StringOperations';
+import { convertToXRDString } from '../../libs/etc/StringOperations';
 
 interface ProfileProps {
     isMinimized: boolean;
@@ -175,7 +175,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                                 </DescriptionCard >
                                                 <Flex>
                                                     <ValueCard value={totalFollowers?.toString() ?? ''} description={"Follower"} isLoading={isLoading || isProfileLoading} />
-                                                    <ValueCard value={convertToDollarString(totalEquity)} description={"Equity"} isLoading={isLoading || isProfileLoading} />
+                                                    <ValueCard value={convertToXRDString(totalEquity)} description={"TVL"} isLoading={isLoading || isProfileLoading} />
                                                 </Flex>
                                                 {user?.id === profile?.id && (
                                                     <Flex justifyContent='flex-end' w={"100%"} pr={3} mt={4} >
