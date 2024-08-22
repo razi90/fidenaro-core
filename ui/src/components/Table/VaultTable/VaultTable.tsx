@@ -21,20 +21,17 @@ import {
     Button,
     SkeletonText
 } from '@chakra-ui/react';
-import { FollowButton } from '../../Button/FollowButton/FollowButton';
 import SortableTh from './SortableTableHeader';
 import FilterSelect from './Filter/FilterSelect';
 
 import FilterButton from '../../Button/FilterButton/FilterButton';
 import { Vault } from '../../../libs/entities/Vault';
-import { MinimalChartCard } from '../../Chart/MinimalChartCard';
 import { defaultLinkButtonStyle } from '../../Button/DefaultLinkButton/Styled';
 import { tableTrStyle } from '../Styled';
 import { IoEnterOutline } from "react-icons/io5";
 import { User } from '../../../libs/entities/User';
-import { TradeButton } from '../../Button/TradeButton/TradeButton';
 import ResetButton from '../../Button/ResetButton/ResetButton';
-import { convertToPercent, convertToXRDString } from '../../../libs/etc/StringOperations';
+import { convertToDollarString, convertToPercent, convertToXRDString } from '../../../libs/etc/StringOperations';
 
 
 
@@ -132,7 +129,6 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
             filteredEntries = filteredEntries.filter((entry) => {
                 const nameMatch = entry.name.toLowerCase().includes(nameFilter.toLowerCase());
                 const totalMatch = entry.calculateROI() >= totalFilter;
-                // const todayMatch = entry.today >= todayFilter;
                 const activeDaysMatch = entry.activeDays >= activeDaysFilter;
                 const followersMatch = entry.followers.length >= followersFilter;
 
@@ -174,7 +170,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
                                 />
 
                                 <FilterSelect
-                                    placeholder='Total'
+                                    placeholder='APR'
                                     value={totalFilter}
                                     onChange={setTotalFilter}
                                     options={totalOptions}
@@ -209,12 +205,11 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
                                 <Thead>
                                     <Tr>
                                         <Th>Name</Th>
-                                        <Th>Total</Th>
+                                        <Th>APR</Th>
                                         <Th>Active Days</Th>
                                         <Th>Follower</Th>
-                                        {/* <Th>Performance</Th> */}
-                                        <Th>TVL</Th>
-                                        {/* <Th></Th> */}
+                                        <Th>TVL XRD</Th>
+                                        <Th>TVL USD</Th>
                                     </Tr>
                                 </Thead>
                                 <Tbody>
@@ -237,21 +232,16 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
                                 <Thead>
                                     <Tr>
                                         <Th>Name</Th>
-                                        <SortableTh column="total" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Total</SortableTh>
-                                        {/* <SortableTh column="today" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Today</SortableTh> */}
+                                        <SortableTh column="total" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>APR</SortableTh>
                                         <SortableTh column="activeDays" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >Active Days</SortableTh>
                                         <SortableTh column="followers" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Followers</SortableTh>
-                                        {/* <Th isNumeric>
-                                            Performance
-                                        </Th> */}
-                                        <SortableTh column="tvlInXrd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL</SortableTh>
-                                        {/* <Th></Th> */}
+                                        <SortableTh column="tvlInXrd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL XRD</SortableTh>
+                                        <SortableTh column="tvlInXrd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL USD</SortableTh>
                                     </Tr>
                                 </Thead>
                                 <Tbody >
                                     {filteredData?.map((entry, index) => (
                                         <Tr key={index} sx={tableTrStyle}
-                                        //onClick={() => (window.location = `/vault/${entry.id}` as Location | (string & Location))}
                                         >
                                             <Td>
                                                 <Tooltip label='Go to vault view'>
@@ -268,35 +258,10 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
                                             <Td color={entry.calculateROI() >= 0 ? 'green.500' : 'red.500'}>
                                                 {convertToPercent(entry.calculateROI())}
                                             </Td>
-                                            {/* <Td isNumeric color={entry.today >= 0 ? 'green.500' : 'red.500'}>
-                                                {entry.today} %
-                                            </Td> */}
                                             <Td>{entry.activeDays}</Td>
                                             <Td>{entry.followers.length}</Td>
-                                            {/* <Td width={performanceFieldWidth}>
-
-                                                <MinimalChartCard
-                                                    cardTitle={""}
-                                                    cardWidth={"200px"}
-                                                    cardHeight={"60px"}
-                                                    chartType={"area"}
-                                                    chartHeight={"78px"}
-                                                    chartWidth={"100%"}
-                                                    chartData={entry.tradeHistory}
-                                                    isLoading={false} />
-                                            </Td> */}
                                             <Td>{convertToXRDString(entry.tvlInXrd)}</Td>
-                                            {/* <Td>
-                                                {
-                                                    user?.id === entry.manager.id ?
-                                                        (
-                                                            <TradeButton vault={entry} isConnected={isConnected} />
-                                                        ) : (
-                                                            <FollowButton vault={entry} isConnected={isConnected} />
-                                                        )
-                                                }
-
-                                            </Td> */}
+                                            <Td>{convertToDollarString(entry.tvlInUsd)}</Td>
                                         </Tr>
                                     ))}
                                 </Tbody>

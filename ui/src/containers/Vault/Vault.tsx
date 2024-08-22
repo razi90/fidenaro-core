@@ -107,6 +107,8 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             <Flex >
                                 <StatCard title="Vault ROI" value={convertToPercent(vault?.calculateROI())} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={convertToXRDString(vault?.tvlInXrd)} description={"TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                            </Flex>
+                            <Flex >
                                 <ValueCard value={convertToXRDString(vault?.followerEquity)} description={"Follower TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={convertToXRDString(vault?.managerEquity)} description={"Manager TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                             </Flex>
@@ -114,9 +116,8 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             {userShareTokenAmount !== 0 && (
                                 <>
                                     <Flex >
-                                        <StatCard title="Your ROI" value={convertToPercent(vault?.calculateUserROI(user?.id, userShareValue))} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                        <ValueCard value={convertToXRDString(vault?.calculateUserPnL(user?.id, userShareValue))} description={"Your PnL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                                        <ValueCard value={convertToXRDString(userShareValue)} description={"Your TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                        <ValueCard value={convertToXRDString(vault?.calculateUserPnL(user?.id, userShareValue))} description={"Your All-Time PnL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                        <ValueCard value={convertToXRDString(userShareValue)} description={"Your Current TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                     </Flex>
                                 </>
                             )}

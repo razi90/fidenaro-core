@@ -67,7 +67,6 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
 
         if (totalShareTokenAmount !== 0) {
             const managerShareTokenAmount = getManagerShareTokenAmount(manager.assets, shareTokenAddress);
-            console.log(managerShareTokenAmount)
             managerEquity = tvlInXrd * (managerShareTokenAmount / totalShareTokenAmount);
             followerEquity = tvlInXrd - managerEquity;
             pricePerShare = tvlInXrd / totalShareTokenAmount
@@ -123,7 +122,6 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
                 } else {
                     return totalUserDeposits
                 }
-
             },
 
             calculateUserPnL: function (userId: string | undefined, userShareValue: number) {

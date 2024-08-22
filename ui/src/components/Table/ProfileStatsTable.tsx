@@ -8,6 +8,7 @@ import {
 } from '@chakra-ui/react';
 import React from 'react';
 import { tableStyle } from './Styled';
+import { convertToXRDString } from '../../libs/etc/StringOperations';
 
 
 
@@ -34,15 +35,15 @@ export const ProfileStatsTable: React.FC<ProfileStatsTableProps> = ({ rank, tota
                                 <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
                             </Tr>
                             <Tr sx={tableStyle}>
-                                <Td><Text fontWeight="bold">Total Raised</Text></Td>
+                                <Td><Text fontWeight="bold">TVL in Managed Vaults</Text></Td>
                                 <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
                             </Tr>
                             <Tr sx={tableStyle}>
-                                <Td><Text fontWeight="bold">Manager PnL</Text></Td>
+                                <Td><Text fontWeight="bold">PnL as Manager</Text></Td>
                                 <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
                             </Tr>
                             <Tr sx={tableStyle}>
-                                <Td><Text fontWeight="bold">Investor PnL</Text></Td>
+                                <Td><Text fontWeight="bold">PnL as Follower</Text></Td>
                                 <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
                             </Tr>
                             <Tr sx={tableStyle}>
@@ -59,16 +60,16 @@ export const ProfileStatsTable: React.FC<ProfileStatsTableProps> = ({ rank, tota
                                 <Td>{rank}</Td>
                             </Tr>
                             <Tr sx={tableStyle}>
-                                <Td><Text fontWeight="bold">Total Raised</Text></Td>
-                                <Td>$ {totalEquity}</Td>
+                                <Td><Text fontWeight="bold">TVL in Managed Vaults</Text></Td>
+                                <Td>{convertToXRDString(totalEquity)}</Td>
                             </Tr>
                             <Tr sx={tableStyle}>
-                                <Td><Text fontWeight="bold">Manager PnL</Text></Td>
-                                <Td>$ {managerPnL}</Td>
+                                <Td><Text fontWeight="bold">PnL as Manager</Text></Td>
+                                <Td>{convertToXRDString(managerPnL)}</Td>
                             </Tr>
                             <Tr sx={tableStyle}>
-                                <Td><Text fontWeight="bold">Investor PnL</Text></Td>
-                                <Td>$ {investorPnL}</Td>
+                                <Td><Text fontWeight="bold">PnL as Follower</Text></Td>
+                                <Td>{convertToXRDString(investorPnL)}</Td>
                             </Tr>
                             <Tr sx={tableStyle}>
                                 <Td><Text fontWeight="bold">Total Trades</Text></Td>
