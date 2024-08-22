@@ -40,8 +40,9 @@ import axios from 'axios';
 export async function generateSecureRandomBytes(
     count: number
 ): Promise<Uint8Array> {
+    const { webcrypto } = require('crypto');
     const byteArray = new Uint8Array(count);
-    global.crypto.getRandomValues(byteArray);
+    webcrypto.getRandomValues(byteArray);
     return byteArray;
 }
 
