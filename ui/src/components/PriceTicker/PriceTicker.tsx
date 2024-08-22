@@ -33,7 +33,7 @@ export default function PriceTicker() {
     }, []);
 
     const assets = [
-        { name: "XRD", icon: "/images/LogoRadix.png", price: prices.radix, decimals: 3 },
+        { name: "XRD", icon: "/images/LogoRadix.png", price: prices.radix, decimals: 4 },
         { name: "xwBTX", icon: "/images/LogoxwBTC.png", price: prices.bitcoin, decimals: 0 },
         { name: "xETH", icon: "/images/LogoxETH.png", price: prices.ethereum, decimals: 0 },
         { name: "HUG", icon: "/images/LogoHug.png", price: prices.hug, decimals: 6 }
