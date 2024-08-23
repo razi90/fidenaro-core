@@ -37,6 +37,7 @@ export const getVaultDataById = async (vault_id: string): Promise<Vault> => {
 export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
 
     try {
+
         let id = vaultLedgerData.address
         let name = getMetaData(vaultLedgerData, "name")
         let description = getMetaData(vaultLedgerData, "description")
@@ -44,7 +45,6 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
         let vault_fields = vaultLedgerData.details.state.fields
         let shareTokenAddress = getFieldValueByKey(vault_fields, "share_token_manager")
         let manager_badge_address = getFieldValueByKey(vault_fields, "fund_manager_badge")
-        let fee = 0.1
 
         let followers = getFollowerIds(vault_fields)
         let tradeHistory = getTrades(vault_fields)
@@ -55,9 +55,16 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
         let withdrawals = getWithdrawals(vault_fields)
 
         const priceList = await fetchPriceList()
-        const assets = getAssets(vaultLedgerData.fungible_resources.items, priceList)
-        const tvlInUsd = calculateTotalEquityInUSD(assets)
-        const tvlInXrd = calculateTotalEquityInXRD(assets)
+
+        const totalAssetAmounts = getTotalAssetAmounts(vaultLedgerData.fungible_resources.items)
+        const userAssetAmounts = getUserAssetAmounts(vaultLedgerData.fungible_resources.items, vault_fields)
+        const managerAssetAmounts = getManagerFeeAssetAmounts(totalAssetAmounts, userAssetAmounts)
+
+        const userAssetValues = calculateAssetValues(userAssetAmounts, priceList)
+        const managerAssetValues = calculateAssetValues(managerAssetAmounts, priceList)
+
+        const tvlInUsd = calculateTotalEquityInUSD(userAssetValues)
+        const tvlInXrd = calculateTotalEquityInXRD(userAssetValues)
 
         const totalShareTokenAmount = parseFloat(getFieldValueByKey(vault_fields, "total_share_tokens"));
 
@@ -89,10 +96,11 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
             managerEquity,
             followerEquity,
             pricePerShare,
-            profitShare: fee,
+            managerFee: 0.1,
             manager,
             tradeHistory,
-            assets,
+            userAssetValues,
+            managerAssetValues,
             deposits,
             withdrawals,
             shareTokenAmount: totalShareTokenAmount,
@@ -130,6 +138,10 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
 
             calculateUserROI: function (userId: string | undefined, userShareValue: number) {
                 return (this.calculateUserPnL(userId, userShareValue) / this.calculateUserInvestedEquity(userId)) * 100 || 0;
+            },
+
+            calculateTraderFeeInXrd: function () {
+                return calculateTotalEquityInXRD(managerAssetValues);
             }
         }
 
@@ -206,25 +218,48 @@ function daysSince(unixTimestamp: number): number {
     return daysPassed;
 }
 
-function getAssets(ledgerAssetData: any, priceList: Map<string, PriceData>): Map<string, AssetStats> {
-    let assets = new Map<string, AssetStats>()
+function getTotalAssetAmounts(ledgerAssetData: any): Map<string, number> {
+    let assets = new Map<string, number>()
 
-    for (const asset_item of ledgerAssetData) {
-        let asset = addressToAsset(asset_item.resource_address)
-        let amount = parseFloat(asset_item.vaults.items[0].amount)
-        if (amount != 0) { // Ignore entry for the share token of the vault
-            let valueInUSD = amount * priceList.get(asset_item.resource_address)?.priceInUSD!;
-            let valueInXRD = amount * priceList.get(asset_item.resource_address)?.priceInXRD!;
-            let stats: AssetStats = {
-                amount,
-                valueInUSD,
-                valueInXRD
-            }
-            assets.set(asset.address, stats)
-        }
-    }
+    ledgerAssetData.forEach((item: any) => {
+        let amount = 0
+
+        item.vaults.items.forEach((vault: any) => {
+            amount += parseFloat(vault.amount)
+        })
+        assets.set(item.resource_address, amount)
+    })
 
     return assets
+}
+
+function getUserAssetAmounts(ledgerAssetData: any, vault_fields: any): Map<string, number> {
+    let assets = new Map<string, number>()
+    const userAssetVaultAddresses = getUserAssetVaultAddresses(vault_fields)
+
+    userAssetVaultAddresses.forEach((value, key) => {
+        let amount = ledgerAssetData.find((asset: any) => asset.resource_address == key).vaults.items.find((item: any) => item.vault_address === value).amount
+        assets.set(key, parseFloat(amount))
+    });
+
+    return assets
+}
+
+function getManagerFeeAssetAmounts(
+    totalAssets: Map<string, number>,
+    userAssets: Map<string, number>
+): Map<string, number> {
+
+    const managerFeeAssets = new Map<string, number>();
+
+    totalAssets.forEach((totalAmount, asset) => {
+        const userAmount = userAssets.get(asset) || 0; // Get user amount or default to 0 if not present
+        const managerAmount = totalAmount - userAmount; // Subtract user assets from total assets
+
+        managerFeeAssets.set(asset, managerAmount); // Store the result in the new map
+    });
+
+    return managerFeeAssets;
 }
 
 function stringToTradeAction(value: string): TradeAction {
@@ -238,7 +273,7 @@ function stringToTradeAction(value: string): TradeAction {
     }
 }
 
-function getFieldValueByKey(fields: any, key: string): string {
+function getFieldValueByKey(fields: any, key: string): any {
     let fieldValue = 'N/A'
 
     for (const field of fields) {
@@ -413,16 +448,45 @@ function calculateActiveDays(vault_fields: any): number {
     return daysSince(parseInt(getFieldValueByKey(vault_fields, "creation_date")))
 }
 
-async function getVaultTransactions(id: string) {
-    let transactions = await gatewayApi.stream.innerClient.streamTransactions(
-        {
-            streamTransactionsRequest: {
-                affected_global_entities_filter: [id],
-                opt_ins: {
-                    receipt_events: true
-                }
-            }
+function getUserAssetVaultAddresses(vault_fields: any): Map<string, string> {
+    let assetAddresses = new Map<string, string>()
+    vault_fields.find((field: any) => {
+        if (field.field_name === "assets") {
+            return true;
         }
-    )
-    console.log(transactions)
+    }).entries.forEach((entry: any) => {
+        assetAddresses.set(entry.key.value, entry.value.value)
+
+    })
+    return assetAddresses
 }
+
+function calculateAssetValues(assetAmounts: Map<string, number>, priceList: Map<string, PriceData>): Map<string, AssetStats> {
+    let assetValues = new Map<string, AssetStats>();
+
+    for (const [asset, amount] of assetAmounts) {
+        // Get the price data for the current asset
+        let priceData = priceList.get(asset);
+
+        if (priceData) {
+            // Calculate the value in USD and XRD
+            let valueInUSD = amount * priceData.priceInUSD;
+            let valueInXRD = amount * priceData.priceInXRD;
+
+            // Create an AssetStats object
+            let stats: AssetStats = {
+                amount,
+                valueInUSD,
+                valueInXRD
+            };
+
+            // Store the stats in the result map
+            assetValues.set(asset, stats);
+        } else {
+            console.warn(`Price data for asset ${asset} not found.`);
+        }
+    }
+
+    return assetValues;
+}
+
