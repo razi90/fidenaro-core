@@ -71,15 +71,18 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
         let managerEquity = 0;
         let followerEquity = 0;
         let pricePerShare = 0;
+        let roi = 0;
 
         if (totalShareTokenAmount !== 0) {
             const managerShareTokenAmount = getManagerShareTokenAmount(manager.assets, shareTokenAddress);
             managerEquity = tvlInXrd * (managerShareTokenAmount / totalShareTokenAmount);
             followerEquity = tvlInXrd - managerEquity;
             pricePerShare = tvlInXrd / totalShareTokenAmount
+            roi = (pricePerShare - 1) * 100 || 0;
         }
 
-        let activeDays = calculateActiveDays(vault_fields)
+        const activeDays = calculateActiveDays(vault_fields)
+
 
         let vault: Vault = {
             name,
@@ -87,8 +90,7 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
             description,
             shareTokenAddress,
             manager_badge_address,
-            total: 0,
-            today: 0,
+            roi,
             activeDays,
             followers,
             tvlInUsd,
@@ -107,10 +109,6 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
 
             calculatePnL: function () {
                 return (this.pricePerShare - 1) * this.shareTokenAmount;
-            },
-
-            calculateROI: function () {
-                return (this.pricePerShare - 1) * 100 || 0;
             },
 
             calculateUserInvestedEquity: function (userId: string | undefined) {

@@ -113,7 +113,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
 
                         <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto' isLoading={isVaultFetchLoading || isUserFetchLoading}>
                             <Flex >
-                                <StatCard title="Vault ROI" value={convertToPercent(vault?.calculateROI())} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                <StatCard title="Vault ROI" value={convertToPercent(vault?.roi)} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={convertToXRDString(vault?.tvlInXrd)} description={"TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                             </Flex>
                             <Flex >
