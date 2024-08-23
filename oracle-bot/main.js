@@ -34,8 +34,9 @@ const radix_engine_toolkit_1 = require("@radixdlt/radix-engine-toolkit");
 const axios_1 = __importDefault(require("axios"));
 function generateSecureRandomBytes(count) {
     return __awaiter(this, void 0, void 0, function* () {
+        const { webcrypto } = require('crypto');
         const byteArray = new Uint8Array(count);
-        global.crypto.getRandomValues(byteArray);
+        webcrypto.getRandomValues(byteArray);
         return byteArray;
     });
 }
@@ -43,7 +44,7 @@ const NetworkConfiguration = {
     gatewayBaseUrl: "https://stokenet-gateway.radix.live",
     networkId: babylon_gateway_api_sdk_1.RadixNetwork.Stokenet,
 };
-function getPrices() {
+function getPricesCoinGecko() {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
         try {
@@ -80,6 +81,31 @@ function getPrices() {
         }
     });
 }
+function getPricesCaviarNine() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const asset_address_map = new Map([
+                ["bitcoin", "resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75"],
+                ["ethereum", "resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww"],
+                ["hug", "resource_rdx1t5kmyj54jt85malva7fxdrnpvgfgs623yt7ywdaval25vrdlmnwe97"],
+                ["usdc", "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf"],
+            ]);
+            const response = yield axios_1.default.get('https://api-core.caviarnine.com/v1.0/public/tokens');
+            const asset_price_map = {};
+            for (const [assetName, address] of asset_address_map.entries()) {
+                const resourceData = response.data.data[address];
+                if (resourceData) {
+                    asset_price_map[assetName] = resourceData.price_to_xrd.mid;
+                }
+            }
+            return asset_price_map;
+        }
+        catch (error) {
+            console.error('Error fetching prices:', error);
+            return {};
+        }
+    });
+}
 const getCurrentEpoch = (statusApi) => __awaiter(void 0, void 0, void 0, function* () { return statusApi.gatewayStatus().then((output) => output.ledger_state.epoch); });
 const submitTransaction = (transactionApi, compiledTransaction) => __awaiter(void 0, void 0, void 0, function* () {
     return transactionApi.transactionSubmit({
@@ -99,28 +125,28 @@ const fetchPricesAndSendTransaction = (statusApi, transactionApi, notaryPrivateK
     // Building the manifest of this example. The manifest for this example will be quite simple: it
     // will lock some amount of XRD in fees from the faucet's component.
     const faucetComponentAddress = yield radix_engine_toolkit_1.RadixEngineToolkit.Utils.knownAddresses(NetworkConfiguration.networkId).then((addressBook) => addressBook.componentAddresses.faucet);
-    let prices = yield getPrices();
+    let prices = yield getPricesCaviarNine();
     const manifest = new radix_engine_toolkit_1.ManifestBuilder()
         .callMethod(faucetComponentAddress, "lock_fee", [(0, radix_engine_toolkit_1.decimal)(10)])
         .callMethod("component_tdx_2_1cpyxkkquzt2rfz908t8yt5vjsdhtegrsasq8us2s6ng5kz7pncupsf", "set_price", [
         (0, radix_engine_toolkit_1.address)("resource_tdx_2_1t4vmx0vezqqrcqhzlt0sxcphw63n73fsxve3nvrn8y5c5dyxk3fxuf"),
         (0, radix_engine_toolkit_1.address)("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc"),
-        (0, radix_engine_toolkit_1.decimal)(prices['bitcoin'].toString())
+        (0, radix_engine_toolkit_1.decimal)(prices['bitcoin'])
     ])
         .callMethod("component_tdx_2_1cpyxkkquzt2rfz908t8yt5vjsdhtegrsasq8us2s6ng5kz7pncupsf", "set_price", [
         (0, radix_engine_toolkit_1.address)("resource_tdx_2_1tkky3adz9kjyv534amy29uxrqg28uvr8ygm09g4wwr37zajrn0zldg"),
         (0, radix_engine_toolkit_1.address)("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc"),
-        (0, radix_engine_toolkit_1.decimal)(prices['ethereum'].toString())
+        (0, radix_engine_toolkit_1.decimal)(prices['ethereum'])
     ])
         .callMethod("component_tdx_2_1cpyxkkquzt2rfz908t8yt5vjsdhtegrsasq8us2s6ng5kz7pncupsf", "set_price", [
         (0, radix_engine_toolkit_1.address)("resource_tdx_2_1thtxzder4ncupdg47h6zktdnl6p4yqznttv6nuxvzcsntfhthz6m6m"),
         (0, radix_engine_toolkit_1.address)("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc"),
-        (0, radix_engine_toolkit_1.decimal)(prices['hug'].toString())
+        (0, radix_engine_toolkit_1.decimal)(prices['hug'])
     ])
         .callMethod("component_tdx_2_1cpyxkkquzt2rfz908t8yt5vjsdhtegrsasq8us2s6ng5kz7pncupsf", "set_price", [
         (0, radix_engine_toolkit_1.address)("resource_tdx_2_1tkr36auhr7jpn07yvktk3u6s5stcm9vrdgf0xhdym9gv096v4q7thf"),
         (0, radix_engine_toolkit_1.address)("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc"),
-        (0, radix_engine_toolkit_1.decimal)(prices['usdc'].toString())
+        (0, radix_engine_toolkit_1.decimal)(prices['usdc'])
     ])
         .build();
     // With the manifest constructed above, we may now construct the complete transaction. Part of the
@@ -179,6 +205,6 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     // Setting up the private key of the transaction notary.
     const notaryPrivateKey = new radix_engine_toolkit_1.PrivateKey.Ed25519(yield generateSecureRandomBytes(32));
     fetchPricesAndSendTransaction(statusApi, transactionApi, notaryPrivateKey);
-    setInterval(() => fetchPricesAndSendTransaction(statusApi, transactionApi, notaryPrivateKey), 5 * 60 * 1000); // Every 5 minutes
+    setInterval(() => fetchPricesAndSendTransaction(statusApi, transactionApi, notaryPrivateKey), 60 * 1000); // every minute
 });
 main();

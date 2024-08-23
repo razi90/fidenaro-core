@@ -51,7 +51,7 @@ const NetworkConfiguration = {
     networkId: RadixNetwork.Stokenet,
 };
 
-async function getPrices(): Promise<{ [key: string]: number }> {
+async function getPricesCoinGecko(): Promise<{ [key: string]: number }> {
     try {
         // Make a GET request to the CoinGecko API
         const response = await axios.get('https://api.coingecko.com/api/v3/coins/markets', {
@@ -92,6 +92,32 @@ async function getPrices(): Promise<{ [key: string]: number }> {
     }
 }
 
+async function getPricesCaviarNine(): Promise<{ [key: string]: string }> {
+    try {
+        const asset_address_map = new Map<string, string>([
+            ["bitcoin", "resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75"],
+            ["ethereum", "resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww"],
+            ["hug", "resource_rdx1t5kmyj54jt85malva7fxdrnpvgfgs623yt7ywdaval25vrdlmnwe97"],
+            ["usdc", "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf"],
+        ]);
+
+        const response = await axios.get('https://api-core.caviarnine.com/v1.0/public/tokens');
+        const asset_price_map: { [key: string]: string } = {};
+
+        for (const [assetName, address] of asset_address_map.entries()) {
+            const resourceData = response.data.data[address];
+            if (resourceData) {
+                asset_price_map[assetName] = resourceData.price_to_xrd.mid;
+            }
+        }
+
+        return asset_price_map;
+    } catch (error) {
+        console.error('Error fetching prices:', error);
+        return {};
+    }
+}
+
 const getCurrentEpoch = async (statusApi: StatusApi): Promise<number> =>
     statusApi.gatewayStatus().then((output: { ledger_state: { epoch: any; }; }) => output.ledger_state.epoch);
 
@@ -123,7 +149,7 @@ const fetchPricesAndSendTransaction = async (statusApi: StatusApi, transactionAp
         NetworkConfiguration.networkId
     ).then((addressBook) => addressBook.componentAddresses.faucet);
 
-    let prices = await getPrices();
+    let prices = await getPricesCaviarNine();
 
     const manifest = new ManifestBuilder()
         .callMethod(faucetComponentAddress, "lock_fee", [decimal(10)])
@@ -133,7 +159,7 @@ const fetchPricesAndSendTransaction = async (statusApi: StatusApi, transactionAp
             [
                 address("resource_tdx_2_1t4vmx0vezqqrcqhzlt0sxcphw63n73fsxve3nvrn8y5c5dyxk3fxuf"),
                 address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc"),
-                decimal(prices['bitcoin'].toString())
+                decimal(prices['bitcoin'])
             ]
         )
         .callMethod(
@@ -142,7 +168,7 @@ const fetchPricesAndSendTransaction = async (statusApi: StatusApi, transactionAp
             [
                 address("resource_tdx_2_1tkky3adz9kjyv534amy29uxrqg28uvr8ygm09g4wwr37zajrn0zldg"),
                 address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc"),
-                decimal(prices['ethereum'].toString())
+                decimal(prices['ethereum'])
             ]
         )
         .callMethod(
@@ -151,7 +177,7 @@ const fetchPricesAndSendTransaction = async (statusApi: StatusApi, transactionAp
             [
                 address("resource_tdx_2_1thtxzder4ncupdg47h6zktdnl6p4yqznttv6nuxvzcsntfhthz6m6m"),
                 address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc"),
-                decimal(prices['hug'].toString())
+                decimal(prices['hug'])
             ]
         )
         .callMethod(
@@ -160,7 +186,7 @@ const fetchPricesAndSendTransaction = async (statusApi: StatusApi, transactionAp
             [
                 address("resource_tdx_2_1tkr36auhr7jpn07yvktk3u6s5stcm9vrdgf0xhdym9gv096v4q7thf"),
                 address("resource_tdx_2_1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxtfd2jc"),
-                decimal(prices['usdc'].toString())
+                decimal(prices['usdc'])
             ]
         )
         .build();
@@ -245,8 +271,7 @@ const main = async () => {
     // Setting up the private key of the transaction notary.
     const notaryPrivateKey = new PrivateKey.Ed25519(await generateSecureRandomBytes(32));
     fetchPricesAndSendTransaction(statusApi, transactionApi, notaryPrivateKey);
-    setInterval(() => fetchPricesAndSendTransaction(statusApi, transactionApi, notaryPrivateKey), 5 * 60 * 1000); // Every 5 minutes
-
+    setInterval(() => fetchPricesAndSendTransaction(statusApi, transactionApi, notaryPrivateKey), 60 * 1000); // every minute
 
 };
 
