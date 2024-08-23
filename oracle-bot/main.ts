@@ -51,6 +51,27 @@ const NetworkConfiguration = {
     networkId: RadixNetwork.Stokenet,
 };
 
+// Utility function to delay execution for a given number of milliseconds
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Retry wrapper for a function that returns a promise
+async function retry<T>(fn: () => Promise<T>, retries: number = 3, delayMs: number = 1000): Promise<T> {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await fn();
+        } catch (error) {
+            if (i < retries - 1) {
+                console.warn(`Retrying... (${i + 1}/${retries})`);
+                await delay(delayMs * Math.pow(2, i)); // Exponential backoff
+            } else {
+                console.error('Max retries reached. Throwing error.');
+                throw error;
+            }
+        }
+    }
+    throw new Error('Retry function failed after all attempts');
+}
+
 async function getPricesCoinGecko(): Promise<{ [key: string]: number }> {
     try {
         // Make a GET request to the CoinGecko API
@@ -93,7 +114,7 @@ async function getPricesCoinGecko(): Promise<{ [key: string]: number }> {
 }
 
 async function getPricesCaviarNine(): Promise<{ [key: string]: string }> {
-    try {
+    return retry(async () => {
         const asset_address_map = new Map<string, string>([
             ["bitcoin", "resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75"],
             ["ethereum", "resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww"],
@@ -112,10 +133,7 @@ async function getPricesCaviarNine(): Promise<{ [key: string]: string }> {
         }
 
         return asset_price_map;
-    } catch (error) {
-        console.error('Error fetching prices:', error);
-        return {};
-    }
+    });
 }
 
 const getCurrentEpoch = async (statusApi: StatusApi): Promise<number> =>
@@ -258,21 +276,15 @@ const fetchPricesAndSendTransaction = async (statusApi: StatusApi, transactionAp
 }
 
 const main = async () => {
-
-    // Setting up the Gateway Sub-APIs that will be used in this example. We will be utilizing two sub
-    // APIs: the Status API to get the current epoch and the transaction API to submit and query the
-    // status of transactions on the network.
     const apiConfiguration = new Configuration({
         basePath: NetworkConfiguration.gatewayBaseUrl,
     });
     const statusApi = new StatusApi(apiConfiguration);
     const transactionApi = new TransactionApi(apiConfiguration);
 
-    // Setting up the private key of the transaction notary.
     const notaryPrivateKey = new PrivateKey.Ed25519(await generateSecureRandomBytes(32));
     fetchPricesAndSendTransaction(statusApi, transactionApi, notaryPrivateKey);
     setInterval(() => fetchPricesAndSendTransaction(statusApi, transactionApi, notaryPrivateKey), 60 * 1000); // every minute
-
 };
 
 main();
