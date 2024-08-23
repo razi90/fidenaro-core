@@ -17,10 +17,11 @@ export interface Vault {
     managerEquity: number;
     followerEquity: number;
     pricePerShare: number;
-    profitShare: number;
+    managerFee: number;
     manager: User;
     tradeHistory: Trade[];
-    assets: Map<string, AssetStats>;
+    userAssetValues: Map<string, AssetStats>;
+    managerAssetValues: Map<string, AssetStats>;
     deposits: Transaction[];
     withdrawals: Transaction[];
     shareTokenAmount: number,
@@ -30,6 +31,7 @@ export interface Vault {
     calculateUserInvestedEquity: (userId: string | undefined) => number;
     calculateUserPnL: (userId: string | undefined, userShareAmount: number) => number;
     calculateUserROI: (userId: string | undefined, userShareAmount: number) => number;
+    calculateTraderFeeInXrd: () => number;
 }
 
 export interface AssetStats {

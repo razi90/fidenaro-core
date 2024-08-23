@@ -30,6 +30,7 @@ import { TradeButton } from '../../components/Button/TradeButton/TradeButton';
 import { convertToPercent, convertToXRDString } from '../../libs/etc/StringOperations';
 import { VaultFlowHistoryTable } from '../../components/Table/VaultFlowHistoryTable';
 import { fetchTradeHistory } from '../../libs/transaction/TransactionDataService';
+import { CollectTraderFeeButton } from '../../components/Button/CollectTraderFeeButton/CollectTraderFeeButton';
 
 
 interface VaultProps {
@@ -89,11 +90,18 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             <Flex >
                                 <ValueCard value={vault?.activeDays} description={"Active Days"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                 <ValueCard value={vault?.followers.length} description={"Follower"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                {
+                                    user?.id === vault?.manager.id && <ValueCard value={convertToXRDString(vault?.calculateTraderFeeInXrd())} description={"Earned Fee"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                }
                             </Flex >
                             <Flex justifyContent='flex-end' w={"100%"} mt={6} px={2}  >
                                 {
                                     user?.id === vault?.manager.id &&
-                                    <TradeButton vault={vault} isConnected={wallet?.persona !== undefined} />
+                                    <>
+                                        <CollectTraderFeeButton vault={vault} user={user} isConnected={wallet?.persona !== undefined} />
+                                        <Box m={1}></Box>
+                                        <TradeButton vault={vault} isConnected={wallet?.persona !== undefined} />
+                                    </>
                                 }
                                 <Box m={1}></Box>
                                 <DepositButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
@@ -116,7 +124,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             {userShareTokenAmount !== 0 && (
                                 <>
                                     <Flex >
-                                        <ValueCard value={convertToXRDString(vault?.calculateUserPnL(user?.id, userShareValue))} description={"Your All-Time PnL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                        <ValueCard value={convertToXRDString(vault?.calculateUserPnL(user?.id, userShareValue))} description={"Your Realized PnL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                         <ValueCard value={convertToXRDString(userShareValue)} description={"Your Current TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                     </Flex>
                                 </>
@@ -126,7 +134,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                     </Flex >
 
                     <Flex>
-                        <VaultAssetTable title='Assets' data={vault?.assets} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                        <VaultAssetTable title='Assets' data={vault?.userAssetValues} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                     </Flex >
 
                     <Box p={4}>
