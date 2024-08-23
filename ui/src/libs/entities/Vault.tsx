@@ -8,8 +8,7 @@ export interface Vault {
     description: string;
     shareTokenAddress: string;
     manager_badge_address: string;
-    total: number;
-    today: number;
+    roi: number;
     activeDays: number;
     followers: string[];
     tvlInXrd: number;
@@ -27,7 +26,6 @@ export interface Vault {
     shareTokenAmount: number,
 
     calculatePnL: () => number;
-    calculateROI: () => number;
     calculateUserInvestedEquity: (userId: string | undefined) => number;
     calculateUserPnL: (userId: string | undefined, userShareAmount: number) => number;
     calculateUserROI: (userId: string | undefined, userShareAmount: number) => number;

@@ -41,7 +41,7 @@ interface VaultTableProps {
     user: User | undefined;
     isConnected: boolean;
 }
-const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isConnected }) => {
+const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
 
     const [isDataLoaded, setIsDataLoaded] = useState(false);
 
@@ -62,7 +62,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
 
     // State variables for filter values
     const [nameFilter, setNameFilter] = useState('');
-    const [totalFilter, setTotalFilter] = useState(Number.MIN_SAFE_INTEGER);
+    const [roiFilter, setRoiFilter] = useState(Number.MIN_SAFE_INTEGER);
     // const [todayFilter, setTodayFilter] = useState(Number.MIN_SAFE_INTEGER);
     const [activeDaysFilter, setActiveDaysFilter] = useState(Number.MIN_SAFE_INTEGER);
     const [followersFilter, setFollowersFilter] = useState(Number.MIN_SAFE_INTEGER);
@@ -85,8 +85,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
 
     const resetFilters = () => {
         setNameFilter('');
-        setTotalFilter(Number.MIN_SAFE_INTEGER);
-        // setTodayFilter(Number.MIN_SAFE_INTEGER);
+        setRoiFilter(Number.MIN_SAFE_INTEGER);
         setActiveDaysFilter(Number.MIN_SAFE_INTEGER);
         setFollowersFilter(Number.MIN_SAFE_INTEGER);
     };
@@ -119,8 +118,9 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
             // Apply sorting
             if (sortedColumn) {
                 filteredEntries = filteredEntries.slice().sort((a, b) => {
-                    const aValue = sortOrder === 'asc' ? Number(a[sortedColumn]) : Number(b[sortedColumn]);
-                    const bValue = sortOrder === 'asc' ? Number(b[sortedColumn]) : Number(a[sortedColumn]);
+                    let aValue = sortOrder === 'asc' ? Number(a[sortedColumn]) : Number(b[sortedColumn]);
+                    let bValue = sortOrder === 'asc' ? Number(b[sortedColumn]) : Number(a[sortedColumn]);
+
                     return aValue - bValue;
                 });
             }
@@ -128,17 +128,17 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
             // Apply filtering based on the filter criteria
             filteredEntries = filteredEntries.filter((entry) => {
                 const nameMatch = entry.name.toLowerCase().includes(nameFilter.toLowerCase());
-                const totalMatch = entry.calculateROI() >= totalFilter;
+                const roiMatch = entry.roi >= roiFilter;
                 const activeDaysMatch = entry.activeDays >= activeDaysFilter;
                 const followersMatch = entry.followers.length >= followersFilter;
 
-                return nameMatch && totalMatch && activeDaysMatch && followersMatch;
+                return nameMatch && roiMatch && activeDaysMatch && followersMatch;
             });
             // Set the sorder and filtered data
             setFilteredData(filteredEntries);
 
         }
-    }, [nameFilter, totalFilter, activeDaysFilter, followersFilter, sortedColumn, sortOrder]);
+    }, [nameFilter, roiFilter, activeDaysFilter, followersFilter, sortedColumn, sortOrder]);
 
     return (
         <Box mx={"0px"}>
@@ -170,9 +170,9 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
                                 />
 
                                 <FilterSelect
-                                    placeholder='APR'
-                                    value={totalFilter}
-                                    onChange={setTotalFilter}
+                                    placeholder='ROI'
+                                    value={roiFilter}
+                                    onChange={setRoiFilter}
                                     options={totalOptions}
                                     is_percent={true}
                                 />
@@ -205,7 +205,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
                                 <Thead>
                                     <Tr>
                                         <Th>Name</Th>
-                                        <Th>APR</Th>
+                                        <Th>ROI</Th>
                                         <Th>Active Days</Th>
                                         <Th>Follower</Th>
                                         <Th>TVL XRD</Th>
@@ -232,7 +232,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
                                 <Thead>
                                     <Tr>
                                         <Th>Name</Th>
-                                        <SortableTh column="total" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>APR</SortableTh>
+                                        <SortableTh column="roi" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>ROI</SortableTh>
                                         <SortableTh column="activeDays" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >Active Days</SortableTh>
                                         <SortableTh column="followers" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Followers</SortableTh>
                                         <SortableTh column="tvlInXrd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL XRD</SortableTh>
@@ -255,8 +255,8 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading, user, isC
                                                     </Button>
                                                 </Tooltip>
                                             </Td>
-                                            <Td color={entry.calculateROI() >= 0 ? 'green.500' : 'red.500'}>
-                                                {convertToPercent(entry.calculateROI())}
+                                            <Td color={entry.roi >= 0 ? 'green.500' : 'red.500'}>
+                                                {convertToPercent(entry.roi)}
                                             </Td>
                                             <Td>{entry.activeDays}</Td>
                                             <Td>{entry.followers.length}</Td>
