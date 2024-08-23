@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { enqueueSnackbar } from "notistack";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
-import { FIDENARO_COMPONENT_ADDRESS, USER_NFT_RESOURCE_ADDRESS } from "../../../libs/fidenaro/Config";
+import { FIDENARO_COMPONENT_ADDRESS, USER_FACTORY_COMPONENT_ADDRESS, USER_NFT_RESOURCE_ADDRESS } from "../../../libs/fidenaro/Config";
 import Filter from 'bad-words';
 
 interface ProfileEditDialogProps {
@@ -52,7 +52,7 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
         }
 
         // check if description is too short
-        if (userBio.trim().length < 10) {
+        if (userBio.trim().length < 1) {
             setIsLoading(false);
             enqueueSnackbar('Sorry, the description is too short.', { variant: 'error' });
             return
@@ -128,35 +128,28 @@ const ProfileEditDialog: React.FC<ProfileEditDialogProps> = ({ isOpen, setIsOpen
 
         let manifest = `
             CALL_METHOD
-            Address("${user?.account}")
-            "withdraw"
-            Address("${USER_NFT_RESOURCE_ADDRESS}")
-            Decimal("1")
-                ;
+                Address("${user?.account}")
+                "withdraw"
+                Address("${USER_NFT_RESOURCE_ADDRESS}")
+                Decimal("1")
+            ;
             TAKE_ALL_FROM_WORKTOP
-            Address("${USER_NFT_RESOURCE_ADDRESS}")
-            Bucket("user_token")
-                ;
-            CREATE_PROOF_FROM_BUCKET_OF_NON_FUNGIBLES
-            Bucket("user_token")
-            Array<NonFungibleLocalId>(NonFungibleLocalId("${user?.id}"))
-            Proof("user_token_proof")
-                ;
+                Address("${USER_NFT_RESOURCE_ADDRESS}")
+                Bucket("user_token")
+            ;
             CALL_METHOD
-            Address("${FIDENARO_COMPONENT_ADDRESS}")
-            "update_user_data"
-            Proof("user_token_proof")
-            Map<String, String>(
-                ${mapTuples}
-            )
-                ;
-            RETURN_TO_WORKTOP
-            Bucket("user_token");
+                Address("${USER_FACTORY_COMPONENT_ADDRESS}")
+                "update_user_data"
+                Bucket("user_token")
+                Map<String, String>(
+                    ${mapTuples}
+                )
+            ;
             CALL_METHOD
-            Address("${user?.account}")
-            "deposit_batch"
-            Expression("ENTIRE_WORKTOP")
-                ;
+                Address("${user?.account}")
+                "deposit_batch"
+                Expression("ENTIRE_WORKTOP")
+            ;
         `
 
         console.log(manifest)
