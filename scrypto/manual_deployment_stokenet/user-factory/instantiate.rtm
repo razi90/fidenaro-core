@@ -1,0 +1,5 @@
+CALL_FUNCTION
+    Address("package_tdx_2_1p50ehcvqgd52j4037l9uqaxcg5zvqtdxhrsjclqzn5kkvptq5klhw3")
+    "UserFactory"
+    "instantiate"
+;

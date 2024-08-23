@@ -3,7 +3,7 @@ import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
 import { useQuery } from "@tanstack/react-query";
-import { FIDENARO_COMPONENT_ADDRESS } from "../../../libs/fidenaro/Config";
+import { FIDENARO_COMPONENT_ADDRESS, USER_FACTORY_COMPONENT_ADDRESS } from "../../../libs/fidenaro/Config";
 import { useState } from "react";
 import { enqueueSnackbar, useSnackbar } from "notistack";
 import { WalletDataState } from "@radixdlt/radix-dapp-toolkit";
@@ -64,14 +64,14 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
         }
 
         // check if description is too short
-        if (userBio.trim().length < 10) {
+        if (userBio.trim().length < 1) {
             setIsLoading(false);
             enqueueSnackbar('Sorry, the description is too short.', { variant: 'error' });
             return
         }
 
         // check if url is valid
-        if (!isValidUrl(pfpUrl.trim())) {
+        if (twitter.trim().length > 0 && !isValidUrl(pfpUrl.trim())) {
             setIsLoading(false);
             enqueueSnackbar('Sorry, the profile picture URL is invalid.', { variant: 'error' });
             return
@@ -114,8 +114,12 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
 
         let manifest = `
             CALL_METHOD
-                Address("${FIDENARO_COMPONENT_ADDRESS}")
-                "new_user"
+                Address("component_tdx_2_1cptxxxxxxxxxfaucetxxxxxxxxx000527798379xxxxxxxxxyulkzl")
+                "free"
+            ;
+            CALL_METHOD
+                Address("${USER_FACTORY_COMPONENT_ADDRESS}")
+                "create_new_user"
                 "${userName}"
                 "${userBio}"
                 "${pfpUrl}"
@@ -125,8 +129,9 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
                 ;
             CALL_METHOD
                 Address("${wallet.accounts[0].address}")
-        "deposit_batch"
-        Expression("ENTIRE_WORKTOP")
+                "try_deposit_batch_or_abort"
+                Expression("ENTIRE_WORKTOP")
+                Enum<0u8>()
             ;
         `
 

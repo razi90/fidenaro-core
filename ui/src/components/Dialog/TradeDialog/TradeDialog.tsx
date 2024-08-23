@@ -59,7 +59,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
 
     const initialRef = useRef(null)
     const [isBalanceError, setIsBalanceError] = useState(false);
-    const [fromToken, setFromToken] = useState<Asset>(USDollar);
+    const [fromToken, setFromToken] = useState<Asset>(Radix);
     const [toToken, setToToken] = useState<Asset>(Bitcoin);
     const [amount, setAmount] = useState('');
 
