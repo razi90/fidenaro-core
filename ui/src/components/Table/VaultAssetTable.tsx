@@ -16,7 +16,7 @@ import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
 import { addressToAsset } from '../../libs/entities/Asset';
 import { AssetStats } from '../../libs/entities/Vault';
-import { convertToDollarString } from '../../libs/etc/StringOperations';
+import { convertToDollarString, convertToXRDString } from '../../libs/etc/StringOperations';
 import { ApexOptions } from 'apexcharts';
 
 
@@ -70,6 +70,7 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
                     <Td><SkeletonText mt="2" noOfLines={2} spacing="3" skeletonHeight="2" /></Td>
                     <Td isNumeric><SkeletonText mt="2" noOfLines={2} spacing="3" skeletonHeight="2" /></Td>
                     <Td isNumeric><SkeletonText mt="2" noOfLines={2} spacing="3" skeletonHeight="2" /></Td>
+                    <Td isNumeric><SkeletonText mt="2" noOfLines={2} spacing="3" skeletonHeight="2" /></Td>
                 </Tr>
             );
         } else {
@@ -80,6 +81,7 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
                     <Td>{asset.symbol}</Td>
                     <Td>{asset.name} ({asset.ticker})</Td>
                     <Td isNumeric>{amount}</Td>
+                    <Td isNumeric>{convertToXRDString(value?.valueInXRD)}</Td>
                     <Td isNumeric>{convertToDollarString(value?.valueInUSD)}</Td>
                 </Tr>
             );
@@ -97,7 +99,8 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
                                 <Th>Symbol</Th>
                                 <Th>Coin</Th>
                                 <Th isNumeric>Amount</Th>
-                                <Th isNumeric>Value</Th>
+                                <Th isNumeric>Value XRD</Th>
+                                <Th isNumeric>Value USD</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
@@ -110,7 +113,8 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
                                 <Th>Symbol</Th>
                                 <Th>Coin</Th>
                                 <Th isNumeric>Amount</Th>
-                                <Th isNumeric>Value</Th>
+                                <Th isNumeric>Value XRD</Th>
+                                <Th isNumeric>Value USD</Th>
                             </Tr>
                         </Tfoot>
                     </Table>
