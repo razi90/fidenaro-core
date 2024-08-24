@@ -167,7 +167,8 @@ const fetchPricesAndSendTransaction = async (statusApi: StatusApi, transactionAp
         NetworkConfiguration.networkId
     ).then((addressBook) => addressBook.componentAddresses.faucet);
 
-    let prices = await getPricesCaviarNine();
+    // let prices = await getPricesCaviarNine();
+    let prices = await getPricesCoinGecko();
 
     const manifest = new ManifestBuilder()
         .callMethod(faucetComponentAddress, "lock_fee", [decimal(10)])
@@ -284,7 +285,7 @@ const main = async () => {
 
     const notaryPrivateKey = new PrivateKey.Ed25519(await generateSecureRandomBytes(32));
     fetchPricesAndSendTransaction(statusApi, transactionApi, notaryPrivateKey);
-    setInterval(() => fetchPricesAndSendTransaction(statusApi, transactionApi, notaryPrivateKey), 60 * 1000); // every minute
+    setInterval(() => fetchPricesAndSendTransaction(statusApi, transactionApi, notaryPrivateKey), 5 * 60 * 1000); // every five minutes
 };
 
 main();
