@@ -3,7 +3,7 @@ import { vaultPerformanceCandleChartData } from './VaultPerformanceData';
 import { vaultProfitabilityChartData } from './VaultProfitabilityData';
 import { Asset, addressToAsset } from '../entities/Asset';
 import { gatewayApi } from '../radix-dapp-toolkit/rdt';
-import { TRADE_VAULT_STORE } from '../fidenaro/Config';
+import { BLACKLIST, TRADE_VAULT_STORE } from '../fidenaro/Config';
 import { fetchUserInfoById } from '../user/UserDataService';
 import { fetchPriceList, PriceData } from '../price/PriceDataService';
 import { Transaction } from '../transaction/TransactionDataService';
@@ -13,6 +13,7 @@ export const fetchVaultList = async (): Promise<Vault[]> => {
         let tradeVaults: Vault[] = [];
 
         let tradeVaultComponentAddresses: string[] = await getAllTradeVaultAddresses();
+        tradeVaultComponentAddresses = tradeVaultComponentAddresses.filter(item => !BLACKLIST.includes(item));
 
         let vaultLedgerDataAggregated: any = await gatewayApi.state.getEntityDetailsVaultAggregated(tradeVaultComponentAddresses);
 
