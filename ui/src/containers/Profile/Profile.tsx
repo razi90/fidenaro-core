@@ -192,7 +192,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
 
                                     <PrimerCard cardTitle='Stats' cardWidth='50%' cardHeight='auto' isLoading={isLoading}>
                                         <Box p={'4'}>
-                                            <Flex m={2} >
+                                            {/* <Flex m={2} >
                                                 <ChartCard
                                                     cardTitle={""}
                                                     cardWidth={"100%"}
@@ -202,7 +202,7 @@ const Profile: React.FC<ProfileProps> = ({ isMinimized }) => {
                                                     chartWidth={"100%"}
                                                     chartSeries={seriesData}
                                                     isLoading={isLoading || isProfileLoading} />
-                                            </Flex>
+                                            </Flex> */}
 
                                             <HStack mt={8}>
                                                 <ProfileStatsTable
