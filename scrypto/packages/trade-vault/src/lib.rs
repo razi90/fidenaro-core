@@ -755,7 +755,7 @@ mod trade_vault {
                 user_position.share_amount -= share_tokens.amount();
                 let new_total_deposit = user_position.total_deposit
                     * (1 - user_withdrawal_proportion);
-                user_position.total_deposit -= new_total_deposit;
+                user_position.total_deposit = new_total_deposit;
 
                 if user_position.share_amount.is_zero() {
                     remove_entry = true;

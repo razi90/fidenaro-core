@@ -291,6 +291,62 @@ fn trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
 }
 
 #[test]
+fn trader_no_fee_when_no_profit() -> Result<(), RuntimeError> {
+    // Arrange
+    let Environment {
+        environment: ref mut env,
+        mut protocol,
+        radiswap,
+        resources,
+    } = ScryptoUnitTestEnv::new()?;
+
+    let proof = protocol.follower.0.create_proof_of_all(env)?;
+    let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
+
+    let share_tokens =
+        protocol
+            .trade_vault
+            .deposit(proof.clone(env).unwrap(), bucket, env)?;
+
+    protocol
+        .trade_vault
+        .swap(
+            XRD,
+            dec!(50),
+            radiswap.pools.bitcoin.try_into().unwrap(),
+            env,
+        )
+        .expect("Swap succeeded.");
+
+    protocol
+        .oracle
+        .set_price(resources.bitcoin, XRD, dec!(0.5), env)
+        .expect("Changed BTC price.");
+
+    protocol
+        .trade_vault
+        .withdraw(
+            proof.clone(env).unwrap(),
+            share_tokens.take(dec!(50), env).unwrap(),
+            env,
+        )
+        .expect("User withdraws his funds");
+
+    // Act
+    let result_xrd =
+        protocol.trade_vault.withdraw_collected_trader_fee(XRD, env);
+    let result_btc = protocol
+        .trade_vault
+        .withdraw_collected_trader_fee(resources.bitcoin, env);
+
+    // Assert
+    assert!(result_xrd.is_err(), "Fees in XRD cannot be withdrawn.");
+    assert!(result_btc.is_err(), "Fees in BTC cannot be withdrawn.");
+
+    Ok(())
+}
+
+#[test]
 fn can_open_position() -> Result<(), RuntimeError> {
     // Arrange
     let Environment {
