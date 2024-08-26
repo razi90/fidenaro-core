@@ -61,7 +61,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                     <Th isNumeric> Amount</Th>
                                     <Th>To</Th>
                                     <Th isNumeric>Amount </Th>
-                                    <Th isNumeric>Price</Th>
+                                    {/* <Th isNumeric>Price</Th> */}
                                 </Tr>
                             </Thead>
                             <Tbody>
@@ -79,9 +79,9 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                         <Td isNumeric>
                                             <Text><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Text>
                                         </Td>
-                                        <Td isNumeric>
+                                        {/* <Td isNumeric>
                                             <Text><SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' /></Text>
-                                        </Td>
+                                        </Td> */}
 
                                     </Tr>
                                 ))}
@@ -94,7 +94,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                     <Th isNumeric> Amount</Th>
                                     <Th>To</Th>
                                     <Th isNumeric>Amount </Th>
-                                    <Th isNumeric>Price</Th>
+                                    {/* <Th isNumeric>Price</Th> */}
                                 </Tr>
                             </Tfoot>
                         </Table>
@@ -111,7 +111,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                     <Th isNumeric> Amount</Th>
                                     <Th>To</Th>
                                     <Th isNumeric>Amount </Th>
-                                    <Th isNumeric>Price</Th>
+                                    {/* <Th isNumeric>Price</Th> */}
                                 </Tr>
                             </Thead>
                             <Tbody>
@@ -122,7 +122,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                         <Td isNumeric>{item.trade_details.from_amount}</Td>
                                         <Td>{item.trade_details.to.ticker}</Td>
                                         <Td isNumeric>{item.trade_details.to_amount}</Td>
-                                        <Td isNumeric>{convertToDollarString(item.trade_details.price)}</Td>
+                                        {/* <Td isNumeric>{convertToDollarString(item.trade_details.price)}</Td> */}
                                         {/* <Td>
                                             <RadixTansactionLink content={item.transaction} />
                                         </Td> */}
@@ -136,7 +136,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
                                     <Th isNumeric> Amount</Th>
                                     <Th>To</Th>
                                     <Th isNumeric>Amount </Th>
-                                    <Th isNumeric>Price</Th>
+                                    {/* <Th isNumeric>Price</Th> */}
                                 </Tr>
                             </Tfoot>
                         </Table>
