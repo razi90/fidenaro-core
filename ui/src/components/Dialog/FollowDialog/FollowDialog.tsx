@@ -22,11 +22,12 @@ import { convertToXRDString } from "../../../libs/etc/StringOperations";
 interface FollowDialogProps {
     isOpen: boolean,
     setIsOpen: (isOpen: boolean) => void,
-    vault: Vault | undefined
+    vault: Vault | undefined,
+    onDepositComplete?: () => void
 }
 
 
-const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault }) => {
+const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault, onDepositComplete }) => {
 
     // Stepper
     const steps = [
@@ -172,6 +173,10 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault })
             console.log("Failed to deposit: ", result.error)
             setActiveStep(0);
 
+        }
+
+        if (onDepositComplete) {
+            onDepositComplete();
         }
 
         setIsLoading(false);

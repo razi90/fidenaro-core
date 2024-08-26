@@ -43,7 +43,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
 
     const { enqueueSnackbar } = useSnackbar();
 
-    const { data: vault, isLoading: isVaultFetchLoading, isError } = useQuery({
+    const { data: vault, isLoading: isVaultFetchLoading, isError, refetch } = useQuery({
         queryKey: ['vault_list'],
         queryFn: () => getVaultDataById(id!),
     });
@@ -104,7 +104,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                     </>
                                 }
                                 <Box m={1}></Box>
-                                <DepositButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
+                                <DepositButton vault={vault} isConnected={(wallet?.persona) !== undefined} onDepositComplete={refetch} />
                                 <Box m={1}></Box>
                                 <WithdrawButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
                             </Flex>
