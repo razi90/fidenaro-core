@@ -13,7 +13,7 @@ import { Vault } from '../../../libs/entities/Vault';
 interface DepositButtonProps {
     vault: Vault | undefined;
     isConnected: boolean;
-    onDepositComplete?: () => void;  // Add the onDepositComplete prop
+    onDepositComplete?: () => void;
 }
 
 export const DepositButton: React.FC<DepositButtonProps> = ({ vault, isConnected, onDepositComplete }) => {

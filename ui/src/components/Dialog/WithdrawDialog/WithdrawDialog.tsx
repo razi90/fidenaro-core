@@ -18,11 +18,12 @@ import { ManifestBuilder, address, decimal, array, ValueKind, nonFungibleLocalId
 interface WithdrawDialogProps {
     isOpen: boolean,
     setIsOpen: (isOpen: boolean) => void,
-    vault: Vault | undefined
+    vault: Vault | undefined,
+    onWithdrawComplete?: () => void;
 }
 
 
-const WithdrawDialog: React.FC<WithdrawDialogProps> = ({ isOpen, setIsOpen, vault }) => {
+const WithdrawDialog: React.FC<WithdrawDialogProps> = ({ isOpen, setIsOpen, vault, onWithdrawComplete }) => {
 
     // Stepper
     const steps = [
@@ -167,6 +168,10 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({ isOpen, setIsOpen, vaul
             console.log("Failed to withdraw: ", result.error)
 
             setActiveStep(0);
+        }
+
+        if (onWithdrawComplete) {
+            onWithdrawComplete();
         }
 
         setIsLoading(false);

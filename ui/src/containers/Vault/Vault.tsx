@@ -106,7 +106,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                                 <Box m={1}></Box>
                                 <DepositButton vault={vault} isConnected={(wallet?.persona) !== undefined} onDepositComplete={refetch} />
                                 <Box m={1}></Box>
-                                <WithdrawButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} />
+                                <WithdrawButton vault={vault} isConnected={(wallet?.persona) == undefined ? false : true} onWithdrawComplete={refetch} />
                             </Flex>
 
                         </PrimerCard >

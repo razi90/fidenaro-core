@@ -23,7 +23,7 @@ interface FollowDialogProps {
     isOpen: boolean,
     setIsOpen: (isOpen: boolean) => void,
     vault: Vault | undefined,
-    onDepositComplete?: () => void
+    onDepositComplete?: () => void;
 }
 
 

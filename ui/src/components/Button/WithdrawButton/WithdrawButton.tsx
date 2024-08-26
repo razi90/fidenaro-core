@@ -13,12 +13,20 @@ import WithdrawDialog from '../../Dialog/WithdrawDialog/WithdrawDialog';
 
 interface WithdrawButtonProps {
     vault: Vault | undefined,
-    isConnected: boolean;
+    isConnected: boolean,
+    onWithdrawComplete?: () => void;
 }
 
-export const WithdrawButton: React.FC<WithdrawButtonProps> = ({ vault, isConnected }) => {
+export const WithdrawButton: React.FC<WithdrawButtonProps> = ({ vault, isConnected, onWithdrawComplete }) => {
 
     const [isOpen, setIsOpen] = useState(false);
+
+    const handleWithdrawComplete = () => {
+        setIsOpen(false);
+        if (onWithdrawComplete) {
+            onWithdrawComplete();  // Call the callback after deposit is complete
+        }
+    };
 
     return (
         <>
@@ -47,7 +55,7 @@ export const WithdrawButton: React.FC<WithdrawButtonProps> = ({ vault, isConnect
                     </Button>
                 </Tooltip>
             )}
-            <WithdrawDialog isOpen={isOpen} setIsOpen={setIsOpen} vault={vault} />
+            <WithdrawDialog isOpen={isOpen} setIsOpen={setIsOpen} vault={vault} onWithdrawComplete={handleWithdrawComplete} />
         </>
     );
 };
