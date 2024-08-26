@@ -35,11 +35,7 @@ export default function TopNavigationBar() {
     const [steps, setSteps] = useState<Step[]>([
         {
             target: '.wallet-first-step',
-            content: 'First of all connect the wallet on the testnet. [Settings -> App Settings -> Gateways and Development Mode ON]. Afterwards get virtual XRD to pay the test fees via [Wallet Account -> Account Settings -> Dev Preferences -> Get XRD Test Tokens].',
-        },
-        {
-            target: '.get-fusd-button-first-step',
-            content: 'No you can order hier the Fidenaro Test stable coin FUSD. This is required to invest and trade with vaults.',
+            content: 'First of all connect the wallet on the testnet. [Settings -> App Settings -> Gateways]. Afterwards get virtual XRD to pay the test fees via [Wallet Account -> Account Settings -> Dev Preferences -> Get XRD Test Tokens].',
         },
         {
             target: '.create-profile-button-first-step',
