@@ -302,8 +302,8 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
                                 <ModalBody>
                                     <Text>You traded successfully the amount <Text as='b'><TruncatedNumberValue content={amount + ""} /></Text> from <Text as='b'>{fromToken?.ticker}</Text> to <Text as='b'>{toToken?.ticker}</Text>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
                                     <Box my={4}>
-                                        <Text mb={2}>{fromToken?.ticker} Available Amount: <TruncatedNumberValue content={(vault?.userAssetValues.get(fromToken?.address) || 0) + ""} /> </Text>
-                                        <Text mb={2}>{toToken?.ticker} Current Amount: <TruncatedNumberValue content={(vault?.userAssetValues.get(toToken?.address) || 0) + ""} /> </Text>
+                                        <Text mb={2}>{fromToken?.ticker} Available Amount: <TruncatedNumberValue content={(vault?.userAssetValues.get(fromToken?.address)?.amount || 0) + ""} /> </Text>
+                                        <Text mb={2}>{toToken?.ticker} Current Amount: <TruncatedNumberValue content={(vault?.userAssetValues.get(toToken?.address)?.amount || 0) + ""} /> </Text>
                                     </Box>
                                 </ModalBody>
                                 <ModalFooter>
