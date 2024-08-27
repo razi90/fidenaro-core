@@ -124,7 +124,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
                             {userShareTokenAmount !== 0 && (
                                 <>
                                     <Flex >
-                                        <ValueCard value={convertToXRDString(vault?.calculateUserPnL(user?.id, userShareValue))} description={"Your Realized PnL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                                        <ValueCard value={convertToXRDString(vault?.calculateUserPnL(user?.id, userShareValue))} description={"Your PnL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                         <ValueCard value={convertToXRDString(userShareValue)} description={"Your Current TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
                                     </Flex>
                                 </>
