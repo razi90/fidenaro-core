@@ -12,4 +12,7 @@ export const BLACKLIST = ["component_tdx_2_1cru00swt2hnz285jrw64cd6c5zfae28a6540
     "component_tdx_2_1czvpcqqkfj4ld22esltwjyug2rlez8m7yq9me40wyftl7yxjrev33g",
     "component_tdx_2_1cpk2qu6ake0j5f78e8u69q62d4v7y8as30myps8up3l75u07tv3w3f",
     "component_tdx_2_1cr3xe066yvlhhsn9jx7aw8z04n8rm7k459f3z42nssapz4x429n3j8",
+    "component_tdx_2_1czzf7gplqclewmff65gqytem3we0pd5ma942686z8jqhkrjl3vj2ns",
+    "component_tdx_2_1cpn2lxhcng8s7y5cfqk2g3fcpq5z6ncxav0nqqfcrn2emmu7f6nl57",
+    "component_tdx_2_1cqfjkhlczpm8qhw9daap7f97dwskg06zdkwe3jxu2clmdglm7as0p6"
 ]
