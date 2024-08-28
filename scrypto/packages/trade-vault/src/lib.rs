@@ -500,11 +500,11 @@ mod trade_vault {
                 "This asset cannot be swapped as it is not part of the allowed pool list!"
             );
 
-            // withdraw tokens from vault
+            // Withdraw tokens from vault
             let from_vault = self.assets.get_mut(&from_token_address).unwrap();
             let mut from_token = from_vault.take(from_token_amount);
 
-            // Take fidenaro fee
+            // Take Fidenaro fee
             let fee_rate = self.fidenaro.get_fee_rate();
             let fee_amount = from_token.amount() * fee_rate;
             let fee = from_token.take(fee_amount);
@@ -512,28 +512,47 @@ mod trade_vault {
 
             info!("Fee amount of {} was deposited to Fidenaro.", fee_amount);
 
-            // Calculate amount to buy
-            let price = if from_token_address == XRD {
-                self.fidenaro
-                    .get_oracle_adapter()
-                    .unwrap()
-                    .get_price(to_token_address, XRD)
-                    .0
-            } else {
+            // Calculate price ratio based on the oracle's price in XRD
+            let price_ratio = if from_token_address == XRD {
+                // If from_token is XRD, you get the amount of to_token per XRD
+                Decimal::one()
+                    / self
+                        .fidenaro
+                        .get_oracle_adapter()
+                        .unwrap()
+                        .get_price(to_token_address, XRD)
+                        .0
+            } else if to_token_address == XRD {
+                // If to_token is XRD, the price ratio is the price of from_token in XRD
                 self.fidenaro
                     .get_oracle_adapter()
                     .unwrap()
                     .get_price(from_token_address, XRD)
                     .0
-            };
-
-            info!("Current price {}.", price);
-
-            let mut to_token_amount = if from_token_address == XRD {
-                (from_token_amount - fee_amount) / price
             } else {
-                (from_token_amount - fee_amount) * price
+                // If neither is XRD, use the ratio of their prices in XRD
+                let from_token_price_in_xrd = self
+                    .fidenaro
+                    .get_oracle_adapter()
+                    .unwrap()
+                    .get_price(from_token_address, XRD)
+                    .0;
+
+                let to_token_price_in_xrd = self
+                    .fidenaro
+                    .get_oracle_adapter()
+                    .unwrap()
+                    .get_price(to_token_address, XRD)
+                    .0;
+
+                from_token_price_in_xrd / to_token_price_in_xrd
             };
+
+            info!("Current price ratio {}.", price_ratio);
+
+            // Calculate the amount of Asset A based on from_token_amount
+            let mut to_token_amount =
+                (from_token_amount - fee_amount) * price_ratio;
 
             let decoder =
                 AddressBech32Decoder::new(&NetworkDefinition::stokenet());
@@ -552,14 +571,14 @@ mod trade_vault {
 
             info!("Amount to buy {}.", to_token_amount);
 
-            // swap tokens
+            // Swap tokens
             let to_tokens = self.trade_engine.open_position(
                 from_token,
                 to_token_address,
                 to_token_amount,
             );
 
-            // deposit tokens into vault
+            // Deposit tokens into vault
             let pool = self
                 .assets
                 .entry(to_tokens.resource_address())
@@ -572,7 +591,7 @@ mod trade_vault {
                 from_amount: from_token_amount,
                 to: to_token_address,
                 to_amount: to_token_amount,
-                price,
+                price: price_ratio, // The price used for the swap
             });
         }
 
