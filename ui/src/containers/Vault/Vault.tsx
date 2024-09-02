@@ -44,7 +44,7 @@ const Vault: React.FC<VaultProps> = ({ isMinimized }) => {
     const { enqueueSnackbar } = useSnackbar();
 
     const { data: vault, isLoading: isVaultFetchLoading, isError, refetch } = useQuery({
-        queryKey: ['vault_list'],
+        queryKey: ['vault'],
         queryFn: () => getVaultDataById(id!),
     });
 
