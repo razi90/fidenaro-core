@@ -1,7 +1,7 @@
 import { Text, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Box, Stack, Textarea, Button } from "@chakra-ui/react";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
-import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
+import { gatewayApi, rdt } from "../../../libs/radix-dapp-toolkit/rdt";
 import { useQuery } from "@tanstack/react-query";
 // import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
 import { FIDENARO_COMPONENT_ADDRESS, TRADE_ENGINE_COMPONENT_ADDRESS, TRADE_VAULT_PACKAGE_ADDRESS, USER_NFT_RESOURCE_ADDRESS } from "../../../libs/fidenaro/Config";
@@ -12,7 +12,8 @@ import { fetchUserInfo } from "../../../libs/user/UserDataService";
 import Filter from 'bad-words';
 import { WalletDataState } from "@radixdlt/radix-dapp-toolkit";
 import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
-import { address, array, bucket, decimal, enumeration, expression, ManifestBuilder, NetworkId, nonFungibleLocalId, proof, RadixEngineToolkit, str, ValueKind } from "@radixdlt/radix-engine-toolkit";
+import { address, array, enumeration, expression, ManifestBuilder, NetworkId, nonFungibleLocalId, proof, RadixEngineToolkit, str, ValueKind } from "@radixdlt/radix-engine-toolkit";
+import { useNavigate } from 'react-router-dom';
 
 
 interface CreateVaultDialogProps {
@@ -27,6 +28,7 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
     const [vaultDescription, setVaultDescription] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
+    const navigate = useNavigate();
 
     // Bad word filter
     const filter = new Filter();
@@ -163,12 +165,33 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
 
         if (result.isOk()) {
             enqueueSnackbar(`Vault "${vaultName}" successfully created.`, { variant: 'success' });
-            console.log(`Vault "${vaultName}" successfully created. Value ${result.value}`)
-        }
+            console.log(`Vault "${vaultName}" successfully created. Value ${result.value}`);
 
-        if (result.isErr()) {
+            try {
+                // Retrieve the transaction receipt to get the component address
+                let getCommitReceipt = await gatewayApi.transaction.getCommittedDetails(result.value.transactionIntentHash);
+
+                if (getCommitReceipt && getCommitReceipt.transaction && Array.isArray(getCommitReceipt.transaction.affected_global_entities)) {
+                    let componentAddress = getCommitReceipt.transaction.affected_global_entities[2];
+
+                    // Check if componentAddress is defined
+                    if (componentAddress) {
+                        navigate(`/vault/${componentAddress}`);
+                    } else {
+                        enqueueSnackbar('Component address not found in transaction details.', { variant: 'error' });
+                        console.error("Component address is undefined.");
+                    }
+                } else {
+                    enqueueSnackbar('Failed to retrieve valid transaction details.', { variant: 'error' });
+                    console.error("Transaction details are undefined or improperly formatted.", getCommitReceipt);
+                }
+            } catch (error) {
+                enqueueSnackbar('An error occurred while retrieving transaction details.', { variant: 'error' });
+                console.error("Error retrieving transaction details:", error);
+            }
+        } else {
             enqueueSnackbar('Failed to create a Vault', { variant: 'error' });
-            console.log("Failed to create a Vault: ", result.error)
+            console.log("Failed to create a Vault: ", result.error);
         }
 
         onClose();

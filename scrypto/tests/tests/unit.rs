@@ -398,3 +398,52 @@ fn can_open_position() -> Result<(), RuntimeError> {
 
     Ok(())
 }
+
+#[test]
+fn open_position_with_small_amount() -> Result<(), RuntimeError> {
+    // Arrange
+    let Environment {
+        environment: ref mut env,
+        mut protocol,
+        radiswap: _,
+        resources,
+    } = ScryptoUnitTestEnv::new()?;
+
+    let proof = protocol.trader.0.create_proof_of_all(env)?;
+    let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
+    let _ = protocol.trade_vault.deposit(proof, bucket, env)?;
+
+    // Set price of BTC in XRD
+    protocol.oracle.set_price(
+        resources.bitcoin,
+        XRD,
+        dec!(2555865.7370043527),
+        env,
+    )?;
+
+    // Act
+    let _ = protocol
+        .trade_vault
+        .open_position(XRD, resources.bitcoin, dec!(10), env)
+        .expect("Swap from XRD to BTC");
+
+    let _ = protocol
+        .trade_vault
+        .open_position(resources.bitcoin, XRD, dec!(0.00000387), env)
+        .expect("Swap from BTC to XRD");
+
+    // Assert
+    let [xrd_amount, btc_amount] = [XRD, resources.bitcoin].map(|resource| {
+        env.with_component_state::<TradeVaultState, _, _, _>(
+            protocol.trade_vault,
+            |state, env| state.assets.get(&resource).unwrap().amount(env),
+        )
+        .unwrap()
+        .unwrap()
+    });
+
+    assert_eq!(xrd_amount, dec!(99.792288398184776499));
+    assert_eq!(btc_amount, dec!(0));
+
+    Ok(())
+}

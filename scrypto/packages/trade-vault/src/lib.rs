@@ -45,7 +45,8 @@ struct TradeEvent {
     from_amount: Decimal,
     to: ResourceAddress,
     to_amount: Decimal,
-    price: Decimal,
+    from_token_price_in_xrd: Decimal,
+    to_token_price_in_xrd: Decimal,
 }
 
 #[blueprint]
@@ -53,7 +54,7 @@ struct TradeEvent {
 mod trade_vault {
 
     extern_blueprint! {
-        "package_tdx_2_1pkfw4hry7zrprl5wfk7kqlf396urzx9d73utpz8h0yqz9rks3ysxus",
+        "package_sim1pkuj90ee40aujtm7p7jpzlr30jymfu5mgzkaf36t626my7ftuhjmnx",
         Fidenaro {
             fn register_vault(&mut self, vault_address: ComponentAddress, manager_badge_address: ResourceAddress, share_token_address: ResourceAddress);
             fn get_user_token_resource_address(&self) -> ResourceAddress;
@@ -65,7 +66,7 @@ mod trade_vault {
     }
 
     extern_blueprint! {
-        "package_tdx_2_1phjktp5w3aqhag2sh46ajkrryw538waxdqakj3u0s3jjveujpw7gks",
+        "package_sim1ph4d3z4gguc59m530tuwdx8xv0t5lvdr4m38msgpkwryhfv5v4ql0t",
         TradeEngine {
             fn open_position(&mut self, from_token: Bucket, to_token_address: ResourceAddress, to_token_amount: Decimal) -> Bucket;
         }
@@ -495,10 +496,7 @@ mod trade_vault {
             to_token_address: ResourceAddress,
             from_token_amount: Decimal,
         ) {
-            assert!(
-                self.assets.contains_key(&from_token_address),
-                "This asset cannot be swapped as it is not part of the allowed pool list!"
-            );
+            assert!(self.assets.contains_key(&from_token_address), "This asset cannot be swapped as it is not part of the allowed pool list!");
 
             // Withdraw tokens from vault
             let from_vault = self.assets.get_mut(&from_token_address).unwrap();
@@ -507,66 +505,54 @@ mod trade_vault {
             // Take Fidenaro fee
             let fee_rate = self.fidenaro.get_fee_rate();
             let fee_amount = from_token.amount() * fee_rate;
-            let fee = from_token.take(fee_amount);
+            info!("Calculated fee amount: {}", fee_amount);
+            let fee = from_token.take_advanced(
+                fee_amount,
+                WithdrawStrategy::Rounded(RoundingMode::ToZero),
+            );
             self.fidenaro.deposit_fee(fee);
-
             info!("Fee amount of {} was deposited to Fidenaro.", fee_amount);
 
-            // Calculate price ratio based on the oracle's price in XRD
-            let price_ratio = if from_token_address == XRD {
-                // If from_token is XRD, you get the amount of to_token per XRD
+            // Set prices in XRD, defaulting to 1 if the asset is XRD
+            let from_token_price_in_xrd = if from_token_address == XRD {
                 Decimal::one()
-                    / self
-                        .fidenaro
-                        .get_oracle_adapter()
-                        .unwrap()
-                        .get_price(to_token_address, XRD)
-                        .0
-            } else if to_token_address == XRD {
-                // If to_token is XRD, the price ratio is the price of from_token in XRD
+            } else {
                 self.fidenaro
                     .get_oracle_adapter()
                     .unwrap()
                     .get_price(from_token_address, XRD)
                     .0
-            } else {
-                // If neither is XRD, use the ratio of their prices in XRD
-                let from_token_price_in_xrd = self
-                    .fidenaro
-                    .get_oracle_adapter()
-                    .unwrap()
-                    .get_price(from_token_address, XRD)
-                    .0;
+            };
 
-                let to_token_price_in_xrd = self
-                    .fidenaro
+            let to_token_price_in_xrd = if to_token_address == XRD {
+                Decimal::one()
+            } else {
+                self.fidenaro
                     .get_oracle_adapter()
                     .unwrap()
                     .get_price(to_token_address, XRD)
-                    .0;
-
-                from_token_price_in_xrd / to_token_price_in_xrd
+                    .0
             };
+
+            // Log the prices in XRD
+            info!("Price of from_token in XRD: {}", from_token_price_in_xrd);
+            info!("Price of to_token in XRD: {}", to_token_price_in_xrd);
+
+            // Calculate price ratio based on the oracle's price in XRD
+            let price_ratio = from_token_price_in_xrd / to_token_price_in_xrd;
 
             info!("Current price ratio {}.", price_ratio);
 
-            // Calculate the amount of Asset A based on from_token_amount
-            let mut to_token_amount =
-                (from_token_amount - fee_amount) * price_ratio;
+            // Calculate the amount of to_token based on from_token_amount
+            let to_token_divisibility =
+                ResourceManager::from_address(to_token_address)
+                    .resource_type()
+                    .divisibility()
+                    .unwrap();
 
-            let decoder =
-                AddressBech32Decoder::new(&NetworkDefinition::stokenet());
-
-            let mut decimal_places = 18;
-
-            if to_token_address == ResourceAddress::try_from_bech32(&decoder, "resource_tdx_2_1t4vmx0vezqqrcqhzlt0sxcphw63n73fsxve3nvrn8y5c5dyxk3fxuf").unwrap() {
-                decimal_places = 8;
-            } else if to_token_address == ResourceAddress::try_from_bech32(&decoder, "resource_tdx_2_1tkr36auhr7jpn07yvktk3u6s5stcm9vrdgf0xhdym9gv096v4q7thf").unwrap() {
-                decimal_places = 6;
-            };
-
-            to_token_amount = to_token_amount
-                .checked_round(decimal_places, RoundingMode::ToZero)
+            let to_token_amount = ((from_token_amount - fee_amount)
+                * price_ratio)
+                .checked_round(to_token_divisibility, RoundingMode::ToZero)
                 .unwrap();
 
             info!("Amount to buy {}.", to_token_amount);
@@ -591,7 +577,8 @@ mod trade_vault {
                 from_amount: from_token_amount,
                 to: to_token_address,
                 to_amount: to_token_amount,
-                price: price_ratio, // The price used for the swap
+                from_token_price_in_xrd,
+                to_token_price_in_xrd,
             });
         }
 

@@ -84,11 +84,9 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
         setToToken(selectedToken || null);
     };
 
-    // balance error handling
     const handleAmountChange = (e: { target: { value: any; }; }) => {
-        const value = e.target.value;
+        let value = e.target.value;
 
-        //prevent negative values
         if (value < 0) return;
 
         setAmount(value);
@@ -114,15 +112,6 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
             setIsLoading(false);
             setActiveStep(0);
             enqueueSnackbar('Cannot trade the same asset', { variant: 'error' });
-            return;
-        }
-
-        // Check for ETH and BTC trading
-        if ((fromToken.address === Ethereum.address && toToken.address === Bitcoin.address) ||
-            (fromToken.address === Bitcoin.address && toToken.address === Ethereum.address)) {
-            setIsLoading(false);
-            setActiveStep(0);
-            enqueueSnackbar('Trading between ETH and BTC is not allowed', { variant: 'error' });
             return;
         }
 
@@ -261,6 +250,16 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
                                                     <FormErrorMessage>Insufficient funds</FormErrorMessage>
                                                 )}
                                             </FormControl>
+                                            <InputRightAddon p={0}>
+                                                <Button
+                                                    onClick={() => setAmount((vault?.userAssetValues.get(fromToken?.address)?.amount || 0).toString())}
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    borderRadius={0}
+                                                >
+                                                    Max
+                                                </Button>
+                                            </InputRightAddon>
                                         </InputGroup>
 
                                     </VStack>
