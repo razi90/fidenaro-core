@@ -14,38 +14,37 @@ import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { PrimerCard } from '../../components/Card/PrimerCard';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
+import { LayoutMode } from '../../Layout';
 
 interface PortfolioProps {
-    isMinimized: boolean;
+    layoutMode: LayoutMode;
 }
 
-const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
+const Portfolio: React.FC<PortfolioProps> = ({ layoutMode }) => {
 
     const { data: vaults, isLoading, isError } = useQuery({ queryKey: ['vault_list'], queryFn: fetchVaultList });
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
-    // Get data to check if wallet is connected
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
     if (wallet?.persona == undefined) {
         return (
-            <Box sx={routePageBoxStyle(isMinimized)}>
+            <Box sx={routePageBoxStyle(layoutMode)}>
                 <Center>
-                    <Box maxW="6xl" minH="xl" width="100vw" >
-
+                    <Box maxW="6xl" minH="xl" width="100vw">
                         <PrimerCard cardTitle={"Wallet not connected!"} cardWidth='100%' cardHeight='100%' isLoading={false}>
                             <Text>Please connect your Radix DLT Wallet in order to connect/create a Fidenaro Profile.</Text>
                         </PrimerCard>
-                    </Box >
+                    </Box>
                 </Center>
-            </Box >
+            </Box>
         );
     }
 
     if (isLoading || isUserFetchLoading || isWalletFetchLoading) {
         return (
-            <Box sx={routePageBoxStyle(isMinimized)} p={'8'}>
+            <Box sx={routePageBoxStyle(layoutMode)} p={'8'}>
                 <Center>
-                    <Box maxW="6xl" minH="xl" width="100vw" >
+                    <Box maxW="6xl" minH="xl" width="100vw">
                         <VStack spacing={4}>
                             <PrimerCard cardTitle={"My Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
                                 <VaultTable tableData={undefined} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
@@ -54,38 +53,37 @@ const Portfolio: React.FC<PortfolioProps> = ({ isMinimized }) => {
                                 <VaultTable tableData={undefined} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
                             </PrimerCard>
                         </VStack>
-                    </Box >
-                </Center >
-            </Box >
+                    </Box>
+                </Center>
+            </Box>
         );
     }
 
     if (isError || isUserFetchError) {
-        // Return error JSX if an error occurs during fetching
-        return <Box sx={routePageBoxStyle(isMinimized)}>Error loading data</Box>;
+        return <Box sx={routePageBoxStyle(layoutMode)}>Error loading data</Box>;
     }
 
     const my_vaults = vaults.filter((vault) => vault.manager.id === user?.id);
-    const following_faults = vaults.filter((vault) =>
+    const following_vaults = vaults.filter((vault) =>
         vault.followers.includes(user!.id)
     );
 
-
     return (
-        <Box sx={routePageBoxStyle(isMinimized)} p={'8'}>
+        <Box sx={routePageBoxStyle(layoutMode)} p={'8'}>
             <Center>
-                <Box maxW="6xl" minH="xl" width="100vw" >
+                <Box maxW="6xl" minH="xl" width="100vw">
                     <VStack spacing={4}>
                         <PrimerCard cardTitle={"My Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
                             <VaultTable tableData={my_vaults} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
                         </PrimerCard>
                         <PrimerCard cardTitle={"Following Vaults"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                            <VaultTable tableData={following_faults} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
+                            <VaultTable tableData={following_vaults} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
                         </PrimerCard>
                     </VStack>
-                </Box >
-            </Center >
-        </Box >
-    )
+                </Box>
+            </Center>
+        </Box>
+    );
 }
+
 export default Portfolio;

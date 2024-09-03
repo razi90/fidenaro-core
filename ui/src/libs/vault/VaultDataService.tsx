@@ -47,9 +47,11 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
         let shareTokenAddress = getFieldValueByKey(vault_fields, "share_token_manager")
         let manager_badge_address = getFieldValueByKey(vault_fields, "fund_manager_badge")
 
-        let followers = getFollowerIds(vault_fields)
-        let tradeHistory = getTrades(vault_fields)
         let manager_id = getFieldValueByKey(vault_fields, "manager_user_id")
+        let followers = await getFollowerIds(vault_fields)
+        followers = followers.filter(item => item !== manager_id);
+        let tradeHistory = getTrades(vault_fields)
+
         let manager = await fetchUserInfoById(manager_id)
 
         let deposits = getDeposits(vault_fields)
@@ -294,99 +296,6 @@ function getFieldVariantNameByKey(fields: any, key: string): string {
     return variantName
 }
 
-function getFollowerIds(follower_field: any): string[] {
-    let followers: string[] = []
-    follower_field.forEach((field: any) => {
-        if (field.field_name == "followers") {
-            field.entries.forEach((entry: any) => {
-                followers.push(entry.key.value)
-            })
-        }
-    })
-    return followers;
-}
-
-/* Dummy Functions have to be replaced by original data */
-
-export const fetchVaultPerformanceSeries = async () => {
-    try {
-        return vaultPerformanceCandleChartData;
-    } catch (error) {
-        throw error;
-    }
-}
-
-export const fetchVaultFollowerChartData = async () => {
-
-    const vaultFollowerChartData = [
-        {
-            name: 'X',
-            data: [0, 1, 1, 1, 2, 3, 3, 3, 4, 3, 3, 4, 5, 6, 7, 7, 7, 7, 6, 7, 7, 7, 7],
-        },
-    ];
-
-
-    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
-    try {
-        // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
-        // return response.data;
-        return vaultFollowerChartData;
-    } catch (error) {
-        throw error;
-    }
-}
-
-export const fetchVaultTotalChartData = async () => {
-
-    const vaultTotalChartData = [
-        {
-            name: 'X',
-            data: [30, 3, 40, 45, 50, 49, 60, 70, 91, 80, 50, 30, 25, 20, 17, 40],
-        },
-    ];
-
-
-    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
-    try {
-        // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
-        // return response.data;
-        return vaultTotalChartData;
-    } catch (error) {
-        throw error;
-    }
-}
-
-export const fetchVaultTodayChartData = async () => {
-
-    const vaultTodayChartData = [
-        {
-            name: 'X',
-            data: [17, 16, 18, 20, 23, 28, 31, 37, 37, 34, 39, 39, 37, 40, 40, 40],
-        },
-    ];
-
-
-    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
-    try {
-        // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
-        // return response.data;
-        return vaultTodayChartData;
-    } catch (error) {
-        throw error;
-    }
-}
-
-export const fetchVaultProfitabilityData = async () => {
-    // await new Promise((resolve) => setTimeout(resolve, 2000)); // Delay for simulation
-    try {
-        // const response = await axios.get('url/to/vaults'); // Replace with your API endpoint
-        // return response.data;
-        return vaultProfitabilityChartData;
-    } catch (error) {
-        throw error;
-    }
-}
-
 function calculateTotalEquityInUSD(assets: Map<string, AssetStats>): number {
     let equity = 0
     assets.forEach((value, _) => {
@@ -489,3 +398,21 @@ function calculateAssetValues(assetAmounts: Map<string, number>, priceList: Map<
     return assetValues;
 }
 
+
+const getFollowerIds = async (vault_fields: any): Promise<string[]> => {
+    let userPositionsStoreAddress = getFieldValueByKey(vault_fields, "user_positions")
+    let tradeVaultKeyValueStore = await gatewayApi.state.innerClient.keyValueStoreKeys(
+        {
+            stateKeyValueStoreKeysRequest: {
+                key_value_store_address: userPositionsStoreAddress
+            }
+        }
+    );
+
+    let followers: string[] = []
+    tradeVaultKeyValueStore.items.forEach((item: any) => {
+        followers.push(item.key.programmatic_json.value)
+    });
+
+    return followers
+}

@@ -8,7 +8,6 @@ import {
     StatArrow,
     SkeletonText,
     Box,
-    Center,
 } from '@chakra-ui/react';
 import { statCardStyle } from './Styled';
 
@@ -29,20 +28,18 @@ export const StatCard: React.FC<StatCardProps> = ({ value, title, isLoading }) =
                     <SkeletonText mt='2' noOfLines={2} spacing='4' skeletonHeight='2' />
                 </Box>
             ) : (
-                <Flex flexWrap='wrap' sx={statCardStyle}>
-                    <Center>
-                        <Stat>
-                            <StatLabel>
-                                <Heading size='xs' textTransform='uppercase'>
-                                    {title}
-                                </Heading>
-                            </StatLabel>
-                            <StatNumber>
-                                <StatArrow type={arrowType} />
-                                {value}
-                            </StatNumber>
-                        </Stat>
-                    </Center>
+                <Flex flexWrap='wrap' sx={statCardStyle} alignItems="center" justifyContent="center">
+                    <Stat textAlign="center">
+                        <StatLabel>
+                            <Heading size='xs' textTransform='uppercase'>
+                                {title}
+                            </Heading>
+                        </StatLabel>
+                        <StatNumber display="flex" justifyContent="center" alignItems="center">
+                            <StatArrow type={arrowType} />
+                            {value}
+                        </StatNumber>
+                    </Stat>
                 </Flex>
             )}
         </>

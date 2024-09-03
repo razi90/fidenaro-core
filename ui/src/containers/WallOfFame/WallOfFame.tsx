@@ -10,60 +10,57 @@ import { PrimerCard } from '../../components/Card/PrimerCard';
 import { VaultRankingTable } from '../../components/Table/VaultRankingTable';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
+import { LayoutMode } from '../../Layout';
 
 interface WallOfFameProps {
-    isMinimized: boolean;
+    layoutMode: LayoutMode;
 }
 
-const WallOfFame: React.FC<WallOfFameProps> = ({ isMinimized }) => {
+const WallOfFame: React.FC<WallOfFameProps> = ({ layoutMode }) => {
     const { data: vaults, isLoading, isError } = useQuery({ queryKey: ['vault_list'], queryFn: fetchVaultList });
-    // Get data to check if wallet is connected
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
     if (isLoading) {
         return (
-            <Box sx={routePageBoxStyle(isMinimized)}>
+            <Box sx={routePageBoxStyle(layoutMode)}>
                 <Center>
-                    <Box maxW="6xl" minH="xl" width="100vw" >
+                    <Box maxW="6xl" minH="xl" width="100vw">
                         <VStack spacing={4}>
-                            <PrimerCard cardTitle={"Wall of Fame"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                                <CardCarousel rankedVaults={undefined} isConnected={(wallet?.persona) === undefined ? false : true} />
+                            <PrimerCard cardTitle={"Wall of Fame"} cardWidth="100%" cardHeight="100%" isLoading={isLoading}>
+                                <CardCarousel rankedVaults={undefined} isConnected={wallet?.persona !== undefined} />
                             </PrimerCard>
-                            <Box w={"100%"}>
-                                <VaultRankingTable title='Ranking' data={undefined} isLoading={isLoading} />
+                            <Box w="100%">
+                                <VaultRankingTable title="Ranking" data={undefined} isLoading={isLoading} />
                             </Box>
                         </VStack>
-                    </Box >
+                    </Box>
                 </Center>
-            </Box >
+            </Box>
         );
     }
 
     if (isError) {
-        // Return error JSX if an error occurs during fetching
-        return <Box sx={routePageBoxStyle(isMinimized)}>Error loading data</Box>;
+        return <Box sx={routePageBoxStyle(layoutMode)}>Error loading data</Box>;
     }
 
     const rankedVaults = vaults!.sort((a, b) => b.calculatePnL() - a.calculatePnL());
 
-
-
     return (
-        <Box sx={routePageBoxStyle(isMinimized)}>
+        <Box sx={routePageBoxStyle(layoutMode)}>
             <Center>
-                <Box maxW="6xl" minH="xl" width="100vw" >
+                <Box maxW="6xl" minH="xl" width="100vw">
                     <VStack spacing={4}>
-                        <PrimerCard cardTitle={"Wall of Fame"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                            <CardCarousel rankedVaults={rankedVaults} isConnected={(wallet?.persona) === undefined ? false : true} />
+                        <PrimerCard cardTitle={"Wall of Fame"} cardWidth="100%" cardHeight="100%" isLoading={isLoading}>
+                            <CardCarousel rankedVaults={rankedVaults} isConnected={wallet?.persona !== undefined} />
                         </PrimerCard>
-                        <Box w={"100%"}>
-                            <VaultRankingTable title='Ranking' data={rankedVaults} isLoading={isLoading} />
+                        <Box w="100%">
+                            <VaultRankingTable title="Ranking" data={rankedVaults} isLoading={isLoading} />
                         </Box>
                     </VStack>
-                </Box >
+                </Box>
             </Center>
-        </Box >
-    )
+        </Box>
+    );
 }
 
 export default WallOfFame;

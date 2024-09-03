@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import {
     TableContainer,
     Table,
@@ -10,16 +10,16 @@ import {
     Text,
     Box,
     Flex,
-    Spacer,
     VStack,
-    HStack,
-    StackDivider,
     Collapse,
     Input,
     Link,
     Tooltip,
     Button,
-    SkeletonText
+    useBreakpointValue,
+    HStack,
+    Spacer,
+    Divider
 } from '@chakra-ui/react';
 import SortableTh from './SortableTableHeader';
 import FilterSelect from './Filter/FilterSelect';
@@ -33,16 +33,14 @@ import { User } from '../../../libs/entities/User';
 import ResetButton from '../../Button/ResetButton/ResetButton';
 import { convertToDollarString, convertToPercent, convertToXRDString } from '../../../libs/etc/StringOperations';
 
-
-
 interface VaultTableProps {
     tableData: Vault[] | undefined;
     isLoading: boolean;
     user: User | undefined;
     isConnected: boolean;
 }
-const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
 
+const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
     const [isDataLoaded, setIsDataLoaded] = useState(false);
 
     // Define an interface for the possible keys of a vault table entry
@@ -63,13 +61,11 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
     // State variables for filter values
     const [nameFilter, setNameFilter] = useState('');
     const [roiFilter, setRoiFilter] = useState(Number.MIN_SAFE_INTEGER);
-    // const [todayFilter, setTodayFilter] = useState(Number.MIN_SAFE_INTEGER);
     const [activeDaysFilter, setActiveDaysFilter] = useState(Number.MIN_SAFE_INTEGER);
     const [followersFilter, setFollowersFilter] = useState(Number.MIN_SAFE_INTEGER);
 
     // Filter options
     const totalOptions = [-50, 0, 50, 100, 200];
-    // const todayOptions = [-10, 0, 10, 20];
     const activeDaysOptions = [30, 60, 90];
     const followersOptions = [10, 50, 100];
 
@@ -89,7 +85,6 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
         setActiveDaysFilter(Number.MIN_SAFE_INTEGER);
         setFollowersFilter(Number.MIN_SAFE_INTEGER);
     };
-
 
     useEffect(() => {
         const loadData = async () => {
@@ -136,22 +131,19 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
             });
             // Set the sorder and filtered data
             setFilteredData(filteredEntries);
-
         }
     }, [nameFilter, roiFilter, activeDaysFilter, followersFilter, sortedColumn, sortOrder]);
+
+    const isMobile = useBreakpointValue({ base: true, md: false });
 
     return (
         <Box mx={"0px"}>
             <VStack
-                divider={<StackDivider borderColor='gray.200' />}
                 align='stretch'
             >
+                {/* Filter Section */}
                 <Box>
-
                     <Flex>
-
-                        <Spacer />
-
                         <Spacer />
                         <HStack>
                             <ResetButton onClick={resetFilters} />
@@ -162,114 +154,142 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
 
                     <Box>
                         <Collapse in={showSection} animateOpacity>
-                            <Flex >
+                            <Flex direction={isMobile ? "column" : "row"}>
                                 <Input
                                     placeholder='Name'
                                     value={nameFilter}
                                     onChange={(e) => setNameFilter(e.target.value)}
+                                    mb={isMobile ? 2 : 0}
                                 />
-
                                 <FilterSelect
                                     placeholder='ROI'
                                     value={roiFilter}
                                     onChange={setRoiFilter}
                                     options={totalOptions}
                                     is_percent={true}
+                                    mb={isMobile ? 2 : 0}
                                 />
-
                                 <FilterSelect
                                     placeholder='Active days'
                                     value={activeDaysFilter}
                                     onChange={setActiveDaysFilter}
                                     options={activeDaysOptions}
                                     is_percent={false}
+                                    mb={isMobile ? 2 : 0}
                                 />
-
                                 <FilterSelect
                                     placeholder='Followers'
                                     value={followersFilter}
                                     onChange={setFollowersFilter}
                                     options={followersOptions}
                                     is_percent={false}
+                                    mb={isMobile ? 2 : 0}
                                 />
                             </Flex>
                         </Collapse>
                     </Box>
                 </Box>
-                <TableContainer>
 
-                    {
-                        isLoading ? (
-
-                            <Table size="sm">
-                                <Thead>
-                                    <Tr>
-                                        <Th>Name</Th>
-                                        <Th>ROI</Th>
-                                        <Th>Active Days</Th>
-                                        <Th>Follower</Th>
-                                        <Th>TVL XRD</Th>
-                                        <Th>TVL USD</Th>
+                {/* Conditional Rendering for Desktop and Mobile Views */}
+                {isMobile ? (
+                    <VStack spacing={4} align="stretch">
+                        {filteredData?.map((entry, index) => (
+                            <Fragment key={index}>
+                                <Box
+                                    key={index}
+                                    p={4}
+                                    borderWidth="1px"
+                                    borderRadius="lg"
+                                    overflow="hidden"
+                                    sx={tableTrStyle}
+                                >
+                                    <Flex direction="column">
+                                        <Tooltip label='Go to vault view'>
+                                            <Button
+                                                as={Link}
+                                                href={`/vault/${entry.id}`}
+                                                sx={defaultLinkButtonStyle}
+                                                title={entry.name}
+                                                w="100%"
+                                                textAlign="left"
+                                            >
+                                                <IoEnterOutline />
+                                                <Text pl={"10px"}>{entry.name}</Text>
+                                            </Button>
+                                        </Tooltip>
+                                        <Box mt={4}>
+                                            <Flex justifyContent="space-between">
+                                                <Text>ROI:</Text>
+                                                <Text color={entry.roi >= 0 ? 'green.500' : 'red.500'}>
+                                                    {convertToPercent(entry.roi)}
+                                                </Text>
+                                            </Flex>
+                                            <Flex justifyContent="space-between">
+                                                <Text>Active Days:</Text>
+                                                <Text>{entry.activeDays}</Text>
+                                            </Flex>
+                                            <Flex justifyContent="space-between">
+                                                <Text>Followers:</Text>
+                                                <Text>{entry.followers.length}</Text>
+                                            </Flex>
+                                            <Flex justifyContent="space-between">
+                                                <Text>TVL XRD:</Text>
+                                                <Text>{convertToXRDString(entry.tvlInXrd)}</Text>
+                                            </Flex>
+                                            <Flex justifyContent="space-between">
+                                                <Text>TVL USD:</Text>
+                                                <Text>{convertToDollarString(entry.tvlInUsd)}</Text>
+                                            </Flex>
+                                        </Box>
+                                    </Flex>
+                                </Box>
+                                {index < filteredData.length - 1 && <Divider />}
+                            </Fragment>
+                        ))}
+                    </VStack>
+                ) : (
+                    <TableContainer>
+                        <Table size="sm">
+                            <Thead>
+                                <Tr>
+                                    <Th>Name</Th>
+                                    <SortableTh column="roi" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>ROI</SortableTh>
+                                    <SortableTh column="activeDays" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >Active Days</SortableTh>
+                                    <SortableTh column="followers" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Followers</SortableTh>
+                                    <SortableTh column="tvlInXrd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL XRD</SortableTh>
+                                    <SortableTh column="tvlInXrd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL USD</SortableTh>
+                                </Tr>
+                            </Thead>
+                            <Tbody >
+                                {filteredData?.map((entry, index) => (
+                                    <Tr key={index} sx={tableTrStyle}>
+                                        <Td>
+                                            <Tooltip label='Go to vault view'>
+                                                <Button
+                                                    as={Link}
+                                                    href={`/vault/${entry.id}`}
+                                                    sx={defaultLinkButtonStyle}
+                                                    title={entry.name}
+                                                >
+                                                    <IoEnterOutline /><Text pl={"10px"}>{entry.name}</Text>
+                                                </Button>
+                                            </Tooltip>
+                                        </Td>
+                                        <Td color={entry.roi >= 0 ? 'green.500' : 'red.500'}>
+                                            {convertToPercent(entry.roi)}
+                                        </Td>
+                                        <Td>{entry.activeDays}</Td>
+                                        <Td>{entry.followers.length}</Td>
+                                        <Td>{convertToXRDString(entry.tvlInXrd)}</Td>
+                                        <Td>{convertToDollarString(entry.tvlInUsd)}</Td>
                                     </Tr>
-                                </Thead>
-                                <Tbody>
-                                    {Array.from({ length: 5 }).map((_, index) => (
-                                        <Tr key={index}>
-                                            <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
-                                            <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
-                                            <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
-                                            <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
-                                            <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
-                                            <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
-                                            <Td><SkeletonText mt='2' noOfLines={1} spacing='3' skeletonHeight='2' /></Td>
-                                        </Tr>
-                                    ))}
-                                </Tbody>
-                            </Table>
-                        ) : (
-
-                            <Table size='sm'>
-                                <Thead>
-                                    <Tr>
-                                        <Th>Name</Th>
-                                        <SortableTh column="roi" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>ROI</SortableTh>
-                                        <SortableTh column="activeDays" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >Active Days</SortableTh>
-                                        <SortableTh column="followers" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Followers</SortableTh>
-                                        <SortableTh column="tvlInXrd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL XRD</SortableTh>
-                                        <SortableTh column="tvlInXrd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL USD</SortableTh>
-                                    </Tr>
-                                </Thead>
-                                <Tbody >
-                                    {filteredData?.map((entry, index) => (
-                                        <Tr key={index} sx={tableTrStyle}
-                                        >
-                                            <Td>
-                                                <Tooltip label='Go to vault view'>
-                                                    <Button
-                                                        as={Link}
-                                                        href={`/vault/${entry.id}`}
-                                                        sx={defaultLinkButtonStyle}
-                                                        title={entry.name}
-                                                    >
-                                                        <IoEnterOutline /><Text pl={"10px"}>{entry.name}</Text>
-                                                    </Button>
-                                                </Tooltip>
-                                            </Td>
-                                            <Td color={entry.roi >= 0 ? 'green.500' : 'red.500'}>
-                                                {convertToPercent(entry.roi)}
-                                            </Td>
-                                            <Td>{entry.activeDays}</Td>
-                                            <Td>{entry.followers.length}</Td>
-                                            <Td>{convertToXRDString(entry.tvlInXrd)}</Td>
-                                            <Td>{convertToDollarString(entry.tvlInUsd)}</Td>
-                                        </Tr>
-                                    ))}
-                                </Tbody>
-                            </Table>
-                        )}
-                </TableContainer>
-            </VStack >
-        </Box >
+                                ))}
+                            </Tbody>
+                        </Table>
+                    </TableContainer>
+                )}
+            </VStack>
+        </Box>
     );
 };
 

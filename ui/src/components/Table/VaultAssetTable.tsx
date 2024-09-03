@@ -9,6 +9,8 @@ import {
     Tfoot,
     SkeletonText,
     Stack,
+    VStack,
+    Box,
 } from '@chakra-ui/react';
 import React from 'react';
 import Chart from "react-apexcharts";
@@ -19,48 +21,44 @@ import { AssetStats } from '../../libs/entities/Vault';
 import { convertToDollarString, convertToXRDString } from '../../libs/etc/StringOperations';
 import { ApexOptions } from 'apexcharts';
 
-
-interface VaultAssetTable {
-    symbol: any;
-    coin: any;
-    coinAbbreviation: any;
-    percentage: any;
-    date: any;
-}
-
 interface VaultAssetTableProps {
     title: string;
     data: Map<string, AssetStats> | undefined;
     isLoading: boolean;
+    isMobileLayout: boolean;
 }
 
+export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, isLoading, isMobileLayout }) => {
 
-export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, isLoading }) => {
-    const pieChartOptions: ApexOptions = {
-        chart: {
-            type: 'pie',
-        },
-        labels: data ? Array.from(data.keys()).map(key => addressToAsset(key as string).ticker) : [],
-        responsive: [{
-            breakpoint: 480,
-            options: {
-                chart: {
-                    width: 200
-                },
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }],
-        legend: {
-            position: 'right',
-            offsetY: 0,
-            height: 230,
-        },
-    };
-
-    const pieChartData = data ? Array.from(data.values()).map(value => value.valueInUSD) : [];
-
+    const renderTable = () => (
+        <Box overflowX={isMobileLayout ? "auto" : "visible"}>
+            <Table size="sm" minW={isMobileLayout ? "600px" : "auto"}>
+                <Thead>
+                    <Tr>
+                        <Th>Symbol</Th>
+                        <Th>Coin</Th>
+                        <Th isNumeric>Amount</Th>
+                        <Th isNumeric>Value XRD</Th>
+                        <Th isNumeric>Value USD</Th>
+                    </Tr>
+                </Thead>
+                <Tbody>
+                    {isLoading
+                        ? Array.from({ length: 5 }).map((_, index) => renderRow(index))
+                        : Array.from(data!.entries()).map(([key, value]) => renderRow(key, value))}
+                </Tbody>
+                <Tfoot>
+                    <Tr>
+                        <Th>Symbol</Th>
+                        <Th>Coin</Th>
+                        <Th isNumeric>Amount</Th>
+                        <Th isNumeric>Value XRD</Th>
+                        <Th isNumeric>Value USD</Th>
+                    </Tr>
+                </Tfoot>
+            </Table>
+        </Box>
+    );
 
     const renderRow = (key: string | number, value?: AssetStats) => {
         if (isLoading) {
@@ -88,47 +86,63 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
         }
     };
 
+    const pieChartData = data ? Array.from(data.values()).map(value => value.valueInUSD) : [];
+
+    const pieChartOptions: ApexOptions = {
+        chart: {
+            type: 'pie',
+        },
+        labels: data ? Array.from(data.keys()).map(key => addressToAsset(key as string).ticker) : [],
+        responsive: [{
+            breakpoint: 100,
+            options: {
+                chart: {
+                    width: '100%', // Ensure the chart takes the full width of its container on mobile
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }],
+        legend: {
+            position: 'right',
+            offsetY: 0,
+            height: 230,
+        },
+    };
+
+    const renderChart = () => (
+        <Chart
+            options={pieChartOptions}
+            series={pieChartData}
+            type="pie"
+            width={isMobileLayout ? "100%" : "100%"} // Use "100%" width for both mobile and desktop, or adjust accordingly
+            height={isMobileLayout ? "250" : "350"}  // Adjust the height to make it more appropriate on mobile
+        />
+    );
+
     return (
-        <Card w="100%" ml={4} p={6} pt={10}>
+        <Card p={6} pt={10}>
             <CardTitle cardTitle={title} isLoading={isLoading} />
-            <Stack direction="row" spacing={8}>
-                <Card w="50%">
-                    <Table size="sm">
-                        <Thead>
-                            <Tr>
-                                <Th>Symbol</Th>
-                                <Th>Coin</Th>
-                                <Th isNumeric>Amount</Th>
-                                <Th isNumeric>Value XRD</Th>
-                                <Th isNumeric>Value USD</Th>
-                            </Tr>
-                        </Thead>
-                        <Tbody>
-                            {isLoading
-                                ? Array.from({ length: 5 }).map((_, index) => renderRow(index))
-                                : Array.from(data!.entries()).map(([key, value]) => renderRow(key, value))}
-                        </Tbody>
-                        <Tfoot>
-                            <Tr>
-                                <Th>Symbol</Th>
-                                <Th>Coin</Th>
-                                <Th isNumeric>Amount</Th>
-                                <Th isNumeric>Value XRD</Th>
-                                <Th isNumeric>Value USD</Th>
-                            </Tr>
-                        </Tfoot>
-                    </Table>
-                </Card>
-                <Card w="50%" display="flex" justifyContent="center" alignItems="center">
-                    <Chart
-                        options={pieChartOptions}
-                        series={pieChartData}
-                        type="pie"
-                        width="150%"
-                        height="350"
-                    />
-                </Card>
-            </Stack>
+            {isMobileLayout ? (
+                <VStack spacing={8} align="stretch">
+                    <Card w="100%">
+                        {renderTable()}
+                    </Card>
+                    <Card w="100%" display="flex" justifyContent="center" alignItems="center">
+                        {renderChart()}
+                    </Card>
+                </VStack>
+            ) : (
+                <Stack direction="row" spacing={8}>
+                    <Card w="50%">
+                        {renderTable()}
+                    </Card>
+                    <Card w="50%" display="flex" justifyContent="center" alignItems="center">
+                        {renderChart()}
+                    </Card>
+                </Stack>
+            )}
         </Card>
     );
 };
