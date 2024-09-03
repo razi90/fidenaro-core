@@ -2,14 +2,19 @@ import {
     Box,
     Flex,
     Link,
-    IconButton,
     Image,
     Text,
-    useDisclosure,
     Center,
     Spacer,
+    useBreakpointValue,
+    IconButton,
+    Drawer,
+    DrawerBody,
+    DrawerOverlay,
+    DrawerContent,
+    useDisclosure,
 } from "@chakra-ui/react";
-import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
+import { HamburgerIcon } from '@chakra-ui/icons';
 import { WalletButton } from '../Button/WalletButton/WalletButton';
 
 import {
@@ -17,7 +22,6 @@ import {
     topNavigationHiddenBoxStyle,
     topNavigationMainFlexStyle,
     topNavigationLogoStyle,
-    topNavigationHamburgerMenuStyle,
 } from "./Styled";
 import FeedbackButton from "../Button/FeedbackButton/FeedbackButton";
 import { CreateVaultButton } from "../Button/CreateVault/CreateVault";
@@ -26,10 +30,10 @@ import { useState, useEffect } from 'react';
 import Joyride, { Step } from 'react-joyride';
 
 import PriceTicker from "../PriceTicker/PriceTicker";
-
-
+import { NavigationItems } from "../LeftNavigationBar/NavigationItems";
 
 export default function TopNavigationBar() {
+    const isMobile = useBreakpointValue({ base: true, md: false });
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     const [steps, setSteps] = useState<Step[]>([
@@ -39,7 +43,7 @@ export default function TopNavigationBar() {
         },
         {
             target: '.create-profile-button-first-step',
-            content: 'Create your Fidenaro User Profile in order to use the Fidenaro plattform.',
+            content: 'Create your Fidenaro User Profile in order to use the Fidenaro platform.',
         },
         {
             target: '.create-vault-button-first-step',
@@ -50,14 +54,12 @@ export default function TopNavigationBar() {
     useEffect(() => {
         const localStorageItem = localStorage.getItem('joyrideCompleted');
         if (!localStorageItem) {
-            // Set the localStorage item with an initialization value
             localStorage.setItem('joyrideCompleted', JSON.stringify(false));
         }
     }, []);
 
     const handleJoyrideCallback = (data: any) => {
         if (data.status === 'finished') {
-            // Update the localStorage item when the joyride is completed
             localStorage.setItem('joyrideCompleted', JSON.stringify(true));
         }
     };
@@ -66,40 +68,47 @@ export default function TopNavigationBar() {
         <>
             <Box sx={topNavigationBoxStyle}>
                 <Center>
-                    <Flex sx={topNavigationMainFlexStyle}>
-                        <Box>
-                            <Link href={"#"}>
-                                <Image
-                                    align={"center"}
-                                    sx={topNavigationLogoStyle}
-                                    src="/images/LogoFidenaro.png"
-                                    alt="Fidenaro Logo"
-                                />
-                            </Link>
-                        </Box>
-                        <Text color="black" fontSize='2xl'>Fidenaro</Text>
+                    <Flex sx={topNavigationMainFlexStyle} alignItems="center">
+                        {isMobile && (
+                            <IconButton
+                                aria-label="Toggle Menu"
+                                icon={<HamburgerIcon />}
+                                onClick={onOpen}
+                                variant="outline"
+                                mr={2}
+                            />
+                        )}
+                        <Link href={"#"}>
+                            <Image
+                                align={"center"}
+                                sx={topNavigationLogoStyle}
+                                src="/images/LogoFidenaro.png"
+                                alt="Fidenaro Logo"
+                            />
+                        </Link>
+                        {!isMobile && <Text color="black" fontSize='2xl'>Fidenaro</Text>}
                         <Spacer />
 
-                        <PriceTicker />
+                        {/* {!isMobile && <PriceTicker />} */}
+                        {/* <Spacer /> */}
 
-                        <Spacer />
-
-                        <FeedbackButton />
-
+                        {!isMobile && <FeedbackButton />}
                         <CreateVaultButton user="John Smith" />
-
                         <WalletButton />
-                        <IconButton
-                            icon={isOpen ? <CloseIcon color={"black"} boxSize={5} /> : <HamburgerIcon color={"black"} boxSize={7} />}
-                            aria-label={"Open Menu"}
-                            sx={topNavigationHamburgerMenuStyle}
-                            display={{ md: "none" }}
-                            onClick={isOpen ? onClose : onOpen}
-                        />
                     </Flex>
                 </Center>
             </Box>
             <Box sx={topNavigationHiddenBoxStyle} />
+
+            <Drawer placement="left" onClose={onClose} isOpen={isOpen} size="xs">
+                <DrawerOverlay />
+                <DrawerContent bg="white" color="white">
+                    <DrawerBody>
+                        <NavigationItems />
+                    </DrawerBody>
+                </DrawerContent>
+            </Drawer>
+
             <Joyride
                 steps={steps}
                 continuous
@@ -117,5 +126,3 @@ export default function TopNavigationBar() {
         </>
     );
 }
-
-

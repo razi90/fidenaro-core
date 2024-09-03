@@ -1,7 +1,7 @@
 
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage, Select, VStack, HStack, Spacer, useSteps, Divider, Progress, Button, InputGroup, InputLeftAddon, InputLeftElement, InputRightAddon } from "@chakra-ui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchUserInfo } from "../../../libs/user/UserDataService";
 import { User } from "../../../libs/entities/User";
 
@@ -15,15 +15,18 @@ import { TruncatedNumberValue } from "../../Text/TruncatedValue";
 import { cancelButtonStyle } from "../../Button/Dialog/CancelButton.tsx/Styled";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { ManifestBuilder, address, decimal, RadixEngineToolkit, NetworkId } from "@radixdlt/radix-engine-toolkit";
+import { fetchPriceList, PriceData } from "../../../libs/price/PriceDataService";
+import { FIDENARO_FEE } from "../../../libs/fidenaro/Config";
 
 interface TradeDialogProps {
     isOpen: boolean,
     setIsOpen: (isOpen: boolean) => void,
-    vault: Vault | undefined
+    vault: Vault | undefined,
+    onComplete?: () => void;
 }
 
 
-const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) => {
+const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onComplete }) => {
 
     // Stepper
     const steps = [
@@ -62,11 +65,27 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
     const [fromToken, setFromToken] = useState<Asset>(Radix);
     const [toToken, setToToken] = useState<Asset>(Bitcoin);
     const [amount, setAmount] = useState('');
+    const [estimatedAmount, setEstimatedAmount] = useState('');
+    const [estimatedFee, setEstimatedFee] = useState('');
 
     const tokens = [Radix, USDollar, Ethereum, Bitcoin, Hug];
 
     // read user data
     const { data: user, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
+    const { data: prices, isError: isPriceFetchError } = useQuery<Map<string, PriceData>>({ queryKey: ['prices'], queryFn: fetchPriceList });
+
+    useEffect(() => {
+        if (fromToken && toToken && amount) {
+            const priceRatio = getPriceRatio(fromToken, toToken);
+            const calculatedEstimatedAmount = Number(amount) * priceRatio;
+            setEstimatedAmount((calculatedEstimatedAmount * (1 - FIDENARO_FEE)).toPrecision(8) + " " + toToken.ticker);
+            setEstimatedFee((Number(amount) * FIDENARO_FEE).toPrecision(8) + " " + fromToken.ticker);
+        } else {
+            setEstimatedAmount('0.0');
+            setEstimatedFee('0.0');
+        }
+    }, [fromToken, toToken, amount]);
+
 
     if (isUserFetchError) {
         return <Box>Error loading user data</Box>;
@@ -91,6 +110,23 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
 
         setAmount(value);
         setIsBalanceError(Number(value) > (vault?.userAssetValues.get(fromToken.address)?.amount || 0));
+    };
+
+    const getPriceRatio = (fromToken: Asset, toToken: Asset): number => {
+
+        // Get the price of the fromToken and toToken in XRD from the priceList
+        const fromTokenPriceInXRD = prices!.get(fromToken.address)?.priceInXRD;
+        const toTokenPriceInXRD = prices!.get(toToken.address)?.priceInXRD;
+
+        // If either price is undefined, return a default ratio or handle the error
+        if (fromTokenPriceInXRD === undefined || toTokenPriceInXRD === undefined) {
+            console.error("Token price not found in price list.");
+            return 1; // Returning 1 as a fallback, but consider handling this more gracefully
+        }
+
+        // Calculate and return the price ratio
+        const priceRatio = fromTokenPriceInXRD / toTokenPriceInXRD;
+        return priceRatio;
     };
 
     const trade = async () => {
@@ -173,6 +209,10 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
             setActiveStep(0);
         }
 
+        if (onComplete) {
+            onComplete();
+        }
+
         setIsLoading(false);
     };
 
@@ -216,11 +256,10 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
                                                 {tokens.map((token) => (
                                                     <option key={token.address} value={token.address}>{token.ticker}</option>
                                                 ))}
-
                                             </Select>
-                                            <InputRightAddon minW={"100px"} children={<Text> <TruncatedNumberValue content={(vault?.userAssetValues.get(fromToken?.address)?.amount || 0) + ""} /> </Text>
-                                            } opacity={0.5} />
+                                            <InputRightAddon minW={"100px"} children={<Text> <TruncatedNumberValue content={(vault?.userAssetValues.get(fromToken?.address)?.amount || 0) + ""} /> </Text>} opacity={0.5} />
                                         </InputGroup>
+
                                         <InputGroup>
                                             <InputLeftAddon minW={"80px"} children="To:" opacity={0.5} />
                                             <Select
@@ -232,10 +271,11 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
                                                     <option key={token.address} value={token.address}>{token.ticker}</option>
                                                 ))}
                                             </Select>
-                                            <InputRightAddon minW={"100px"} children={<Text> <TruncatedNumberValue content={(vault?.userAssetValues.get(toToken?.address)?.amount || 0) + ""} /> </Text>
-                                            } opacity={0.5} />
+                                            <InputRightAddon minW={"100px"} children={<Text> <TruncatedNumberValue content={(vault?.userAssetValues.get(toToken?.address)?.amount || 0) + ""} /> </Text>} opacity={0.5} />
                                         </InputGroup>
+
                                         <Divider />
+
                                         <InputGroup>
                                             <InputLeftAddon children="Amount" opacity={0.7} />
                                             <FormControl isInvalid={isBalanceError}>
@@ -261,10 +301,27 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault }) =
                                                 </Button>
                                             </InputRightAddon>
                                         </InputGroup>
-
+                                        <InputGroup>
+                                            <InputLeftAddon children="Estimated Output" opacity={0.7} />
+                                            <Input
+                                                placeholder="0.0"
+                                                type="text"
+                                                value={estimatedAmount}
+                                                isReadOnly
+                                            />
+                                        </InputGroup>
+                                        <InputGroup>
+                                            <InputLeftAddon children="Fidenaro Fee" opacity={0.7} />
+                                            <Input
+                                                placeholder="0.0"
+                                                type="text"
+                                                value={estimatedFee}
+                                                isReadOnly
+                                            />
+                                        </InputGroup>
                                     </VStack>
-
                                 </ModalBody>
+
 
                                 <ModalFooter>
                                     <Stack>

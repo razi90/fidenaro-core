@@ -12,21 +12,20 @@ import { fetchUserInfo } from '../../libs/user/UserDataService';
 import { WalletDataState } from '@radixdlt/radix-dapp-toolkit';
 import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 import { Vault } from '../../libs/entities/Vault';
-
+import { LayoutMode } from '../../Layout';
 
 interface ExploreProps {
-    isMinimized: boolean;
+    layoutMode: LayoutMode;
 }
 
-const Explore: React.FC<ExploreProps> = ({ isMinimized }) => {
+const Explore: React.FC<ExploreProps> = ({ layoutMode }) => {
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
     const { data: vaults, isLoading, isError } = useQuery<Vault[]>({ queryKey: ['vault_list'], queryFn: fetchVaultList });
-    // Get data to check if wallet is connected
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
     if (isLoading || isUserFetchLoading) {
         return (
-            <Box sx={routePageBoxStyle(isMinimized)} p={'8'}>
+            <Box sx={routePageBoxStyle(layoutMode)} p={'0'}>
                 <Center>
                     <Box maxW="6xl" minH="xl" width="100vw" >
                         <PrimerCard cardTitle={"Explore"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
@@ -39,23 +38,19 @@ const Explore: React.FC<ExploreProps> = ({ isMinimized }) => {
     }
 
     if (isError) {
-        // Return error JSX if an error occurs during fetching
-        return <Box sx={routePageBoxStyle(isMinimized)}>Error loading data</Box>;
+        return <Box sx={routePageBoxStyle(layoutMode)}>Error loading data</Box>;
     }
 
-    // Data is ready, render the VaultTable component with the fetched data
     return (
-        <>
-            <Box sx={routePageBoxStyle(isMinimized)} p={'8'}>
-                <Center>
-                    <Box maxW="6xl" minH="xl" width="100vw" >
-                        <PrimerCard cardTitle={"Explore"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
-                            <VaultTable tableData={vaults} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
-                        </PrimerCard>
-                    </Box >
-                </Center>
-            </Box>
-        </>
+        <Box sx={routePageBoxStyle(layoutMode)} p={'0'}>
+            <Center>
+                <Box maxW="6xl" minH="xl" width="100vw" >
+                    <PrimerCard cardTitle={"Explore"} cardWidth='100%' cardHeight='100%' isLoading={isLoading}>
+                        <VaultTable tableData={vaults} isLoading={isLoading} user={user} isConnected={wallet?.persona == undefined ? false : true} />
+                    </PrimerCard>
+                </Box >
+            </Center>
+        </Box>
     );
 }
 

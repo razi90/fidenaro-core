@@ -1,7 +1,7 @@
 import React from 'react';
-import { Select } from '@chakra-ui/react';
+import { Select, SelectProps } from '@chakra-ui/react';
 
-interface FilterSelectProps {
+interface FilterSelectProps extends Omit<SelectProps, 'onChange' | 'value'> {
     placeholder: string;
     value: number;
     onChange: (value: number) => void;
@@ -15,22 +15,23 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
     onChange,
     options,
     is_percent,
+    ...props
 }) => {
-    // Check if the selected value is the placeholder
     const isPlaceholderSelected = value === Number.MIN_SAFE_INTEGER;
 
     return (
         <Select
             placeholder={placeholder}
-            value={isPlaceholderSelected ? '' : value.toString()} // Use an empty string if placeholder is selected
+            value={isPlaceholderSelected ? '' : value.toString()}
             onChange={(e) => {
-                // Check if the selected value is the placeholder
-                if (e.target.value === '') {
-                    onChange(Number.MIN_SAFE_INTEGER); // Return MIN_SAFE_INTEGER if the placeholder is selected
+                const selectedValue = e.target.value;
+                if (selectedValue === '') {
+                    onChange(Number.MIN_SAFE_INTEGER);
                 } else {
-                    onChange(parseFloat(e.target.value)); // Otherwise, parse and set the selected value
+                    onChange(parseFloat(selectedValue));
                 }
             }}
+            {...props}
         >
             {options.map((option) => (
                 <option key={option} value={option.toString()}>

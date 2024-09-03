@@ -1,11 +1,26 @@
+import { LayoutMode } from "../../Layout";
 
+export const routePageBoxStyle = (layoutMode: LayoutMode) => {
+    let marginLeft;
 
-export const routePageBoxStyle = (isMinimized: boolean) => ({
-    color: "#000",
-    w: "100vw",
-    //bg: "#444",
-    bg: "#F8F8F8",
-    p: "20px",
-    ml: isMinimized ? "60px" : "200px",
-    transition: "margin-left 0.5s",
-});
+    switch (layoutMode) {
+        case LayoutMode.Mobile:
+            marginLeft = "0px";
+            break;
+        case LayoutMode.DesktopMinimized:
+            marginLeft = "60px";
+            break;
+        case LayoutMode.DesktopExpanded:
+            marginLeft = "200px";
+            break;
+    }
+
+    return {
+        color: "#000",
+        w: "100vw",
+        bg: "#F8F8F8",
+        p: "20px",
+        ml: marginLeft,
+        transition: "margin-left 0.5s",
+    };
+};

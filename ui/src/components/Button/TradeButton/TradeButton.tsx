@@ -13,11 +13,19 @@ import { tradeButtonStyle } from './Styled';
 interface TradeButtonProps {
     vault: Vault | undefined;
     isConnected: boolean;
+    onComplete?: () => void;
 }
 
-export const TradeButton: React.FC<TradeButtonProps> = ({ vault, isConnected }) => {
+export const TradeButton: React.FC<TradeButtonProps> = ({ vault, isConnected, onComplete }) => {
 
     const [isOpen, setIsOpen] = useState(false);
+
+    const handleComplete = () => {
+        setIsOpen(false);
+        if (onComplete) {
+            onComplete();
+        }
+    };
 
     return (
         <>
@@ -27,6 +35,7 @@ export const TradeButton: React.FC<TradeButtonProps> = ({ vault, isConnected }) 
                         onClick={() => setIsOpen(true)}
                         sx={tradeButtonStyle}
                         title="Trade on this Vault"
+                        size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
                     >
                         Trade
                     </Button>
@@ -36,6 +45,7 @@ export const TradeButton: React.FC<TradeButtonProps> = ({ vault, isConnected }) 
                     <Button
                         onClick={() => setIsOpen(true)}
                         sx={tradeButtonStyle}
+                        size={{ base: 'sm', sm: 'sm', lsm: 'md', md: 'md' }}
                         title="Trade on this Vault"
                         isDisabled={true}
                     >
@@ -43,7 +53,7 @@ export const TradeButton: React.FC<TradeButtonProps> = ({ vault, isConnected }) 
                     </Button>
                 </Tooltip>
             )}
-            <TradeDialog isOpen={isOpen} setIsOpen={setIsOpen} vault={vault} />
+            <TradeDialog isOpen={isOpen} setIsOpen={setIsOpen} vault={vault} onComplete={handleComplete} />
         </>
     );
 };

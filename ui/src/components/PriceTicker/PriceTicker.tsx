@@ -3,8 +3,13 @@ import { Text, Box, Flex, Image, keyframes } from '@chakra-ui/react';
 import { fetchPriceList } from '../../libs/price/PriceDataService';
 import { Bitcoin, Ethereum, Hug, Radix } from '../../libs/entities/Asset';
 import { convertToDollarString } from '../../libs/etc/StringOperations';
+import { LayoutMode } from '../../Layout';
 
-export default function PriceTicker() {
+interface PriceTickerProps {
+    layoutMode: LayoutMode;
+}
+
+export default function PriceTicker({ layoutMode }: PriceTickerProps) {
     const [prices, setPrices] = useState<{ [key: string]: number }>({});
     const [isHovered, setIsHovered] = useState(false);
 
@@ -39,15 +44,32 @@ export default function PriceTicker() {
         { name: "HUG", icon: "/images/LogoHug.png", price: prices.hug, decimals: 6 }
     ];
 
+    const getWidthAndLeftOffset = () => {
+        switch (layoutMode) {
+            case LayoutMode.DesktopExpanded:
+                return { width: "calc(100% - 200px)", left: "200px" };
+            case LayoutMode.DesktopMinimized:
+                return { width: "calc(100% - 60px)", left: "60px" };
+            case LayoutMode.Mobile:
+            default:
+                return { width: "100%", left: "0" };
+        }
+    };
+
+    const { width, left } = getWidthAndLeftOffset();
+
     return (
         <Box
             overflow="hidden"
             whiteSpace="nowrap"
-            width="50%"
+            width={width}
             background="linear-gradient(to right, #6B5EFF, #BB6BD9)"
             padding="8px"
             borderRadius="md"
-            position="relative"
+            position="fixed"
+            bottom="0"
+            left={left}
+            zIndex="1000"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -57,7 +79,7 @@ export default function PriceTicker() {
                 alignItems="center"
                 justifyContent="space-between"
             >
-                {[...Array(5)].map((_, i) => (
+                {[...Array(6)].map((_, i) => (
                     <Flex key={i} alignItems="center">
                         {assets.map((asset, index) => (
                             <Box key={index} mx={4} display="flex" alignItems="center">

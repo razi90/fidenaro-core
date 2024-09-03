@@ -7,15 +7,16 @@ import {
 } from "@chakra-ui/react";
 import { routePageBoxStyle } from '../../libs/styles/RoutePageBox';
 import { FidenaroCircularProgress } from '../../components/Loading/FidenaroCircularProgress/FidenaroCircularProgress';
+import { LayoutMode } from '../../Layout';
 
 interface UnknownPageProps {
-    isMinimized: boolean;
+    layoutMode: LayoutMode;
 }
 
-const UnknownPage: React.FC<UnknownPageProps> = ({ isMinimized }) => {
+const UnknownPage: React.FC<UnknownPageProps> = ({ layoutMode }) => {
 
     return (
-        <Box sx={routePageBoxStyle(isMinimized)} >
+        <Box sx={routePageBoxStyle(layoutMode)}>
             <Flex
                 w="100%"
                 h="80vh"
@@ -24,14 +25,14 @@ const UnknownPage: React.FC<UnknownPageProps> = ({ isMinimized }) => {
             >
                 <Center>
                     <Text fontSize={"40px"}>
-                        Upsi, I can't find the current path. <br />
+                        Oops, I can't find the current path. <br />
                         Please check the path.
                     </Text>
                     <FidenaroCircularProgress circleSize="30vh" circleBorderThickness="2px" circleImageSize="20vh" />
                 </Center>
             </Flex>
-
-        </Box >
-    )
+        </Box>
+    );
 }
+
 export default UnknownPage;

@@ -11,7 +11,7 @@ import {
 import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
 import { tableStyle } from './Styled';
-import { Vault, VaultHistory } from '../../libs/entities/Vault';
+import { Vault } from '../../libs/entities/Vault';
 import PnlText from '../Text/PnlText';
 
 interface VaultRankingTableProps {
@@ -64,9 +64,9 @@ export const VaultRankingTable: React.FC<VaultRankingTableProps> = ({ title, dat
                                 </Tr>
                             </Thead>
                             <Tbody>
-                                {data?.slice(0, 10).map((item, index) => (
+                                {data?.slice(3, 10).map((item, index) => (
                                     <Tr sx={tableStyle} key={index}>
-                                        <Td>{index + 1}</Td>
+                                        <Td>{index + 4}</Td>
                                         <Td>{item.name}</Td>
                                         <Td>{item.manager.name}</Td>
                                         <Td><PnlText value={item.calculatePnL()} /> </Td>
