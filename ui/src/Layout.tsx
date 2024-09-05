@@ -54,13 +54,22 @@ const Layout: React.FC = () => {
                             setIsMinimized={setIsMinimized}
                         />
                     )}
-                    <Box flex="1">
+
+                    {layoutMode !== LayoutMode.Mobile ? ( // Desktop part (issue fixed with scroll effect)
                         <Routes>
                             {routes.map((route, index) => (
                                 <Route key={index} path={route.path} element={route.element} />
                             ))}
                         </Routes>
-                    </Box>
+                    ) : ( // mobile part
+                        <Box flex="1">
+                            <Routes>
+                                {routes.map((route, index) => (
+                                    <Route key={index} path={route.path} element={route.element} />
+                                ))}
+                            </Routes>
+                        </Box>
+                    )}
                 </Flex>
             </Box>
             <PriceTicker layoutMode={layoutMode} />
