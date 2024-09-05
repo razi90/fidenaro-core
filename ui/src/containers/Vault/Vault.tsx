@@ -47,7 +47,11 @@ const Vault: React.FC<VaultProps> = ({ layoutMode }) => {
 
     const { data: tradeHistory, isLoading: isTradeHistoryFetchLoading, isError: isTradeHistoryFetchError } = useQuery({
         queryKey: ['trade_history'],
-        queryFn: () => fetchTradeHistory(id!),
+        queryFn: () => fetchTradeHistory(
+            {
+                entityIds: [id!]
+            }
+        ),
     });
 
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });

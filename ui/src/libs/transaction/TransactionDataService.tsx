@@ -1,5 +1,6 @@
 import { addressToAsset, Asset } from "../entities/Asset";
-import { gatewayApi } from "../radix-dapp-toolkit/rdt"
+import { TRADE_ENGINE_COMPONENT_ADDRESS } from "../fidenaro/Config";
+import { gatewayApi } from "../radix-dapp-toolkit/rdt";
 
 export interface Transaction {
     userId: string;
@@ -20,19 +21,28 @@ export type TradeEventData = {
     };
 };
 
+export interface TradeEventFilter {
+    entityIds: string[];  // Array of string IDs for filtering
+}
 
-export const fetchTradeHistory = async (id: string): Promise<TradeEventData[]> => {
+export const fetchTradeHistory = async (filter: TradeEventFilter): Promise<TradeEventData[]> => {
     const tradeEvents: TradeEventData[] = [];
+    if (filter.entityIds.length == 0) {
+        return []
+    }
+
+    filter.entityIds.push(TRADE_ENGINE_COMPONENT_ADDRESS)
+
     const transactionData = await gatewayApi.stream.innerClient.streamTransactions(
         {
             streamTransactionsRequest: {
-                affected_global_entities_filter: [id],
+                affected_global_entities_filter: filter.entityIds, // Use the array of entity IDs
                 opt_ins: {
                     receipt_events: true
                 }
             }
         }
-    )
+    );
 
     transactionData.items.forEach((item: any) => {
         // Check if the receipt has events

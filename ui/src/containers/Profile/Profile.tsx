@@ -25,6 +25,7 @@ import { fetchConnectedWallet } from '../../libs/wallet/WalletDataService';
 import { useParams } from 'react-router-dom';
 import { convertToXRDString } from '../../libs/etc/StringOperations';
 import { LayoutMode } from '../../Layout';
+import { fetchTradeHistory } from '../../libs/transaction/TransactionDataService';
 
 interface ProfileProps {
     layoutMode: LayoutMode;
@@ -83,17 +84,28 @@ const Profile: React.FC<ProfileProps> = ({ layoutMode }) => {
     const { data: profile, isLoading: isProfileLoading, isError: isProfileFetchError } = useQuery<User>({ queryKey: ['ext_user_info'], queryFn: () => fetchUserInfoById(`#${id}#` ?? "") });
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
-    if (isError) {
-        return <Box sx={routePageBoxStyle(layoutMode)}>Error loading data</Box>;
-    }
-
     const managedVaults = vaults?.filter((vault) => vault.manager.id === profile?.id);
     const investedVaults = vaults?.filter((vault) => vault.followers.includes(profile?.account ?? ''));
     const totalFollowers = managedVaults?.reduce((total, vault) => total + vault.followers.length, 0);
     const totalEquity = managedVaults?.reduce((total, vault) => total + vault.tvlInXrd, 0);
     const managerPnL = managedVaults?.reduce((total, vault) => total + vault.calculatePnL(), 0);
     const investorPnL = investedVaults?.reduce((total, vault) => total + vault.calculatePnL(), 0);
-    const totalTrades = managedVaults?.reduce((total, vault) => total + vault.tradeHistory.length, 0);
+
+    const { data: tradeHistory, isLoading: isTradeHistoryFetchLoading, isError: isTradeHistoryFetchError } = useQuery({
+        queryKey: ['trade_history', profile?.account],
+        queryFn: () => fetchTradeHistory({
+            entityIds: [
+                ...(profile?.account ? [profile.account] : [])
+            ]
+        }),
+        enabled: !!profile?.account,  // Query only runs when profile?.account is available
+    });
+
+    const totalTrades = tradeHistory?.length;
+
+    if (isError) {
+        return <Box sx={routePageBoxStyle(layoutMode)}>Error loading data</Box>;
+    }
 
     let managerPnLRankings = new Map();
 
