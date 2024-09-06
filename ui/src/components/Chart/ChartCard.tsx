@@ -1,4 +1,4 @@
-import { Box, Card, SkeletonText } from '@chakra-ui/react';
+import { Box, Card, SkeletonText, useColorModeValue } from '@chakra-ui/react';
 import ReactApexChart from 'react-apexcharts';
 import { CardTitle } from '../Card/CardTitle';
 

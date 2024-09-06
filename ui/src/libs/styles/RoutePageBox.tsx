@@ -18,7 +18,6 @@ export const routePageBoxStyle = (layoutMode: LayoutMode) => {
     return {
         color: "#000",
         w: "100vw",
-        bg: "#F8F8F8",
         p: "20px",
         ml: marginLeft,
         transition: "margin-left 0.5s",

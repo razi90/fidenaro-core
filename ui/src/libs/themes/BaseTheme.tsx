@@ -1,25 +1,17 @@
-// generall
 import { extendTheme } from "@chakra-ui/react";
 
 const config = {
     initialColorMode: "light",
     useSystemColorMode: false,
-
-    styles: {
-        global: {
-            body: {
-                bg: "#F8F8F8", // Replace "your-color" with your desired background color
-            },
-        },
-    },
 };
 
 const styles = {
-    global: {
+    global: (props: { colorMode: string; }) => ({
         body: {
-            bg: "#F8F8F8", // Replace "your-color" with your desired background color
+            bg: props.colorMode === 'dark' ? '#211F34' : '#F8F8F8',
+            color: props.colorMode === 'dark' ? '#F8F8F8' : 'black',
         },
-    },
+    }),
 };
 
 const colors = {

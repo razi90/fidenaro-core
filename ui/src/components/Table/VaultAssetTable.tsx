@@ -11,6 +11,8 @@ import {
     Stack,
     VStack,
     Box,
+    useColorMode,
+    useColorModeValue,
 } from '@chakra-ui/react';
 import React from 'react';
 import Chart from "react-apexcharts";
@@ -29,9 +31,11 @@ interface VaultAssetTableProps {
 }
 
 export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, isLoading, isMobileLayout }) => {
+    const { colorMode } = useColorMode();  // Get the current color mode (dark or light)
+    const bgColor = useColorModeValue("white", "#161616");
 
     const renderTable = () => (
-        <Box overflowX={isMobileLayout ? "auto" : "visible"}>
+        <Box bg={bgColor} overflowX={isMobileLayout ? "auto" : "visible"}>
             <Table size="sm" minW={isMobileLayout ? "600px" : "auto"}>
                 <Thead>
                     <Tr>
@@ -87,6 +91,7 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
     };
 
     const pieChartData = data ? Array.from(data.values()).map(value => value.valueInUSD) : [];
+    const legendTextColor = colorMode === 'dark' ? '#F8F8F8' : '#000000';  // Legend text color based on color mode
 
     const pieChartOptions: ApexOptions = {
         chart: {
@@ -108,6 +113,9 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
             position: 'right',
             offsetY: 0,
             height: 230,
+            labels: {
+                colors: legendTextColor,
+            },
         },
     };
 
@@ -122,14 +130,14 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
     );
 
     return (
-        <Card p={6} pt={10}>
+        <Card bg={bgColor} p={6} pt={10}>
             <CardTitle cardTitle={title} isLoading={isLoading} />
             {isMobileLayout ? (
                 <VStack spacing={8} align="stretch">
                     <Card w="100%">
                         {renderTable()}
                     </Card>
-                    <Card w="100%" display="flex" justifyContent="center" alignItems="center">
+                    <Card bg={bgColor} w="100%" display="flex" justifyContent="center" alignItems="center">
                         {renderChart()}
                     </Card>
                 </VStack>
@@ -138,7 +146,7 @@ export const VaultAssetTable: React.FC<VaultAssetTableProps> = ({ title, data, i
                     <Card w="50%">
                         {renderTable()}
                     </Card>
-                    <Card w="50%" display="flex" justifyContent="center" alignItems="center">
+                    <Card bg={bgColor} w="50%" display="flex" justifyContent="center" alignItems="center">
                         {renderChart()}
                     </Card>
                 </Stack>

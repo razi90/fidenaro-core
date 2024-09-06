@@ -1,5 +1,4 @@
 export const valueCardStyle = {
-    color: "black",
     alignItems: 'center',
     size: "lg",
     borderRadius: "md",
@@ -13,7 +12,6 @@ export const valueCardStyle = {
 };
 
 export const statCardStyle = {
-    color: "black",
     size: "lg",
     minW: "130px",
     borderRadius: "md",
@@ -27,7 +25,6 @@ export const statCardStyle = {
 };
 
 export const descriptionCardStyle = {
-    color: "black",
     size: "lg",
     borderRadius: "md",
     bg: "pElementTransparent.890",

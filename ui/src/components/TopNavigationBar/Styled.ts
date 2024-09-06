@@ -1,24 +1,15 @@
-
-export const topNavigationBoxStyle = {
-    bg: "white",
+export const topNavigationBoxStyle = (bgColor: string, boxShadow: string) => ({
+    bg: bgColor,
     textShadow: "sm",
     as: "header",
     position: "fixed",
     zIndex: "10",
     w: "100%",
     px: "4",
-    color: "black",
-    boxShadow: "0 0 10px 0px #ccc;",
-
-    // let's also provide dark mode alternatives
-    _dark: {
-        bg: "white",
-        color: "font.900",
-    },
-};
+    boxShadow: boxShadow,
+});
 
 export const topNavigationHiddenBoxStyle = {
-    bg: "#F8F8F8",
     as: "header",
     w: "100%",
     h: "16",
@@ -40,7 +31,6 @@ export const topNavigationLogoStyle = {
 };
 
 export const topNavigationHamburgerMenuStyle = {
-    bg: "",
     boxSize: 30,
     color: "font.300",
     borderRadius: "md",
