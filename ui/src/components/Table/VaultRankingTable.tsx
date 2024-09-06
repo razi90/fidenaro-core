@@ -6,7 +6,8 @@ import {
     Tr,
     Td,
     Tbody,
-    SkeletonText
+    SkeletonText,
+    useColorModeValue
 } from '@chakra-ui/react';
 import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
@@ -22,11 +23,13 @@ interface VaultRankingTableProps {
 
 export const VaultRankingTable: React.FC<VaultRankingTableProps> = ({ title, data, isLoading }) => {
 
+    const bgColor = useColorModeValue("white", "#161616");
+
     return (
         <>
             {
                 isLoading ? (
-                    <Card p={6} pt={10}>
+                    <Card bg={bgColor} p={6} pt={10}>
                         <CardTitle cardTitle={title} isLoading={isLoading} />
 
                         <Table size="sm">
@@ -51,7 +54,7 @@ export const VaultRankingTable: React.FC<VaultRankingTableProps> = ({ title, dat
                         </Table>
                     </Card >
                 ) : (
-                    <Card p={6} pt={10}>
+                    <Card bg={bgColor} p={6} pt={10}>
                         <CardTitle cardTitle={title} isLoading={isLoading} />
 
                         <Table size="sm">

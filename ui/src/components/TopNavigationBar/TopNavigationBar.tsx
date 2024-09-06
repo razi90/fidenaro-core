@@ -16,6 +16,8 @@ import {
 } from "@chakra-ui/react";
 import { HamburgerIcon } from '@chakra-ui/icons';
 import { WalletButton } from '../Button/WalletButton/WalletButton';
+import { useColorModeValue } from "@chakra-ui/react";
+
 
 import {
     topNavigationBoxStyle,
@@ -29,10 +31,12 @@ import { CreateVaultButton } from "../Button/CreateVault/CreateVault";
 import { useState, useEffect } from 'react';
 import Joyride, { Step } from 'react-joyride';
 
-import PriceTicker from "../PriceTicker/PriceTicker";
 import { NavigationItems } from "../LeftNavigationBar/NavigationItems";
+import { ColorModeToggle } from "../Button/ColorModeButton/ColorModeButton";
 
 export default function TopNavigationBar() {
+    const bgColor = useColorModeValue("white", "#161616");
+    const boxShadow = useColorModeValue("0 0 10px 0px #ccc", "0 0 10px 0px #211F34");
     const isMobile = useBreakpointValue({ base: true, md: false });
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -66,7 +70,7 @@ export default function TopNavigationBar() {
 
     return (
         <>
-            <Box sx={topNavigationBoxStyle}>
+            <Box sx={topNavigationBoxStyle(bgColor, boxShadow)}>
                 <Center>
                     <Flex sx={topNavigationMainFlexStyle} alignItems="center">
                         {isMobile && (
@@ -86,14 +90,12 @@ export default function TopNavigationBar() {
                                 alt="Fidenaro Logo"
                             />
                         </Link>
-                        {!isMobile && <Text color="black" fontSize='2xl'>Fidenaro</Text>}
+                        {!isMobile && <Text fontSize='2xl'>Fidenaro</Text>}
                         <Spacer />
-
-                        {/* {!isMobile && <PriceTicker />} */}
-                        {/* <Spacer /> */}
 
                         {!isMobile && <FeedbackButton />}
                         <CreateVaultButton user="John Smith" />
+                        <ColorModeToggle />
                         <WalletButton />
                     </Flex>
                 </Center>
@@ -102,8 +104,8 @@ export default function TopNavigationBar() {
 
             <Drawer placement="left" onClose={onClose} isOpen={isOpen} size="xs">
                 <DrawerOverlay />
-                <DrawerContent bg="white" color="white">
-                    <DrawerBody>
+                <DrawerContent>
+                    <DrawerBody bg={bgColor}>
                         <NavigationItems />
                     </DrawerBody>
                 </DrawerContent>

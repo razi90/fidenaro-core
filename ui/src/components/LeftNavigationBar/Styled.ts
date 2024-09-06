@@ -26,7 +26,6 @@ export const leftNavigationToggleIconStyle = {
 
 
 export const leftNavigationButtonStyle = {
-    color: "backTransparent.900",
     size: "md",
     borderRadius: "sm",
     bg: "pElementTransparent.895",
@@ -56,13 +55,13 @@ export const leftNavigationButtonStyle = {
     },
 };
 
-export const leftNavigationMainBoxStyle = {
-    boxShadow: "0 0 10px 0px #ccc;",
-    bg: "white",
+export const leftNavigationMainBoxStyle = (bgColor: string, boxShadow: string) => ({
+    boxShadow: boxShadow,
+    bg: bgColor,
     transition: "width 0.3s",
     height: '100%',
     position: "fixed"
-};
+});
 
 export const leftNavigationMainVStackStyle = {
     spacing: "1",
@@ -70,8 +69,6 @@ export const leftNavigationMainVStackStyle = {
 };
 
 export const leftNavigationDividerBoxStyle = (isMinimized: any) => ({
-    color: "#000",
-    bg: "#fff",
     px: "4",
     align: "center",
     w: "100%", borderColor: 'gray.200',

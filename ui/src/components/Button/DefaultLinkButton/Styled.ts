@@ -1,6 +1,5 @@
 
 export const defaultLinkButtonStyle = {
-    color: "black",
     size: "md",
     borderRadius: "md",
     bg: "none",

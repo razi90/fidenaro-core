@@ -10,6 +10,7 @@ import {
     Link,
     SkeletonText,
     Box,
+    useColorModeValue,
 } from '@chakra-ui/react';
 import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
@@ -45,6 +46,9 @@ const RadixTransactionLink: React.FC<RadixTransactionLinkProps> = ({ content }) 
 };
 
 export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, data, isLoading, isMobileLayout }) => {
+
+    const bgColor = useColorModeValue("white", "#161616");
+
     const renderTableRows = () => (
         <>
             <Thead>
@@ -90,7 +94,7 @@ export const VaultHistoryTable: React.FC<VaultHistoryTableProps> = ({ title, dat
     );
 
     return (
-        <Card p={6} pt={10}>
+        <Card bg={bgColor} p={6} pt={10}>
             <CardTitle cardTitle={title} isLoading={isLoading} />
             <Box overflowX={isMobileLayout ? "auto" : "visible"}>
                 <Table size="sm" minW={isMobileLayout ? "600px" : "auto"}>

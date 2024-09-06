@@ -9,7 +9,8 @@ import {
     Tfoot,
     Text,
     Link,
-    SkeletonText
+    SkeletonText,
+    useColorModeValue
 } from '@chakra-ui/react';
 import React from 'react';
 import { CardTitle } from '../Card/CardTitle';
@@ -45,11 +46,13 @@ const RadixTansactionLink: React.FC<RadixTansactionLinkProps> = ({ content }) =>
 
 export const VaultFlowHistoryTable: React.FC<VaultFlowHistoryTableProps> = ({ title, data, isLoading }) => {
 
+    const bgColor = useColorModeValue("white", "#161616");
+
     return (
         <>
             {
                 isLoading ? (
-                    <Card p={6} pt={10}>
+                    <Card bg={bgColor} p={6} pt={10}>
                         <CardTitle cardTitle={title} isLoading={isLoading} />
 
                         <Table size="sm">
@@ -84,7 +87,7 @@ export const VaultFlowHistoryTable: React.FC<VaultFlowHistoryTableProps> = ({ ti
                         </Table>
                     </Card >
                 ) : (
-                    <Card p={6} pt={10}>
+                    <Card bg={bgColor} p={6} pt={10}>
                         <CardTitle cardTitle={title} isLoading={isLoading} />
 
                         <Table size="sm">
@@ -100,7 +103,7 @@ export const VaultFlowHistoryTable: React.FC<VaultFlowHistoryTableProps> = ({ ti
                                     <Tr sx={tableStyle} key={index}>
                                         <Td>{formatUnixTimestampToUTC(item.unixTimestamp)}</Td>
                                         <Td>{item.action}</Td>
-                                        <Td isNumeric style={{ color: item.action === 'Withdrawal' ? 'red' : 'black' }}>
+                                        <Td isNumeric >
                                             {item.action === 'Withdrawal' ?
                                                 `- ${convertToXRDString(item.amount)}` :
                                                 convertToXRDString(item.amount)

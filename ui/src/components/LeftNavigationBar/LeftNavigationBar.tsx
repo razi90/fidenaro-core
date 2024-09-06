@@ -4,6 +4,7 @@ import { Box } from '@chakra-ui/react';
 import { NavigationItems } from './NavigationItems';
 import { leftNavigationMainBoxStyle } from "./Styled";
 import { fetchLeftNavigationStatus } from '../../libs/navigation/LeftNavigationBarDataService';
+import { useColorModeValue } from "@chakra-ui/react";
 
 interface LeftNavigationBarProps {
     isMinimized: boolean;
@@ -11,6 +12,8 @@ interface LeftNavigationBarProps {
 }
 
 const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setIsMinimized }) => {
+    const bgColor = useColorModeValue("white", "#161616");
+    const boxShadow = useColorModeValue("0 0 10px 0px #ccc", "0 0 10px 0px #211F34");
     const toggleMinimize = () => {
         const navi = fetchLeftNavigationStatus(); // queryClient.getQueryData(['left_navi_status']) ?? false
         localStorage.setItem('leftNavigationBarIsMinimized', JSON.stringify(!navi));
@@ -19,7 +22,7 @@ const LeftNavigationBar: React.FC<LeftNavigationBarProps> = ({ isMinimized, setI
 
     return (
         <Box
-            sx={leftNavigationMainBoxStyle}
+            sx={leftNavigationMainBoxStyle(bgColor, boxShadow)}
             width={isMinimized ? "60px" : "200px"}
         >
             <NavigationItems isMinimized={isMinimized} toggleMinimize={toggleMinimize} />

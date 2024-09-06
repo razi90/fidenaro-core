@@ -1,4 +1,4 @@
-import { Box, Flex, VStack, useBreakpointValue } from '@chakra-ui/react';
+import { Box, Flex, VStack, useBreakpointValue, useColorModeValue } from '@chakra-ui/react';
 import React from 'react';
 import { Vault } from '../../libs/entities/Vault';
 import { CarouselCard } from '../Card/CarouselCard';
@@ -16,6 +16,8 @@ interface CardCarouselProps {
 export const CardCarousel: React.FC<CardCarouselProps> = ({ rankedVaults, isConnected }) => {
     // Determine whether to use a vertical or horizontal layout based on screen size
     const flexDirection = useBreakpointValue<any>({ base: 'column', md: 'row' });
+
+    const bgColor = useColorModeValue("white", "#161616");
 
     return (
         <Flex
