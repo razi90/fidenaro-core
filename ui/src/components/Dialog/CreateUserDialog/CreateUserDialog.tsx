@@ -168,20 +168,26 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
         <Box>
             <Modal isOpen={isOpen} onClose={onClose} isCentered size="xl">
                 <ModalOverlay />
-                <ModalContent >
+                <ModalContent>
                     <ModalHeader>Edit Profile</ModalHeader>
                     <ModalCloseButton />
                     <ModalBody>
                         <Stack spacing={2}>
                             <Input
-                                placeholder="Enter Nickname"
+                                placeholder="Enter Nickname (required)"
                                 value={userName}
                                 onChange={(e) => setUserName(e.target.value)}
+                                borderColor={!userName ? 'red.500' : 'gray.300'}  // Red border if empty
+                                _focus={{ borderColor: !userName ? 'red.500' : 'blue.500' }}  // Red border on focus if empty
+                                isRequired
                             />
                             <Textarea
-                                placeholder="Enter Bio"
+                                placeholder="Enter Bio (required)"
                                 value={userBio}
                                 onChange={(e) => setUserBio(e.target.value)}
+                                borderColor={!userBio ? 'red.500' : 'gray.300'}  // Red border if empty
+                                _focus={{ borderColor: !userBio ? 'red.500' : 'blue.500' }}  // Red border on focus if empty
+                                isRequired
                             />
                             <Input
                                 placeholder="Enter URL to Profile Picture"
@@ -194,7 +200,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
                     <ModalBody>
                         <Stack spacing={2}>
                             <InputGroup>
-                                <InputLeftElement pointerEvents='none'>
+                                <InputLeftElement pointerEvents="none">
                                     <Icon as={FaTwitter} boxSize={5} />
                                 </InputLeftElement>
                                 <InputLeftAddon minW={"200px"} pl={10} children="https://twitter.com/" opacity={0.5} />
@@ -205,7 +211,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
                                 />
                             </InputGroup>
                             <InputGroup>
-                                <InputLeftElement pointerEvents='none'>
+                                <InputLeftElement pointerEvents="none">
                                     <Icon as={FaTelegram} boxSize={5} />
                                 </InputLeftElement>
                                 <InputLeftAddon minW={"200px"} pl={10} children="https://t.me/@" opacity={0.5} />
@@ -216,7 +222,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
                                 />
                             </InputGroup>
                             <InputGroup>
-                                <InputLeftElement pointerEvents='none'>
+                                <InputLeftElement pointerEvents="none">
                                     <Icon as={FaDiscord} boxSize={5} />
                                 </InputLeftElement>
                                 <InputLeftAddon minW={"200px"} pl={10} children="https://discord.gg/" opacity={0.5} />
@@ -232,20 +238,20 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
                         {isLoading ? (
                             <Button
                                 isLoading
-                                loadingText='Confirm on your mobile wallet!'
+                                loadingText="Confirm on your mobile wallet!"
                                 sx={defaultHighlightedLinkButtonStyle}
                             >
                                 Confirm
-                            </Button >
+                            </Button>
                         ) : (
                             <Button
                                 sx={defaultHighlightedLinkButtonStyle}
                                 onClick={createUser}
+                                disabled={!userName || !userBio}  // Disable if Name or Bio are empty
                             >
                                 Confirm
-                            </Button >
-                        )
-                        }
+                            </Button>
+                        )}
 
                         <Box m={1}></Box>
                         <CancelButton onClick={onClose} />
