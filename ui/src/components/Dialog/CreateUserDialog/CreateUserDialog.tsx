@@ -3,13 +3,14 @@ import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlightedLinkButton/Styled";
 import { rdt } from "../../../libs/radix-dapp-toolkit/rdt";
 import { useQuery } from "@tanstack/react-query";
-import { FIDENARO_COMPONENT_ADDRESS, USER_FACTORY_COMPONENT_ADDRESS } from "../../../libs/fidenaro/Config";
+import { USER_FACTORY_COMPONENT_ADDRESS } from "../../../libs/fidenaro/Config";
 import { useState } from "react";
-import { enqueueSnackbar, useSnackbar } from "notistack";
+import { enqueueSnackbar } from "notistack";
 import { WalletDataState } from "@radixdlt/radix-dapp-toolkit";
 import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
 import { FaTwitter, FaTelegram, FaDiscord } from "react-icons/fa6";
 import Filter from 'bad-words';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface CreateUserDialogProps {
     isOpen: boolean,
@@ -19,6 +20,7 @@ interface CreateUserDialogProps {
 
 const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }) => {
     const onClose = () => setIsOpen(false);
+    const queryClient = useQueryClient();
     const [isLoading, setIsLoading] = useState(false);
     const [userName, setUserName] = useState('');
     const [userBio, setUserBio] = useState('');
@@ -145,6 +147,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({ isOpen, setIsOpen }
 
         if (result.isOk()) {
             enqueueSnackbar(`Created user successfully.`, { variant: 'success' });
+            queryClient.invalidateQueries(['user_info']);
         }
 
         if (result.isErr()) {
