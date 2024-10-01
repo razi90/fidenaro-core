@@ -75,8 +75,14 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
 
     // Function to handle sorting based on the selected column
     const handleSort = (column: TableEntryKeys) => {
-        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-        setSortedColumn(column);
+        if (sortedColumn === column) {
+            // Toggle sort order if the same column is clicked
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            // Set new column and default to ascending order
+            setSortedColumn(column);
+            setSortOrder('asc');
+        }
     };
 
     const resetFilters = () => {
@@ -89,11 +95,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
     useEffect(() => {
         const loadData = async () => {
             try {
-                // Wait for both Promises to resolve
-                await Promise.all([tableData]);
-
                 setFilteredData(tableData);
-                // Set the flag to indicate that the data is loaded
                 setIsDataLoaded(true);
             } catch (error) {
                 console.log('An error has occurred:', error);
@@ -110,16 +112,6 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
             // Copy the original data to avoid mutating it
             let filteredEntries = [...tableData];
 
-            // Apply sorting
-            if (sortedColumn) {
-                filteredEntries = filteredEntries.slice().sort((a, b) => {
-                    let aValue = sortOrder === 'asc' ? Number(a[sortedColumn]) : Number(b[sortedColumn]);
-                    let bValue = sortOrder === 'asc' ? Number(b[sortedColumn]) : Number(a[sortedColumn]);
-
-                    return aValue - bValue;
-                });
-            }
-
             // Apply filtering based on the filter criteria
             filteredEntries = filteredEntries.filter((entry) => {
                 const nameMatch = entry.name.toLowerCase().includes(nameFilter.toLowerCase());
@@ -129,10 +121,44 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
 
                 return nameMatch && roiMatch && activeDaysMatch && followersMatch;
             });
-            // Set the sorder and filtered data
+
+            // Apply sorting
+            if (sortedColumn) {
+                filteredEntries.sort((a, b) => {
+                    let aValue: any;
+                    let bValue: any;
+
+                    switch (sortedColumn) {
+                        case 'name':
+                            aValue = a.name.toLowerCase();
+                            bValue = b.name.toLowerCase();
+                            break;
+                        case 'followers':
+                            aValue = a.followers.length;
+                            bValue = b.followers.length;
+                            break;
+                        default:
+                            aValue = a[sortedColumn];
+                            bValue = b[sortedColumn];
+                    }
+
+                    if (typeof aValue === 'string' && typeof bValue === 'string') {
+                        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+                        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+                        return 0;
+                    }
+
+                    if (typeof aValue === 'number' && typeof bValue === 'number') {
+                        return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+                    }
+
+                    return 0;
+                });
+            }
+
             setFilteredData(filteredEntries);
         }
-    }, [nameFilter, roiFilter, activeDaysFilter, followersFilter, sortedColumn, sortOrder]);
+    }, [nameFilter, roiFilter, activeDaysFilter, followersFilter, sortedColumn, sortOrder, tableData]);
 
     const isMobile = useBreakpointValue({ base: true, md: false });
 
@@ -252,12 +278,12 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
                         <Table size="sm">
                             <Thead>
                                 <Tr>
-                                    <Th>Name</Th>
+                                    <SortableTh column="name" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Name</SortableTh>
                                     <SortableTh column="roi" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>ROI</SortableTh>
                                     <SortableTh column="activeDays" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >Active Days</SortableTh>
                                     <SortableTh column="followers" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Followers</SortableTh>
                                     <SortableTh column="tvlInXrd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL XRD</SortableTh>
-                                    <SortableTh column="tvlInXrd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL USD</SortableTh>
+                                    <SortableTh column="tvlInUsd" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort} >TVL USD</SortableTh>
                                 </Tr>
                             </Thead>
                             <Tbody >
