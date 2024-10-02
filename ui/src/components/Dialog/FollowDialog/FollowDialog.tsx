@@ -60,10 +60,6 @@ const FollowDialog: React.FC<FollowDialogProps> = ({ isOpen, setIsOpen, vault, o
     // read user data
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
 
-    if (isUserFetchError) {
-        return <Box>Error loading user data</Box>;
-    }
-
     let userXrdAmount = user?.assets.get(Radix.address) ?? 0;
 
     // balance error handling

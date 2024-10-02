@@ -57,10 +57,6 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({ isOpen, setIsOpen, vaul
     // read user data
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
 
-    if (isUserFetchError) {
-        return <Box>Error loading user data</Box>;
-    }
-
     const userShareTokenAmount = vault ? user?.assets.get(vault.shareTokenAddress) ?? 0 : 0;
 
     // balance error handling

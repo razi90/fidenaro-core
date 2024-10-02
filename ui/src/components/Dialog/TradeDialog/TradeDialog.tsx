@@ -86,11 +86,6 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
         }
     }, [fromToken, toToken, amount]);
 
-
-    if (isUserFetchError) {
-        return <Box>Error loading user data</Box>;
-    }
-
     const handleFromSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedAddress = event.target.value;
         const selectedToken = addressToAsset(selectedAddress);
