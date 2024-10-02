@@ -54,6 +54,13 @@ const Vault: React.FC<VaultProps> = ({ layoutMode }) => {
         ),
     });
 
+    const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
+
+    if (isError || isUserFetchError || isTradeHistoryFetchError) {
+        enqueueSnackbar("Error loading user data", { variant: "error" });
+    }
+
+
     let userShareTokenAmount = vault?.shareTokenAddress && user?.assets.has(vault?.shareTokenAddress) ? user.assets.get(vault?.shareTokenAddress) : 0;
     let userShareValue = vault?.pricePerShare ? vault.pricePerShare * userShareTokenAmount! : 0;
     let userTransactions = [...(vault?.withdrawals || []), ...(vault?.deposits || [])]
@@ -87,15 +94,15 @@ const Vault: React.FC<VaultProps> = ({ layoutMode }) => {
             <Flex justifyContent={isMobileLayout ? "center" : "flex-end"} w="100%" mt={6} px={2}>
                 {user?.id === vault?.manager.id && (
                     <>
-                        <CollectTraderFeeButton vault={vault} user={user} isConnected={false} />
+                        <CollectTraderFeeButton vault={vault} user={user} isConnected={!(wallet === undefined)} />
                         <Box m={1}></Box>
-                        <TradeButton vault={vault} isConnected={false} onComplete={refetch} />
+                        <TradeButton vault={vault} isConnected={!(wallet === undefined)} onComplete={refetch} />
                     </>
                 )}
                 <Box m={1}></Box>
-                <DepositButton vault={vault} isConnected={false} onDepositComplete={refetch} />
+                <DepositButton vault={vault} isConnected={!(wallet === undefined)} onDepositComplete={refetch} />
                 <Box m={1}></Box>
-                <WithdrawButton vault={vault} isConnected={false} onWithdrawComplete={refetch} />
+                <WithdrawButton vault={vault} isConnected={!(wallet === undefined)} onWithdrawComplete={refetch} />
             </Flex>
         </PrimerCard>
     );
