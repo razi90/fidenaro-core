@@ -124,83 +124,71 @@ const Profile: React.FC<ProfileProps> = ({ layoutMode }) => {
 
     return (
         <>
-            {wallet?.persona == undefined ? (
-                <Box sx={routePageBoxStyle(layoutMode)}>
-                    <Center>
-                        <Box maxW="6xl" minH="xl" width="100vw">
-                            <PrimerCard cardTitle={"Wallet not connected!"} cardWidth="100%" cardHeight="100%" isLoading={false}>
-                                <Text>Please connect your Radix DLT Wallet in order to connect/create a Fidenaro Profile.</Text>
-                            </PrimerCard>
-                        </Box>
-                    </Center>
-                </Box>
-            ) : (
-                <Box sx={routePageBoxStyle(layoutMode)} p="8">
-                    <Center>
-                        <Box maxW="6xl" minH="xl" width="100vw">
-                            {layoutMode === LayoutMode.DesktopExpanded ? (
-                                <Flex p={4}>
-                                    <PrimerCard cardTitle={profile?.name} cardWidth="50%" cardHeight="100%" isLoading={isLoadingProfile}>
-                                        <Flex flex="1" p={1}>
-                                            <ProfileInfo profile={profile} />
-                                            <Box flex="1">
-                                                <ProfileDetails profile={profile} totalFollowers={totalFollowers} totalEquity={totalEquity} isLoading={isLoadingProfile} />
-                                                {user?.id === profile?.id && (
-                                                    <Flex justifyContent="flex-end" w="100%" pr={3} mt={4}>
-                                                        <ProfileEditButton user={user} isLoading={isLoadingProfile || isUserFetchLoading} />
-                                                    </Flex>
-                                                )}
-                                            </Box>
-                                        </Flex>
-                                    </PrimerCard>
-                                    <PrimerCard cardTitle="Stats" cardWidth="50%" cardHeight="auto" isLoading={isLoading}>
-                                        <Box p="4">
-                                            <VStack mt={8}>
-                                                <ProfileStatsTable
-                                                    rank={managerRank}
-                                                    totalEquity={totalEquity}
-                                                    managerPnL={managerPnL}
-                                                    investorPnL={investorPnL}
-                                                    totalTrades={totalTrades}
-                                                    isLoading={isLoadingProfile}
-                                                />
-                                            </VStack>
-                                        </Box>
-                                    </PrimerCard>
-                                </Flex>
-                            ) : (
-                                <VStack spacing={4} p={4}>
-                                    <PrimerCard cardTitle={profile?.name} cardWidth="100%" cardHeight="auto" isLoading={isLoadingProfile}>
-                                        <VStack align="stretch">
-                                            <ProfileInfo profile={profile} />
+            <Box sx={routePageBoxStyle(layoutMode)} p="8">
+                <Center>
+                    <Box maxW="6xl" minH="xl" width="100vw">
+                        {layoutMode === LayoutMode.DesktopExpanded ? (
+                            <Flex p={4}>
+                                <PrimerCard cardTitle={profile?.name} cardWidth="50%" cardHeight="100%" isLoading={isLoadingProfile}>
+                                    <Flex flex="1" p={1}>
+                                        <ProfileInfo profile={profile} />
+                                        <Box flex="1">
                                             <ProfileDetails profile={profile} totalFollowers={totalFollowers} totalEquity={totalEquity} isLoading={isLoadingProfile} />
                                             {user?.id === profile?.id && (
                                                 <Flex justifyContent="flex-end" w="100%" pr={3} mt={4}>
                                                     <ProfileEditButton user={user} isLoading={isLoadingProfile || isUserFetchLoading} />
                                                 </Flex>
                                             )}
-                                        </VStack>
-                                    </PrimerCard>
-                                    <PrimerCard cardTitle="Stats" cardWidth="100%" cardHeight="auto" isLoading={isLoading}>
-                                        <Box p="4">
-                                            <VStack>
-                                                <ProfileStatsTable
-                                                    rank={managerRank}
-                                                    totalEquity={totalEquity}
-                                                    managerPnL={managerPnL}
-                                                    investorPnL={investorPnL}
-                                                    totalTrades={totalTrades}
-                                                    isLoading={isLoadingProfile}
-                                                />
-                                            </VStack>
                                         </Box>
-                                    </PrimerCard>
-                                </VStack>
-                            )}
-                        </Box>
-                    </Center>
-                </Box>
-            )}
+                                    </Flex>
+                                </PrimerCard>
+                                <PrimerCard cardTitle="Stats" cardWidth="50%" cardHeight="auto" isLoading={isLoading}>
+                                    <Box p="4">
+                                        <VStack mt={8}>
+                                            <ProfileStatsTable
+                                                rank={managerRank}
+                                                totalEquity={totalEquity}
+                                                managerPnL={managerPnL}
+                                                investorPnL={investorPnL}
+                                                totalTrades={totalTrades}
+                                                isLoading={isLoadingProfile}
+                                            />
+                                        </VStack>
+                                    </Box>
+                                </PrimerCard>
+                            </Flex>
+                        ) : (
+                            <VStack spacing={4} p={4}>
+                                <PrimerCard cardTitle={profile?.name} cardWidth="100%" cardHeight="auto" isLoading={isLoadingProfile}>
+                                    <VStack align="stretch">
+                                        <ProfileInfo profile={profile} />
+                                        <ProfileDetails profile={profile} totalFollowers={totalFollowers} totalEquity={totalEquity} isLoading={isLoadingProfile} />
+                                        {user?.id === profile?.id && (
+                                            <Flex justifyContent="flex-end" w="100%" pr={3} mt={4}>
+                                                <ProfileEditButton user={user} isLoading={isLoadingProfile || isUserFetchLoading} />
+                                            </Flex>
+                                        )}
+                                    </VStack>
+                                </PrimerCard>
+                                <PrimerCard cardTitle="Stats" cardWidth="100%" cardHeight="auto" isLoading={isLoading}>
+                                    <Box p="4">
+                                        <VStack>
+                                            <ProfileStatsTable
+                                                rank={managerRank}
+                                                totalEquity={totalEquity}
+                                                managerPnL={managerPnL}
+                                                investorPnL={investorPnL}
+                                                totalTrades={totalTrades}
+                                                isLoading={isLoadingProfile}
+                                            />
+                                        </VStack>
+                                    </Box>
+                                </PrimerCard>
+                            </VStack>
+                        )}
+                    </Box>
+                </Center>
+            </Box>
         </>
     );
 };

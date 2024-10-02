@@ -23,17 +23,17 @@ const WallOfFame: React.FC<WallOfFameProps> = ({ layoutMode }) => {
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
 
-    if (isLoading || isUserFetchLoading) {
+    if (isLoading) {
         return (
             <Box sx={routePageBoxStyle(layoutMode)}>
                 <Center>
                     <Box maxW="6xl" minH="xl" width="100vw">
                         <VStack spacing={4}>
                             <PrimerCard cardTitle={"Wall of Fame"} cardWidth="100%" cardHeight="100%" isLoading={isLoading}>
-                                <CardCarousel rankedVaults={undefined} userId={"No id"} isConnected={wallet?.persona !== undefined} />
+                                <CardCarousel rankedVaults={undefined} userId={"default"} isConnected={wallet?.persona !== undefined} />
                             </PrimerCard>
                             <Box w="100%">
-                                <VaultRankingTable title="Ranking" data={undefined} userId={"No id"} isLoading={isLoading} />
+                                <VaultRankingTable title="Ranking" data={undefined} userId={"default"} isLoading={isLoading} />
                             </Box>
                         </VStack>
                     </Box>
@@ -54,10 +54,10 @@ const WallOfFame: React.FC<WallOfFameProps> = ({ layoutMode }) => {
                 <Box maxW="6xl" minH="xl" width="100vw">
                     <VStack spacing={4}>
                         <PrimerCard cardTitle={"Wall of Fame"} cardWidth="100%" cardHeight="100%" isLoading={isLoading}>
-                            <CardCarousel rankedVaults={rankedVaults} userId={user!.id} isConnected={wallet?.persona !== undefined} />
+                            <CardCarousel rankedVaults={rankedVaults} userId={!user ? "default" : user!.id} isConnected={wallet?.persona !== undefined} />
                         </PrimerCard>
                         <Box w="100%">
-                            <VaultRankingTable title="Ranking" data={rankedVaults} userId={user!.id} isLoading={isLoading} />
+                            <VaultRankingTable title="Ranking" data={rankedVaults} userId={!user ? "default" : user!.id} isLoading={isLoading} />
                         </Box>
                     </VStack>
                 </Box>

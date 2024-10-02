@@ -54,12 +54,6 @@ const Vault: React.FC<VaultProps> = ({ layoutMode }) => {
         ),
     });
 
-    const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
-
-    if (isError || isUserFetchError || isTradeHistoryFetchError) {
-        enqueueSnackbar("Error loading user data", { variant: "error" });
-    }
-
     let userShareTokenAmount = vault?.shareTokenAddress && user?.assets.has(vault?.shareTokenAddress) ? user.assets.get(vault?.shareTokenAddress) : 0;
     let userShareValue = vault?.pricePerShare ? vault.pricePerShare * userShareTokenAmount! : 0;
     let userTransactions = [...(vault?.withdrawals || []), ...(vault?.deposits || [])]
@@ -69,58 +63,58 @@ const Vault: React.FC<VaultProps> = ({ layoutMode }) => {
     const isMobileLayout = layoutMode === LayoutMode.Mobile;
 
     const renderVaultCard = () => (
-        <PrimerCard cardTitle="Vault" cardWidth={isMobileLayout ? "100%" : "50%"} cardHeight="auto" isLoading={isVaultFetchLoading || isUserFetchLoading}>
+        <PrimerCard cardTitle="Vault" cardWidth={isMobileLayout ? "100%" : "50%"} cardHeight="auto" isLoading={isVaultFetchLoading}>
             <Flex direction={isMobileLayout ? "column" : "row"} w="100%">
-                <DescriptionCard title={"Vault Name"} isLoading={isVaultFetchLoading || isUserFetchLoading}>
+                <DescriptionCard title={"Vault Name"} isLoading={isVaultFetchLoading}>
                     {vault?.name}
                 </DescriptionCard>
                 <Box w={isMobileLayout ? "100%" : "60%"}>
-                    <ManagerCard name={vault?.manager.name} imageLink={vault?.manager.avatar} profileID={vault?.manager.id} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                    <ManagerCard name={vault?.manager.name} imageLink={vault?.manager.avatar} profileID={vault?.manager.id} isLoading={isVaultFetchLoading} />
                 </Box>
             </Flex>
-            <DescriptionCard title="Description" isLoading={isVaultFetchLoading || isUserFetchLoading}>
+            <DescriptionCard title="Description" isLoading={isVaultFetchLoading}>
                 {vault?.description}
             </DescriptionCard>
 
             <Flex direction={isMobileLayout ? "column" : "row"} w="100%">
-                <ValueCard value={vault?.activeDays} description={"Active Days"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                <ValueCard value={vault?.followers.length} description={"Follower"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                <ValueCard value={vault?.activeDays} description={"Active Days"} isLoading={isVaultFetchLoading} />
+                <ValueCard value={vault?.followers.length} description={"Follower"} isLoading={isVaultFetchLoading} />
                 {user?.id === vault?.manager.id && (
-                    <ValueCard value={convertToXRDString(vault?.calculateTraderFeeInXrd())} description={"Earned Fee"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                    <ValueCard value={convertToXRDString(vault?.calculateTraderFeeInXrd())} description={"Earned Fee"} isLoading={isVaultFetchLoading} />
                 )}
             </Flex>
 
             <Flex justifyContent={isMobileLayout ? "center" : "flex-end"} w="100%" mt={6} px={2}>
                 {user?.id === vault?.manager.id && (
                     <>
-                        <CollectTraderFeeButton vault={vault} user={user} isConnected={wallet?.persona !== undefined} />
+                        <CollectTraderFeeButton vault={vault} user={user} isConnected={false} />
                         <Box m={1}></Box>
-                        <TradeButton vault={vault} isConnected={wallet?.persona !== undefined} onComplete={refetch} />
+                        <TradeButton vault={vault} isConnected={false} onComplete={refetch} />
                     </>
                 )}
                 <Box m={1}></Box>
-                <DepositButton vault={vault} isConnected={wallet?.persona !== undefined} onDepositComplete={refetch} />
+                <DepositButton vault={vault} isConnected={false} onDepositComplete={refetch} />
                 <Box m={1}></Box>
-                <WithdrawButton vault={vault} isConnected={wallet?.persona !== undefined} onWithdrawComplete={refetch} />
+                <WithdrawButton vault={vault} isConnected={false} onWithdrawComplete={refetch} />
             </Flex>
         </PrimerCard>
     );
 
     const renderStatsCard = () => (
-        <PrimerCard cardTitle="Stats" cardWidth={isMobileLayout ? "100%" : "50%"} cardHeight="auto" isLoading={isVaultFetchLoading || isUserFetchLoading}>
+        <PrimerCard cardTitle="Stats" cardWidth={isMobileLayout ? "100%" : "50%"} cardHeight="auto" isLoading={isVaultFetchLoading}>
             <Flex direction={isMobileLayout ? "column" : "row"} w="100%">
-                <StatCard title="Vault ROI" value={convertToPercent(vault?.roi)} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                <ValueCard value={convertToXRDString(vault?.tvlInXrd)} description={"TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                <StatCard title="Vault ROI" value={convertToPercent(vault?.roi)} isLoading={isVaultFetchLoading} />
+                <ValueCard value={convertToXRDString(vault?.tvlInXrd)} description={"TVL"} isLoading={isVaultFetchLoading} />
             </Flex>
             <Flex direction={isMobileLayout ? "column" : "row"} w="100%">
-                <ValueCard value={convertToXRDString(vault?.followerEquity)} description={"Follower TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                <ValueCard value={convertToXRDString(vault?.managerEquity)} description={"Manager TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                <ValueCard value={convertToXRDString(vault?.followerEquity)} description={"Follower TVL"} isLoading={isVaultFetchLoading} />
+                <ValueCard value={convertToXRDString(vault?.managerEquity)} description={"Manager TVL"} isLoading={isVaultFetchLoading} />
             </Flex>
 
             {userShareTokenAmount !== 0 && (
                 <Flex direction={isMobileLayout ? "column" : "row"} w="100%">
-                    <ValueCard value={convertToXRDString(vault?.calculateUserPnL(user?.id, userShareValue))} description={"Your PnL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
-                    <ValueCard value={convertToXRDString(userShareValue)} description={"Your Current TVL"} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                    <ValueCard value={convertToXRDString(vault?.calculateUserPnL(user?.id, userShareValue))} description={"Your PnL"} isLoading={isVaultFetchLoading} />
+                    <ValueCard value={convertToXRDString(userShareValue)} description={"Your Current TVL"} isLoading={isVaultFetchLoading} />
                 </Flex>
             )}
         </PrimerCard>
@@ -144,19 +138,19 @@ const Vault: React.FC<VaultProps> = ({ layoutMode }) => {
 
                     {(vault?.userAssetValues !== undefined && vault?.userAssetValues.size > 0) && (
                         <Box p={4}>
-                            <VaultAssetTable title="Assets" data={vault?.userAssetValues} isLoading={isVaultFetchLoading || isUserFetchLoading} isMobileLayout={isMobileLayout} />
+                            <VaultAssetTable title="Assets" data={vault?.userAssetValues} isLoading={isVaultFetchLoading} isMobileLayout={isMobileLayout} />
                         </Box>
                     )}
 
                     {tradeHistory !== undefined && tradeHistory.length > 0 && (
                         <Box p={4}>
-                            <VaultHistoryTable title="Trade History" data={tradeHistory} isLoading={isVaultFetchLoading || isUserFetchLoading} isMobileLayout={isMobileLayout} />
+                            <VaultHistoryTable title="Trade History" data={tradeHistory} isLoading={isVaultFetchLoading} isMobileLayout={isMobileLayout} />
                         </Box>
                     )}
 
                     {userTransactions.length > 0 && (
                         <Box p={4}>
-                            <VaultFlowHistoryTable title="My Transaction History" data={userTransactions} isLoading={isVaultFetchLoading || isUserFetchLoading} />
+                            <VaultFlowHistoryTable title="My Transaction History" data={userTransactions} isLoading={isVaultFetchLoading} />
                         </Box>
                     )}
                 </Box>

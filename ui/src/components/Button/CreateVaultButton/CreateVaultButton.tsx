@@ -15,10 +15,6 @@ const CreateVaultButton: React.FC = () => {
     // read user data
     const { data: user, isLoading: isUserFetchLoading, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
 
-    if (isUserFetchError) {
-        return <Box>Error loading user data</Box>;
-    }
-
     const createVault = async () => {
         // build manifest to create a trade vault
         let manifest = `

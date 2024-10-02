@@ -23,7 +23,7 @@ const Explore: React.FC<ExploreProps> = ({ layoutMode }) => {
     const { data: vaults, isLoading, isError } = useQuery<Vault[]>({ queryKey: ['vault_list'], queryFn: fetchVaultList });
     const { data: wallet, isLoading: isWalletFetchLoading, isError: isWalletFetchError } = useQuery<WalletDataState>({ queryKey: ['wallet_data'], queryFn: fetchConnectedWallet });
 
-    if (isLoading || isUserFetchLoading) {
+    if (isLoading) {
         return (
             <Box sx={routePageBoxStyle(layoutMode)} p={'0'}>
                 <Center>
