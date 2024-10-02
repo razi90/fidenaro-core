@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Text, Box, Flex, Image, keyframes } from '@chakra-ui/react';
+import { Text, Box, Flex, Image } from '@chakra-ui/react';
 import { fetchPriceList } from '../../libs/price/PriceDataService';
 import { Bitcoin, Ethereum, Hug, Radix } from '../../libs/entities/Asset';
 import { convertToDollarString } from '../../libs/etc/StringOperations';
 import { LayoutMode } from '../../Layout';
+import { keyframes } from '@emotion/react';
 
 interface PriceTickerProps {
     layoutMode: LayoutMode;
