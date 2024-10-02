@@ -82,7 +82,7 @@ export default function TopNavigationBar() {
                                 mr={2}
                             />
                         )}
-                        <Link href={"#"}>
+                        <Link href={"/"}>
                             <Image
                                 align={"center"}
                                 sx={topNavigationLogoStyle}
