@@ -19,7 +19,7 @@ export const TruncatedNumberValue: React.FC<TruncatedNumberValueProps> = ({ cont
         // Delimiter found, process to truncate
         const prevElement = splitArray[splitArray.length - 2];
         const lastElement = splitArray[splitArray.length - 1];
-        const truncatedContent = lastElement.slice(0, 2);
+        const truncatedContent = lastElement.slice(0, 5);
         displayContent = `${prevElement}.${truncatedContent}`;
     }
 
