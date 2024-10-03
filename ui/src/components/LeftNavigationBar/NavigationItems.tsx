@@ -63,7 +63,7 @@ export const NavigationItems: React.FC<NavigationItemsProps> = ({ isMinimized = 
             <Box sx={leftNavigationDividerBoxStyle(isMinimized)}>
                 {isMinimized ? null : <Text as='b'>More</Text>}
             </Box>
-            <LeftNavigationButton link="https://docs.fidenaro.com/" title="Documentation" icon={FaBookOpen} navIsMinimized={isMinimized} />
+            <LeftNavigationButton link="https://docs.fidenaro.com/" title="Documentation" icon={FaBookOpen} navIsMinimized={isMinimized} isExternal={true} />
 
             {toggleMinimize && (
                 <Box>

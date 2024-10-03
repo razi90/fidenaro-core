@@ -1,5 +1,27 @@
-
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Input, Text, Checkbox, Box, Stack, Link, FormControl, FormErrorMessage, Select, VStack, HStack, Spacer, useSteps, Divider, Progress, Button, InputGroup, InputLeftAddon, InputLeftElement, InputRightAddon } from "@chakra-ui/react";
+import {
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
+    Input,
+    Text,
+    Box,
+    Stack,
+    FormControl,
+    FormErrorMessage,
+    Select,
+    VStack,
+    useSteps,
+    Divider,
+    Progress,
+    Button,
+    InputGroup,
+    InputLeftAddon,
+    InputRightAddon,
+} from "@chakra-ui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { fetchUserInfo } from "../../../libs/user/UserDataService";
@@ -24,7 +46,6 @@ interface TradeDialogProps {
     vault: Vault | undefined,
     onComplete?: () => void;
 }
-
 
 const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onComplete }) => {
 
@@ -51,16 +72,22 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
     const onClose = () => {
         setIsOpen(false);
         setActiveStep(0);
-
+        resetForm();
     }
 
-    // on close handle
+    // on continue handle
     const onContinue = () => {
         setActiveStep(0);
         setIsLoading(false);
     }
 
     const initialRef = useRef(null)
+
+    // Validation States
+    const [errors, setErrors] = useState({
+        amount: "",
+    });
+
     const [isBalanceError, setIsBalanceError] = useState(false);
     const [fromToken, setFromToken] = useState<Asset>(Radix);
     const [toToken, setToToken] = useState<Asset>(Bitcoin);
@@ -70,7 +97,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
 
     const tokens = [Radix, USDollar, Ethereum, Bitcoin, Hug];
 
-    // read user data
+    // Read user data
     const { data: user, isError: isUserFetchError } = useQuery<User>({ queryKey: ['user_info'], queryFn: fetchUserInfo });
     const { data: prices, isError: isPriceFetchError } = useQuery<Map<string, PriceData>>({ queryKey: ['prices'], queryFn: fetchPriceList });
 
@@ -78,8 +105,8 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
         if (fromToken && toToken && amount) {
             const priceRatio = getPriceRatio(fromToken, toToken);
             const calculatedEstimatedAmount = Number(amount) * priceRatio;
-            setEstimatedAmount((calculatedEstimatedAmount * (1 - FIDENARO_FEE)).toPrecision(8) + " " + toToken.ticker);
-            setEstimatedFee((Number(amount) * FIDENARO_FEE).toPrecision(8) + " " + fromToken.ticker);
+            setEstimatedAmount((calculatedEstimatedAmount * (1 - FIDENARO_FEE)).toFixed(8) + " " + toToken.ticker);
+            setEstimatedFee((Number(amount) * FIDENARO_FEE).toFixed(8) + " " + fromToken.ticker);
         } else {
             setEstimatedAmount('0.0');
             setEstimatedFee('0.0');
@@ -89,29 +116,53 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
     const handleFromSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedAddress = event.target.value;
         const selectedToken = addressToAsset(selectedAddress);
-        setFromToken(selectedToken || null);
+        setFromToken(selectedToken || Radix);
     };
 
     const handleToSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const selectedAddress = event.target.value;
         const selectedToken = addressToAsset(selectedAddress);
-        setToToken(selectedToken || null);
+        setToToken(selectedToken || Bitcoin);
     };
 
-    const handleAmountChange = (e: { target: { value: any; }; }) => {
+    const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let value = e.target.value;
 
-        if (value < 0) return;
+        // Allow only numbers and decimal
+        if (!/^\d*\.?\d*$/.test(value)) return;
 
         setAmount(value);
-        setIsBalanceError(Number(value) > (vault?.userAssetValues.get(fromToken.address)?.amount || 0));
+
+        // Validate amount
+        validateAmount(value);
+    };
+
+    const validateAmount = (value: string) => {
+        let error = "";
+        const numericValue = Number(value);
+
+        if (value.trim() === "") {
+            error = "Amount is required.";
+        } else if (isNaN(numericValue) || numericValue <= 0) {
+            error = "Enter a valid amount greater than 0.";
+        } else if (numericValue > (vault?.userAssetValues.get(fromToken.address)?.amount || 0)) {
+            error = "Insufficient funds.";
+            setIsBalanceError(true);
+        } else {
+            setIsBalanceError(false);
+        }
+
+        setErrors((prev) => ({
+            ...prev,
+            amount: error,
+        }));
     };
 
     const getPriceRatio = (fromToken: Asset, toToken: Asset): number => {
 
         // Get the price of the fromToken and toToken in XRD from the priceList
-        const fromTokenPriceInXRD = prices!.get(fromToken.address)?.priceInXRD;
-        const toTokenPriceInXRD = prices!.get(toToken.address)?.priceInXRD;
+        const fromTokenPriceInXRD = prices?.get(fromToken.address)?.priceInXRD;
+        const toTokenPriceInXRD = prices?.get(toToken.address)?.priceInXRD;
 
         // If either price is undefined, return a default ratio or handle the error
         if (fromTokenPriceInXRD === undefined || toTokenPriceInXRD === undefined) {
@@ -126,7 +177,13 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
 
     const trade = async () => {
 
-        // mark the action is in loading state
+        // Perform final validation before proceeding
+        if (!isFormValid()) {
+            enqueueSnackbar("Please fix the errors in the form.", { variant: "error" });
+            return;
+        }
+
+        // Mark the action as in loading state
         setIsLoading(true);
         setActiveStep(1);
 
@@ -134,7 +191,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
         if (!amount || Number(amount) === 0) {
             setIsLoading(false);
             setActiveStep(0);
-            enqueueSnackbar('Please enter an amount greater than 0', { variant: 'error' });
+            enqueueSnackbar('Please enter an amount greater than 0.', { variant: 'error' });
             return;
         }
 
@@ -142,11 +199,11 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
         if (fromToken.address === toToken.address) {
             setIsLoading(false);
             setActiveStep(0);
-            enqueueSnackbar('Cannot trade the same asset', { variant: 'error' });
+            enqueueSnackbar('Cannot trade the same asset.', { variant: 'error' });
             return;
         }
 
-        // build manifest to open a position
+        // Build manifest to open a position
         let transactionManifest = new ManifestBuilder()
             .callMethod(
                 user?.account!,
@@ -181,7 +238,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
 
         console.log('trade manifest: ', convertedInstructions.value)
 
-        // send manifest to extension for signing
+        // Send manifest to extension for signing
         const result = await rdt.walletApi
             .sendTransaction({
                 transactionManifest: convertedInstructions.value.toString(),
@@ -198,7 +255,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
         }
 
         if (result.isErr()) {
-            enqueueSnackbar(`Failed to swap ${fromToken.ticker} into ${toToken.ticker}: `, { variant: 'error' });
+            enqueueSnackbar(`Failed to swap ${fromToken.ticker} into ${toToken.ticker}: ${result.error}`, { variant: 'error' });
             console.log(`Failed to swap ${fromToken.ticker} into ${toToken.ticker}: `, result.error)
 
             setActiveStep(0);
@@ -209,6 +266,28 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
         }
 
         setIsLoading(false);
+    };
+
+    const isFormValid = (): boolean => {
+        return (
+            errors.amount === "" &&
+            amount.trim() !== "" &&
+            Number(amount) > 0 &&
+            fromToken.address !== toToken.address &&
+            !isBalanceError
+        );
+    };
+
+    const resetForm = () => {
+        setFromToken(Radix);
+        setToToken(Bitcoin);
+        setAmount('');
+        setEstimatedAmount('');
+        setEstimatedFee('');
+        setErrors({
+            amount: "",
+        });
+        setIsBalanceError(false);
     };
 
     return (
@@ -234,7 +313,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
                     </ModalHeader>
                     <ModalCloseButton />
 
-                    {(activeStep == 0 || activeStep == 1) ?
+                    {(activeStep === 0 || activeStep === 1) ?
                         (
                             <>
 
@@ -252,7 +331,6 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
                                                     <option key={token.address} value={token.address}>{token.ticker}</option>
                                                 ))}
                                             </Select>
-                                            <InputRightAddon minW={"100px"} children={<Text> <TruncatedNumberValue content={(vault?.userAssetValues.get(fromToken?.address)?.amount || 0) + ""} /> </Text>} opacity={0.5} />
                                         </InputGroup>
 
                                         <InputGroup>
@@ -266,14 +344,13 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
                                                     <option key={token.address} value={token.address}>{token.ticker}</option>
                                                 ))}
                                             </Select>
-                                            <InputRightAddon minW={"100px"} children={<Text> <TruncatedNumberValue content={(vault?.userAssetValues.get(toToken?.address)?.amount || 0) + ""} /> </Text>} opacity={0.5} />
                                         </InputGroup>
 
                                         <Divider />
 
-                                        <InputGroup>
-                                            <InputLeftAddon children="Amount" opacity={0.7} />
-                                            <FormControl isInvalid={isBalanceError}>
+                                        <FormControl isInvalid={errors.amount !== ""} isRequired>
+                                            <InputGroup>
+                                                <InputLeftAddon children="Amount" opacity={0.7} />
                                                 <Input
                                                     placeholder="0.0"
                                                     type="number"
@@ -281,21 +358,26 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
                                                     value={amount}
                                                     onChange={handleAmountChange}
                                                 />
-                                                {isBalanceError && (
-                                                    <FormErrorMessage>Insufficient funds</FormErrorMessage>
-                                                )}
-                                            </FormControl>
-                                            <InputRightAddon p={0}>
-                                                <Button
-                                                    onClick={() => setAmount((vault?.userAssetValues.get(fromToken?.address)?.amount || 0).toString())}
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    borderRadius={0}
-                                                >
-                                                    Max
-                                                </Button>
-                                            </InputRightAddon>
-                                        </InputGroup>
+                                                <InputRightAddon p={0}>
+                                                    <Button
+                                                        onClick={() => setAmount((vault?.userAssetValues.get(fromToken?.address)?.amount || 0).toString())}
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        borderRadius={0}
+                                                    >
+                                                        Max
+                                                    </Button>
+                                                </InputRightAddon>
+                                            </InputGroup>
+                                            {errors.amount ? (
+                                                <FormErrorMessage>{errors.amount}</FormErrorMessage>
+                                            ) : (
+                                                <Text fontSize="sm" color="gray.500">
+                                                    Available: <TruncatedNumberValue content={(vault?.userAssetValues.get(fromToken?.address)?.amount || 0).toString()} />
+                                                </Text>
+                                            )}
+                                        </FormControl>
+
                                         <InputGroup>
                                             <InputLeftAddon children="Estimated Output" opacity={0.7} />
                                             <Input
@@ -320,9 +402,6 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
 
                                 <ModalFooter>
                                     <Stack>
-                                        {/* <Box>
-                                            <Checkbox>I confirm that I have read and agreed to the <Link>Terms and Conditions</Link> and fully understand all the associated risks.</Checkbox>
-                                        </Box> */}
                                         <Box display="flex" justifyContent='flex-end'>
                                             <CancelButton onClick={onClose} />
 
@@ -331,6 +410,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
                                                     isLoading
                                                     loadingText='Confirm on your mobile wallet!'
                                                     sx={defaultHighlightedLinkButtonStyle}
+                                                    isDisabled
                                                 >
                                                     Confirm
                                                 </Button >
@@ -338,6 +418,7 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
                                                 <Button
                                                     sx={defaultHighlightedLinkButtonStyle}
                                                     onClick={trade}
+                                                    isDisabled={!isFormValid() || isLoading}
                                                 >
                                                     Confirm
                                                 </Button >
@@ -351,10 +432,10 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
                         ) : (
                             <>
                                 <ModalBody>
-                                    <Text>You traded successfully the amount <Text as='b'><TruncatedNumberValue content={amount + ""} /></Text> from <Text as='b'>{fromToken?.ticker}</Text> to <Text as='b'>{toToken?.ticker}</Text>. Please note that profit/loss settlements occur only once the Following is stopped or Strategy is closed.</Text>
+                                    <Text>You have successfully traded the amount <Text as='b'><TruncatedNumberValue content={amount + ""} /></Text> from <Text as='b'>{fromToken?.ticker}</Text> to <Text as='b'>{toToken?.ticker}</Text>. Please note that profit/loss settlements occur only once the following is stopped or the strategy is closed.</Text>
                                     <Box my={4}>
-                                        <Text mb={2}>{fromToken?.ticker} Available Amount: <TruncatedNumberValue content={(vault?.userAssetValues.get(fromToken?.address)?.amount || 0) + ""} /> </Text>
-                                        <Text mb={2}>{toToken?.ticker} Current Amount: <TruncatedNumberValue content={(vault?.userAssetValues.get(toToken?.address)?.amount || 0) + ""} /> </Text>
+                                        <Text mb={2}>{fromToken?.ticker} Available Amount: <TruncatedNumberValue content={(vault?.userAssetValues.get(fromToken?.address)?.amount || 0).toString()} /> </Text>
+                                        <Text mb={2}>{toToken?.ticker} Current Amount: <TruncatedNumberValue content={(vault?.userAssetValues.get(toToken?.address)?.amount || 0).toString()} /> </Text>
                                     </Box>
                                 </ModalBody>
                                 <ModalFooter>
@@ -381,7 +462,8 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
                 </ModalContent>
             </Modal>
         </Box >
-    );
+    )
+
 }
 
 export default TradeDialog;
