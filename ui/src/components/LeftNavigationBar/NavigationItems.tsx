@@ -1,6 +1,6 @@
 import React from 'react';
-import { VStack, Box, Text, Button, Icon } from '@chakra-ui/react';
-import { FaMedal, FaBookOpen, FaChartPie, FaChartBar, FaUserCircle } from "react-icons/fa";
+import { VStack, Box, Text, Button, Icon, Image } from '@chakra-ui/react';
+import { FaMedal, FaBookOpen, FaChartPie, FaChartBar, FaUserCircle, FaTwitter, FaTelegram } from "react-icons/fa";
 import { ArrowLeftIcon, ArrowRightIcon } from '@chakra-ui/icons';
 
 import {
@@ -29,15 +29,21 @@ export const NavigationItems: React.FC<NavigationItemsProps> = ({ isMinimized = 
     const filteredUserId = user?.id.replace(/#/g, "");
 
     return (
-        <VStack align="stretch" sx={leftNavigationMainVStackStyle}>
-            {wallet?.persona == undefined ?
-                (
+        <VStack
+            align="stretch"
+            justify="space-between" // Distribute space to push the image to the bottom
+            sx={leftNavigationMainVStackStyle}
+            height="100vh" // Ensure the VStack takes full viewport height
+        >
+            {/* Navigation Items */}
+            <VStack align="stretch" spacing={4}>
+                {wallet?.persona === undefined ? (
                     <CreateUserButton
                         navIsMinimized={isMinimized}
                     />
                 ) : (
                     <>
-                        {user?.id == '' ? (
+                        {user?.id === '' ? (
                             <CreateUserButton
                                 navIsMinimized={isMinimized}
                             />
@@ -45,40 +51,52 @@ export const NavigationItems: React.FC<NavigationItemsProps> = ({ isMinimized = 
                             <LeftNavigationButton
                                 link={`/profile/${filteredUserId}`}
                                 title={user ? user.name : 'Profile'}
-                                icon={user ? user.avatar : FaUserCircle}
+                                icon={user && user.avatar ? user.avatar : FaUserCircle}
                                 navIsMinimized={isMinimized}
                             />
                         )}
                     </>
                 )}
 
-            <Box sx={leftNavigationDividerBoxStyle(isMinimized)}>
-                {isMinimized ? null : <Text as='b'>Trade</Text>}
-            </Box>
+                <Box sx={leftNavigationDividerBoxStyle(isMinimized)} />
 
-            <LeftNavigationButton link="/" title="Explore" icon={FaChartBar} navIsMinimized={isMinimized} />
-            <LeftNavigationButton link="/portfolio" title="Portfolio" icon={FaChartPie} navIsMinimized={isMinimized} />
-            <LeftNavigationButton link="/walloffame" title="Wall of Fame" icon={FaMedal} navIsMinimized={isMinimized} />
+                <LeftNavigationButton link="/" title="Explore" icon={FaChartBar} navIsMinimized={isMinimized} />
+                <LeftNavigationButton link="/portfolio" title="Portfolio" icon={FaChartPie} navIsMinimized={isMinimized} />
+                <LeftNavigationButton link="/walloffame" title="Wall of Fame" icon={FaMedal} navIsMinimized={isMinimized} />
 
-            <Box sx={leftNavigationDividerBoxStyle(isMinimized)}>
-                {isMinimized ? null : <Text as='b'>More</Text>}
-            </Box>
-            <LeftNavigationButton link="https://docs.fidenaro.com/" title="Documentation" icon={FaBookOpen} navIsMinimized={isMinimized} isExternal={true} />
+                <Box sx={leftNavigationDividerBoxStyle(isMinimized)} />
+                <LeftNavigationButton link="https://docs.fidenaro.com/" title="Documentation" icon={FaBookOpen} navIsMinimized={isMinimized} isExternal={true} />
+                <LeftNavigationButton link="https://x.com/fidenaro/" title="X / Twitter" icon={FaTwitter} navIsMinimized={isMinimized} isExternal={true} />
+                <LeftNavigationButton link="https://t.me/Fidenaro" title="Telegram" icon={FaTelegram} navIsMinimized={isMinimized} isExternal={true} />
 
-            {toggleMinimize && (
-                <Box>
-                    <Button
-                        onClick={toggleMinimize}
-                        sx={leftNavigationToggleButtonStyle(isMinimized)}
-                    >
-                        {isMinimized ?
-                            <Icon as={ArrowRightIcon} sx={leftNavigationToggleIconStyle} />
-                            :
-                            <Icon as={ArrowLeftIcon} sx={leftNavigationToggleIconStyle} />
-                        }
-                    </Button>
-                </Box>
-            )}
+                {!isMinimized && (
+                    <Box>
+                        <Box sx={leftNavigationDividerBoxStyle(isMinimized)} />
+                        <Box padding="4" textAlign="center" display="flex" justifyContent="center" >
+                            <Image
+                                src="/images/runs-on-radix-flat.png"
+                                alt="Runs On Radix"
+                                objectFit="contain"
+                            />
+                        </Box>
+                    </Box>
+                )}
+
+                {toggleMinimize && (
+                    <Box>
+                        <Button
+                            onClick={toggleMinimize}
+                            sx={leftNavigationToggleButtonStyle(isMinimized)}
+                        >
+                            {isMinimized ?
+                                <Icon as={ArrowRightIcon} sx={leftNavigationToggleIconStyle} />
+                                :
+                                <Icon as={ArrowLeftIcon} sx={leftNavigationToggleIconStyle} />
+                            }
+                        </Button>
+                    </Box>
+                )}
+            </VStack>
         </VStack>
     );
 };
