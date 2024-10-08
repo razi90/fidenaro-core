@@ -46,9 +46,6 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
     // Define an interface for the possible keys of a vault table entry
     type TableEntryKeys = keyof Vault;
 
-    // Controls the width of the element where the graph is and therefore the width of the graph
-    const performanceFieldWidth = 150
-
     const [filteredData, setFilteredData] = useState<Vault[] | undefined>(tableData);
 
     // State variables for sort values
@@ -275,7 +272,7 @@ const VaultTable: React.FC<VaultTableProps> = ({ tableData, isLoading }) => {
                     </VStack>
                 ) : (
                     <TableContainer>
-                        <Table size="sm">
+                        <Table size="sm" >
                             <Thead>
                                 <Tr>
                                     <SortableTh column="name" sortedColumn={sortedColumn} sortOrder={sortOrder} handleSort={handleSort}>Name</SortableTh>
