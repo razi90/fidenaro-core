@@ -73,5 +73,4 @@ export const leftNavigationDividerBoxStyle = (isMinimized: any) => ({
     align: "center",
     w: "100%", borderColor: 'gray.200',
     borderBottom: "1px solid #ddd",
-    pt: isMinimized ? "0" : "6",
 });
