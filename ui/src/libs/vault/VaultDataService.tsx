@@ -77,9 +77,14 @@ export const getVaultData = async (vaultLedgerData: any): Promise<Vault> => {
         let roi = 0;
 
         if (totalShareTokenAmount !== 0) {
+            // Calculate manager and follower TVL
             const managerShareTokenAmount = getManagerShareTokenAmount(manager.assets, shareTokenAddress);
-            managerEquity = tvlInXrd * (managerShareTokenAmount / totalShareTokenAmount);
-            followerEquity = tvlInXrd - managerEquity;
+            if (managerShareTokenAmount) {
+                managerEquity = tvlInXrd * (managerShareTokenAmount / totalShareTokenAmount);
+                followerEquity = tvlInXrd - managerEquity;
+            } else {
+                followerEquity = tvlInXrd;
+            }
             pricePerShare = tvlInXrd / totalShareTokenAmount
             roi = (pricePerShare - 1) * 100 || 0;
         }
