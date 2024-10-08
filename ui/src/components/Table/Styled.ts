@@ -13,11 +13,11 @@ export const tableTrStyle = {
     height: "100%",
 
 
-    transition: "box-shadow 3s",
+    // transition: "box-shadow 1s",
 
     ":hover": {
         textDecoration: "none",
-        transition: "box-shadow 0.7s",
+        // transition: "box-shadow 0.7s",
         boxShadow: "inset 1000px 0px 100px rgba(107, 94, 255, 0.1)",
     },
 
