@@ -1,6 +1,22 @@
-mod blueprint_interface;
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
 
-pub use crate::blueprint_interface::*;
+mod blueprint_interface;
+pub use blueprint_interface::*;
 
 use common::prelude::*;
 use ports_interface::prelude::*;
@@ -14,23 +30,22 @@ macro_rules! define_error {
         )*
     ) => {
         $(
-            pub const $name: &'static str = concat!("[Radiswap Adapter]", " ", $item);
+            pub const $name: &'static str = concat!("[Ociswap v2 Adapter v1]", " ", $item);
         )*
     };
 }
 
 define_error! {
-    FAILED_TO_GET_RESOURCE_ADDRESSES_ERROR
-        => "Failed to get resource addresses - unexpected error.";
-    FAILED_TO_GET_VAULT_ERROR
-        => "Failed to get vault - unexpected error.";
-    PRICE_IS_UNDEFINED
-        => "Price is undefined.";
+    RESOURCE_DOES_NOT_BELONG_ERROR
+        => "One or more of the resources do not belong to pool.";
+    OVERFLOW_ERROR => "Calculation overflowed.";
+    UNEXPECTED_ERROR => "Unexpected error.";
+    INVALID_NUMBER_OF_BUCKETS => "Invalid number of buckets.";
 }
 
 macro_rules! pool {
     ($address: expr) => {
-        $crate::blueprint_interface::RadiswapInterfaceScryptoStub::from(
+        $crate::blueprint_interface::PrecisionPoolInterfaceScryptoStub::from(
             $address,
         )
     };
@@ -38,17 +53,16 @@ macro_rules! pool {
 
 #[blueprint_with_traits]
 pub mod adapter {
+    struct OciswapV2Adapter;
 
-    struct RadiswapAdapter;
-
-    impl RadiswapAdapter {
+    impl OciswapV2Adapter {
         pub fn instantiate(
             _: AccessRule,
             _: AccessRule,
             metadata_init: MetadataInit,
             owner_role: OwnerRole,
             address_reservation: Option<GlobalAddressReservation>,
-        ) -> Global<RadiswapAdapter> {
+        ) -> Global<OciswapV2Adapter> {
             let address_reservation =
                 address_reservation.unwrap_or_else(|| {
                     Runtime::allocate_component_address(BlueprintId {
@@ -70,33 +84,28 @@ pub mod adapter {
         }
     }
 
-    impl PoolAdapterInterfaceTrait for RadiswapAdapter {
+    impl PoolAdapterInterfaceTrait for OciswapV2Adapter {
         fn swap(
             &mut self,
             pool_address: ComponentAddress,
             input_bucket: Bucket,
-        ) -> Bucket {
+        ) -> (Bucket, Bucket) {
             let mut pool = pool!(pool_address);
             pool.swap(input_bucket)
         }
 
         fn price(&mut self, pool_address: ComponentAddress) -> Price {
             let pool = pool!(pool_address);
-            let vault_amounts = pool.vault_reserves();
-
-            let (resource_address1, resource_address2) =
-                self.resource_addresses(pool_address);
-            let amount1 = *vault_amounts
-                .get(&resource_address1)
-                .expect(FAILED_TO_GET_VAULT_ERROR);
-            let amount2 = *vault_amounts
-                .get(&resource_address2)
-                .expect(FAILED_TO_GET_VAULT_ERROR);
-
+            let price_sqrt = pool.price_sqrt();
+            let price = price_sqrt
+                .checked_powi(2)
+                .and_then(|value| Decimal::try_from(value).ok())
+                .expect(OVERFLOW_ERROR);
+            let (resource_x, resource_y) = (pool.x_address(), pool.y_address());
             Price {
-                base: resource_address1,
-                quote: resource_address2,
-                price: amount2.checked_div(amount1).expect(PRICE_IS_UNDEFINED),
+                base: resource_x,
+                quote: resource_y,
+                price,
             }
         }
 
@@ -105,14 +114,7 @@ pub mod adapter {
             pool_address: ComponentAddress,
         ) -> (ResourceAddress, ResourceAddress) {
             let pool = pool!(pool_address);
-            let mut keys = pool.vault_reserves().into_keys();
-
-            let resource_address1 =
-                keys.next().expect(FAILED_TO_GET_RESOURCE_ADDRESSES_ERROR);
-            let resource_address2 =
-                keys.next().expect(FAILED_TO_GET_RESOURCE_ADDRESSES_ERROR);
-
-            (resource_address1, resource_address2)
+            (pool.x_address(), pool.y_address())
         }
     }
 }

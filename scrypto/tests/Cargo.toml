@@ -16,15 +16,15 @@ fidenaro = { path = "../packages/fidenaro", features = ["test"] }
 user-factory = { path = "../packages/user-factory", features = ["test"] }
 trade-vault = { path = "../packages/trade-vault", features = ["test"] }
 simple-oracle = { path = "../packages/simple-oracle", features = ["test"] }
-radiswap = { path = "../bootstrapping-helper/radiswap", features = ["test"] }
 trade-engine = { path = "../bootstrapping-helper/trade-engine", features = [
     "test",
 ] }
-radiswap-adapter = { path = "../packages/radiswap-adapter", features = [
+ports-interface = { workspace = true }
+precision_pool = { workspace = true }
+ociswap-v2-adapter = { path = "../packages/ociswap-v2-adapter", features = [
     "test",
     "manifest-builder-stubs",
 ] }
-ports-interface = { workspace = true }
 
 paste = { version = "1.0.15" }
 extend = { version = "1.2.0" }

@@ -29,13 +29,15 @@ pub use scrypto_test::prelude::*;
 
 pub use ::fidenaro::fidenaro_test::*;
 pub use ::fidenaro::*;
-pub use ::radiswap_adapter::adapter_test::*;
+pub use ::ociswap_v2_adapter::adapter_test::*;
+// pub use ::precision_pool::pool::precision_pool::*;
+pub use ::precision_pool::pool::precision_pool_test::*;
 pub use ::simple_oracle::simple_oracle_test::*;
 pub use ::trade_engine::trade_engine_test::*;
 pub use ::trade_vault::trade_vault_test::*;
 pub use ::user_factory::user_factory_test::*;
 
-pub use ::radiswap_adapter::*;
+pub use ::ociswap_v2_adapter::*;
 
 pub use ::common::prelude::*;
 pub use ::ports_interface::prelude::*;

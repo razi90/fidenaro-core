@@ -9,8 +9,8 @@ pub trait EnvironmentSpecifier {
     type UserFactory;
     type TradeVault;
     type SimpleOracle;
-    type Radiswap;
-    type RadiswapAdapter;
+    type Ociswap;
+    type OciswapV2Adapter;
 
     // Badges
     type Badge;
@@ -29,20 +29,21 @@ where
     pub resources: ResourceInformation<ResourceAddress>,
     pub protocol: ProtocolEntities<S>,
     /* Supported Dexes */
-    pub radiswap: DexEntities<S::Radiswap, S::RadiswapAdapter>,
+    pub ociswap: DexEntities<S::Ociswap, S::OciswapV2Adapter>,
 }
 
 impl<S> Environment<S>
 where
     S: EnvironmentSpecifier,
 {
-    pub const PACKAGE_NAMES: [&'static str; 6] = [
+    pub const PACKAGE_NAMES: [&'static str; 7] = [
         "../packages/fidenaro",
         "../packages/user-factory",
         "../packages/simple-oracle",
-        "../bootstrapping-helper/radiswap",
+        "../packages/ociswap-v2-adapter",
+        "../libraries/precision-pool",
+        "../libraries/precision-pool/registry",
         "../bootstrapping-helper/trade-engine",
-        "../packages/radiswap-adapter",
     ];
 
     pub const RESOURCE_DIVISIBILITIES: ResourceInformation<u8> =
@@ -143,26 +144,6 @@ impl<T> ResourceInformation<T> {
             ethereum: (self.ethereum, other.ethereum),
             usdc: (self.usdc, other.usdc),
             usdt: (self.usdt, other.usdt),
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct Configuration {
-    pub fees: Decimal,
-    pub maximum_allowed_price_staleness_in_seconds_seconds: i64,
-    pub maximum_allowed_relative_price_difference: Decimal,
-}
-
-impl Default for Configuration {
-    fn default() -> Self {
-        Self {
-            // 1%
-            fees: dec!(0.01),
-            // 5 Minutes
-            maximum_allowed_price_staleness_in_seconds_seconds: 300i64,
-            // 1%
-            maximum_allowed_relative_price_difference: dec!(0.01),
         }
     }
 }

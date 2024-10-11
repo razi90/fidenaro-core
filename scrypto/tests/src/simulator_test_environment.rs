@@ -17,8 +17,6 @@
 
 #![allow(clippy::arithmetic_side_effects)]
 
-use scrypto_test::utils::dump_manifest_to_file_system;
-
 use crate::prelude::*;
 
 pub type ScryptoSimulatorEnv =
@@ -35,8 +33,8 @@ impl EnvironmentSpecifier for ScryptoSimulatorEnvironmentSpecifier {
     type UserFactory = ComponentAddress;
     type TradeVault = ComponentAddress;
     type SimpleOracle = ComponentAddress;
-    type Radiswap = ComponentAddress;
-    type RadiswapAdapter = ComponentAddress;
+    type Ociswap = ComponentAddress;
+    type OciswapV2Adapter = ComponentAddress;
 
     // Badges
     type Badge = (PublicKey, PrivateKey, ComponentAddress, ResourceAddress);
@@ -47,10 +45,6 @@ impl EnvironmentSpecifier for ScryptoSimulatorEnvironmentSpecifier {
 
 impl ScryptoSimulatorEnv {
     pub fn new() -> Self {
-        Self::new_with_configuration(Configuration::default())
-    }
-
-    pub fn new_with_configuration(_configuration: Configuration) -> Self {
         // Create a new simple test runner
         let mut ledger_simulator =
             LedgerSimulatorBuilder::new().without_kernel_trace().build();
@@ -68,7 +62,7 @@ impl ScryptoSimulatorEnv {
         let _protocol_owner_rule = rule!(require(protocol_owner_badge));
 
         // Compile and publish packages
-        let [fidenaro_package, user_factory_package, simple_oracle_package, radiswap_package, trade_engine_package, radiswap_adapter_package] =
+        let [fidenaro_package, user_factory_package, simple_oracle_package, ociswap_adapter_package, ociswap_v2_pool_package, ociswap_v2_registry_package, trade_engine_package] =
             Self::PACKAGE_NAMES.map(|package_name| {
                 ledger_simulator.compile_and_publish(package_name)
             });
@@ -104,15 +98,49 @@ impl ScryptoSimulatorEnv {
                 )
             });
 
-        // Initialize Radiswap pools
-        let radiswap_pools = resource_addresses.map(|resource_address| {
+        // Init Ociswap registry
+
+        let registry = ledger_simulator
+            .execute_manifest(
+                ManifestBuilder::new()
+                    .lock_fee_from_faucet()
+                    .registry_instantiate(
+                        ociswap_v2_registry_package,
+                        GLOBAL_CALLER_VIRTUAL_BADGE,
+                        dec!(0.03),
+                        10080,
+                        20,
+                    )
+                    .build(),
+                vec![],
+            )
+            .expect_commit_success()
+            .new_component_addresses()
+            .first()
+            .copied()
+            .unwrap();
+
+        // Init Ociswap v2 precision pools
+        let ociswap_v2_pools = resource_addresses.map(|resource_address| {
+            let (resource_x, resource_y) = if XRD < *resource_address {
+                (XRD, *resource_address)
+            } else {
+                (*resource_address, XRD)
+            };
+
             let manifest = ManifestBuilder::new()
                 .lock_fee_from_faucet()
-                .radiswap_new(
-                    radiswap_package,
-                    OwnerRole::None,
-                    *resource_address,
-                    XRD,
+                .precision_pool_instantiate(
+                    ociswap_v2_pool_package,
+                    resource_x,
+                    resource_y,
+                    pdec!(1),
+                    60,
+                    dec!(0.03),
+                    dec!(0.03),
+                    registry,
+                    vec![],
+                    FAUCET,
                 )
                 .build();
 
@@ -125,26 +153,24 @@ impl ScryptoSimulatorEnv {
 
             let manifest = ManifestBuilder::new()
                 .lock_fee_from_faucet()
-                .create_proof_from_account_of_amount(
-                    account,
-                    protocol_manager_badge,
-                    1,
-                )
                 .mint_fungible(XRD, dec!(100_000_000))
                 .mint_fungible(*resource_address, dec!(100_000_000))
-                .take_all_from_worktop(XRD, "xrd_bucket")
-                .take_all_from_worktop(*resource_address, "other_bucket")
+                .take_all_from_worktop(resource_x, "resource_x_bucket")
+                .take_all_from_worktop(resource_y, "resource_y_bucket")
                 .with_name_lookup(|builder, _| {
-                    let xrd_bucket = builder.bucket("xrd_bucket");
-                    let other_bucket = builder.bucket("other_bucket");
-                    builder.radiswap_add_liquidity(
+                    let resource_x_bucket = builder.bucket("resource_x_bucket");
+                    let resource_y_bucket = builder.bucket("resource_y_bucket");
+                    builder.precision_pool_add_liquidity(
                         component_address,
-                        xrd_bucket,
-                        other_bucket,
+                        -10_000,
+                        10_000,
+                        resource_x_bucket,
+                        resource_y_bucket,
                     )
                 })
                 .try_deposit_entire_worktop_or_abort(account, None)
                 .build();
+
             ledger_simulator
                 .execute_manifest_without_auth(manifest)
                 .expect_commit_success();
@@ -241,14 +267,14 @@ impl ScryptoSimulatorEnv {
             .copied()
             .unwrap();
 
-        // Initialze the Radiswap adapter
-        let radiswap_adapter = ledger_simulator
+        // Initialze the Ociswap adapter
+        let ociswap_adapter = ledger_simulator
             .execute_manifest(
                 ManifestBuilder::new()
                     .lock_fee_from_faucet()
                     .call_function(
-                        radiswap_adapter_package,
-                        "RadiswapAdapter",
+                        ociswap_adapter_package,
+                        "OciswapV2Adapter",
                         "instantiate",
                         (
                             rule!(allow_all),
@@ -267,30 +293,7 @@ impl ScryptoSimulatorEnv {
             .copied()
             .unwrap();
 
-        // let manifest_builder =
-        //     ManifestBuilder::new().lock_fee_from_faucet().call_function(
-        //         radiswap_adapter_package,
-        //         "RadiswapAdapter",
-        //         "instantiate",
-        //         (
-        //             rule!(allow_all),
-        //             rule!(allow_all),
-        //             MetadataInit::default(),
-        //             OwnerRole::None,
-        //             None::<ManifestAddressReservation>,
-        //         ),
-        //     );
-
-        // dump_manifest_to_file_system(
-        //     manifest_builder.object_names(),
-        //     &manifest_builder.build(),
-        //     "./transaction_manifest",
-        //     Some("instantiate_radiswap_adapter"),
-        //     &NetworkDefinition::stokenet(),
-        // )
-        // .err();
-
-        // Add radiswap pools to Fidenaro
+        // Add Ociswap pools to Fidenaro
         ledger_simulator
             .execute_manifest_without_auth(
                 ManifestBuilder::new()
@@ -299,12 +302,12 @@ impl ScryptoSimulatorEnv {
                         fidenaro,
                         "insert_pool_information",
                         (
-                            RadiswapInterfaceScryptoTestStub::blueprint_id(
-                                radiswap_package,
+                            PrecisionPoolInterfaceScryptoTestStub::blueprint_id(
+                                ociswap_v2_pool_package,
                             ),
                             PoolBlueprintInformation {
-                                adapter: radiswap_adapter,
-                                allowed_pools: radiswap_pools
+                                adapter: ociswap_adapter,
+                                allowed_pools: ociswap_v2_pools
                                     .iter()
                                     .map(|pool| pool.try_into().unwrap())
                                     .collect(),
@@ -314,33 +317,6 @@ impl ScryptoSimulatorEnv {
                     .build(),
             )
             .expect_commit_success();
-
-        // let manifest_builder =
-        //     ManifestBuilder::new().lock_fee_from_faucet().call_method(
-        //         fidenaro,
-        //         "insert_pool_information",
-        //         (
-        //             RadiswapInterfaceScryptoTestStub::blueprint_id(
-        //                 radiswap_package,
-        //             ),
-        //             PoolBlueprintInformation {
-        //                 adapter: radiswap_adapter,
-        //                 allowed_pools: radiswap_pools
-        //                     .iter()
-        //                     .map(|pool| pool.try_into().unwrap())
-        //                     .collect(),
-        //             },
-        //         ),
-        //     );
-
-        // dump_manifest_to_file_system(
-        //     manifest_builder.object_names(),
-        //     &manifest_builder.build(),
-        //     "./insert_pool_information",
-        //     Some("create_non_fungible"),
-        //     &NetworkDefinition::stokenet(),
-        // )
-        // .err();
 
         // Init user accounts
         let (trader_public_key, trader_private_key, trader_account) =
@@ -449,36 +425,36 @@ impl ScryptoSimulatorEnv {
             .expect_commit_success();
 
         // Create a trade vault with the trader account as the manager
-        let transaction_receipt = ledger_simulator.execute_manifest(
-            ManifestBuilder::new()
-                .lock_fee_from_faucet()
-                .create_proof_from_account_of_non_fungible(
-                    trader_account,
-                    trader_user_nft.clone(),
-                )
-                .create_proof_from_auth_zone_of_non_fungibles(
-                    trader_user_nft.resource_address(),
-                    indexset!(trader_user_nft.local_id().clone()),
-                    "proof",
-                )
-                .call_function_with_name_lookup(
-                    trade_vault_package,
-                    "TradeVault",
-                    "instantiate",
-                    |lookup| {
-                        (
-                            lookup.proof("proof"),
-                            "Test Vault",
-                            fidenaro,
-                            "Vault short description",
-                            trade_engine,
-                        )
-                    },
-                )
-                .try_deposit_entire_worktop_or_abort(trader_account, None)
-                .build(),
-            vec![],
-        );
+        let transaction_receipt = ledger_simulator
+            .execute_manifest_without_auth(
+                ManifestBuilder::new()
+                    .lock_fee_from_faucet()
+                    .create_proof_from_account_of_non_fungible(
+                        trader_account,
+                        trader_user_nft.clone(),
+                    )
+                    .create_proof_from_auth_zone_of_non_fungibles(
+                        trader_user_nft.resource_address(),
+                        indexset!(trader_user_nft.local_id().clone()),
+                        "proof",
+                    )
+                    .call_function_with_name_lookup(
+                        trade_vault_package,
+                        "TradeVault",
+                        "instantiate",
+                        |lookup| {
+                            (
+                                lookup.proof("proof"),
+                                "Test Vault",
+                                fidenaro,
+                                "Vault short description",
+                                trade_engine,
+                            )
+                        },
+                    )
+                    .try_deposit_entire_worktop_or_abort(trader_account, None)
+                    .build(),
+            );
         let transaction_result = transaction_receipt.expect_commit_success();
 
         let trade_vault = transaction_result
@@ -539,11 +515,11 @@ impl ScryptoSimulatorEnv {
                 trader: (trader_account, trader_user_nft),
                 follower: (follower_account, follower_user_nft),
             },
-            radiswap: DexEntities {
-                package: radiswap_package,
-                pools: radiswap_pools,
-                adapter_package: radiswap_adapter_package,
-                adapter: radiswap_adapter,
+            ociswap: DexEntities {
+                package: ociswap_v2_pool_package,
+                pools: ociswap_v2_pools,
+                adapter_package: ociswap_adapter_package,
+                adapter: ociswap_adapter,
             },
         }
     }

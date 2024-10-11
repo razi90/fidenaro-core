@@ -1,0 +1,3 @@
+[submodule "scrypto/libraries/precision-pool"]
+	path = scrypto/libraries/precision-pool
+	url = https://github.com/razi90/precision-pool.git

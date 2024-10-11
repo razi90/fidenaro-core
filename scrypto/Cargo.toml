@@ -5,7 +5,7 @@ members = [
     "packages/trade-vault",
     "packages/user-factory",
     "packages/simple-oracle",
-    "packages/radiswap-adapter",
+    "packages/ociswap-v2-adapter",
     "libraries/ports-interface",
     "libraries/scrypto-interface",
     "libraries/common",
@@ -15,6 +15,7 @@ members = [
     "tests",
     "bootstrapping-helper/trade-engine",
 ]
+exclude = ["libraries/precision-pool", "libraries/precision-pool/registry"]
 
 [workspace.package]
 version = "0.1.0"
@@ -35,9 +36,11 @@ scrypto-test = { git = "https://github.com/radixdlt/radixdlt-scrypto", version =
 
 state-manager = { git = "https://github.com/radixdlt/babylon-node", tag = "v1.2.1" }
 
+precision_pool = { path = "./libraries/precision-pool" }
 ports-interface = { path = "./libraries/ports-interface" }
 scrypto-interface = { path = "./libraries/scrypto-interface" }
 common = { path = "./libraries/common" }
+
 
 env_logger = "0.11.2"
 
