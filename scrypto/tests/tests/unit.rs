@@ -55,7 +55,7 @@ fn can_swap() -> Result<(), RuntimeError> {
     let Environment {
         environment: ref mut env,
         mut protocol,
-        radiswap,
+        ociswap,
         resources,
     } = ScryptoUnitTestEnv::new()?;
 
@@ -67,7 +67,7 @@ fn can_swap() -> Result<(), RuntimeError> {
     let result = protocol.trade_vault.swap(
         XRD,
         dec!(50),
-        radiswap.pools.bitcoin.try_into().unwrap(),
+        ociswap.pools.bitcoin.try_into().unwrap(),
         env,
     );
 
@@ -84,7 +84,7 @@ fn can_swap() -> Result<(), RuntimeError> {
     });
 
     assert_eq!(xrd_amount, dec!(50));
-    assert_eq!(btc_amount, dec!(49.49997549)); // we expect less than 50 BTC because of slippage
+    assert_eq!(btc_amount, dec!(48.01499095)); // we expect less than 50 BTC because of slippage
 
     Ok(())
 }
@@ -95,7 +95,7 @@ fn can_withdraw() -> Result<(), RuntimeError> {
     let Environment {
         environment: ref mut env,
         mut protocol,
-        radiswap,
+        ociswap,
         ..
     } = ScryptoUnitTestEnv::new()?;
 
@@ -112,7 +112,7 @@ fn can_withdraw() -> Result<(), RuntimeError> {
         .swap(
             XRD,
             dec!(50),
-            radiswap.pools.bitcoin.try_into().unwrap(),
+            ociswap.pools.bitcoin.try_into().unwrap(),
             env,
         )
         .expect("Swap succeeded.");
@@ -147,7 +147,7 @@ fn can_withdraw() -> Result<(), RuntimeError> {
     );
     assert_eq!(
         assets_seventy_percent.last().unwrap().amount(env).unwrap(),
-        dec!(34.64998284)
+        dec!(33.61049366)
     );
     assert_eq!(
         assets_thirty_percent.first().unwrap().amount(env).unwrap(),
@@ -155,7 +155,7 @@ fn can_withdraw() -> Result<(), RuntimeError> {
     );
     assert_eq!(
         assets_thirty_percent.last().unwrap().amount(env).unwrap(),
-        dec!(14.84999265)
+        dec!(14.40449729)
     );
 
     Ok(())
@@ -167,7 +167,7 @@ fn fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
     let Environment {
         environment: ref mut env,
         mut protocol,
-        radiswap,
+        ociswap,
         resources,
     } = ScryptoUnitTestEnv::new()?;
 
@@ -181,7 +181,7 @@ fn fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
         .swap(
             XRD,
             dec!(50),
-            radiswap.pools.bitcoin.try_into().unwrap(),
+            ociswap.pools.bitcoin.try_into().unwrap(),
             env,
         )
         .expect("Swap succeeded.");
@@ -191,7 +191,7 @@ fn fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
         .swap(
             resources.bitcoin,
             dec!(10),
-            radiswap.pools.bitcoin.try_into().unwrap(),
+            ociswap.pools.bitcoin.try_into().unwrap(),
             env,
         )
         .expect("Swap succeeded.");
@@ -229,7 +229,7 @@ fn trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
     let Environment {
         environment: ref mut env,
         mut protocol,
-        radiswap,
+        ociswap,
         resources,
     } = ScryptoUnitTestEnv::new()?;
 
@@ -246,7 +246,7 @@ fn trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
         .swap(
             XRD,
             dec!(50),
-            radiswap.pools.bitcoin.try_into().unwrap(),
+            ociswap.pools.bitcoin.try_into().unwrap(),
             env,
         )
         .expect("Swap succeeded.");
@@ -277,13 +277,13 @@ fn trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
 
     assert_eq!(
         fee_xrd.amount(env).unwrap(),
-        dec!(4.082568394747731285),
+        dec!(4.05687053597431577),
         "Correct amount of XRD withdrawn."
     );
 
     assert_eq!(
         fee_btc.amount(env).unwrap(),
-        dec!(4.04174071),
+        dec!(3.89581204),
         "Correct amount of BTC withdrawn."
     );
 
@@ -296,7 +296,7 @@ fn trader_no_fee_when_no_profit() -> Result<(), RuntimeError> {
     let Environment {
         environment: ref mut env,
         mut protocol,
-        radiswap,
+        ociswap,
         resources,
     } = ScryptoUnitTestEnv::new()?;
 
@@ -313,7 +313,7 @@ fn trader_no_fee_when_no_profit() -> Result<(), RuntimeError> {
         .swap(
             XRD,
             dec!(50),
-            radiswap.pools.bitcoin.try_into().unwrap(),
+            ociswap.pools.bitcoin.try_into().unwrap(),
             env,
         )
         .expect("Swap succeeded.");
@@ -352,7 +352,7 @@ fn can_open_position() -> Result<(), RuntimeError> {
     let Environment {
         environment: ref mut env,
         mut protocol,
-        radiswap: _,
+        ociswap: _,
         resources,
     } = ScryptoUnitTestEnv::new()?;
 
@@ -405,7 +405,7 @@ fn open_position_with_small_amount() -> Result<(), RuntimeError> {
     let Environment {
         environment: ref mut env,
         mut protocol,
-        radiswap: _,
+        ociswap: _,
         resources,
     } = ScryptoUnitTestEnv::new()?;
 

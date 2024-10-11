@@ -32,8 +32,8 @@ impl EnvironmentSpecifier for ScryptoUnitTestEnvironmentSpecifier {
     type UserFactory = UserFactory;
     type TradeVault = TradeVault;
     type SimpleOracle = SimpleOracle;
-    type Radiswap = RadiswapInterfaceScryptoTestStub;
-    type RadiswapAdapter = RadiswapAdapter;
+    type Ociswap = PrecisionPoolInterfaceScryptoTestStub;
+    type OciswapV2Adapter = OciswapV2Adapter;
 
     // Badges
     type Badge = Bucket;
@@ -44,12 +44,6 @@ impl EnvironmentSpecifier for ScryptoUnitTestEnvironmentSpecifier {
 
 impl ScryptoUnitTestEnv {
     pub fn new() -> Result<Self, RuntimeError> {
-        Self::new_with_configuration(Configuration::default())
-    }
-
-    pub fn new_with_configuration(
-        _configuration: Configuration,
-    ) -> Result<Self, RuntimeError> {
         // Init test environment
         let mut env = TestEnvironmentBuilder::new().build();
 
@@ -79,7 +73,7 @@ impl ScryptoUnitTestEnv {
             .map(|address| rule!(require(address)))?;
 
         // Publishing the various packages to the testing environment
-        let [fidenaro_package, user_factory_package, simple_oracle_package, radiswap_package, trade_engine_package, radiswap_adapter_package] =
+        let [fidenaro_package, user_factory_package, simple_oracle_package, ociswap_adapter_package, ociswap_v2_pool_package, ociswap_v2_registry_package, trade_engine_package] =
             Self::PACKAGE_NAMES.map(|name| {
                 PackageFactory::compile_and_publish(
                     name,
@@ -132,25 +126,49 @@ impl ScryptoUnitTestEnv {
                 .and_then(|bucket| bucket.resource_address(&mut env))
             })?;
 
-        // Initialize Radiswap pools
-        let radiswap_pools =
+        // Initialize Ociswap pools
+        let registry = RegistryInterfaceScryptoTestStub::instantiate(
+            GLOBAL_CALLER_VIRTUAL_BADGE,
+            dec!(0.03),
+            10080,
+            20,
+            ociswap_v2_registry_package,
+            &mut env,
+        )?;
+
+        let ociswap_v2_pools =
             resource_addresses.try_map(|resource_address| {
-                let mut radiswap_pool = RadiswapInterfaceScryptoTestStub::new(
-                    OwnerRole::None,
-                    *resource_address,
-                    XRD,
-                    radiswap_package,
-                    &mut env,
+                let (resource_x, resource_y) = if XRD < *resource_address {
+                    (XRD, *resource_address)
+                } else {
+                    (*resource_address, XRD)
+                };
+
+                let (mut ociswap_pool, ..) =
+                    PrecisionPoolInterfaceScryptoTestStub::instantiate(
+                        resource_x,
+                        resource_y,
+                        pdec!(1),
+                        60,
+                        dec!(0.03),
+                        dec!(0.03),
+                        registry.try_into().unwrap(),
+                        vec![],
+                        FAUCET,
+                        ociswap_v2_pool_package,
+                        &mut env,
+                    )?;
+
+                let resource_x = ResourceManager(resource_x)
+                    .mint_fungible(dec!(100_000_000), &mut env)?;
+                let resource_y = ResourceManager(resource_y)
+                    .mint_fungible(dec!(100_000_000), &mut env)?;
+
+                let _ = ociswap_pool.add_liquidity(
+                    -10_000, 10_000, resource_x, resource_y, &mut env,
                 )?;
 
-                let resource_x = ResourceManager(*resource_address)
-                    .mint_fungible(dec!(100_000_000), &mut env)?;
-                let resource_y = ResourceManager(XRD)
-                    .mint_fungible(dec!(100_000_000), &mut env)?;
-                let _ = radiswap_pool
-                    .add_liquidity(resource_x, resource_y, &mut env)?;
-
-                Ok::<_, RuntimeError>(radiswap_pool)
+                Ok::<_, RuntimeError>(ociswap_pool)
             })?;
 
         // Instantiate trade engine
@@ -190,23 +208,25 @@ impl ScryptoUnitTestEnv {
             &mut env,
         )?;
 
-        // Instantiate Radiswap adapter
-        let radiswap_adapter = RadiswapAdapter::instantiate(
+        // Instantiate Ociswap adapter
+        let ociswap_adapter = OciswapV2Adapter::instantiate(
             rule!(allow_all),
             rule!(allow_all),
             Default::default(),
             OwnerRole::None,
             None,
-            radiswap_adapter_package,
+            ociswap_adapter_package,
             &mut env,
         )?;
 
         // Add radiswap pools to Fidenaro
         fidenaro.insert_pool_information(
-            RadiswapInterfaceScryptoTestStub::blueprint_id(radiswap_package),
+            PrecisionPoolInterfaceScryptoTestStub::blueprint_id(
+                ociswap_v2_pool_package,
+            ),
             PoolBlueprintInformation {
-                adapter: radiswap_adapter.try_into().unwrap(),
-                allowed_pools: radiswap_pools
+                adapter: ociswap_adapter.try_into().unwrap(),
+                allowed_pools: ociswap_v2_pools
                     .iter()
                     .map(|pool| pool.try_into().unwrap())
                     .collect(),
@@ -281,11 +301,11 @@ impl ScryptoUnitTestEnv {
                 trader: trader_user_token,
                 follower: follower_user_token,
             },
-            radiswap: DexEntities {
-                package: radiswap_package,
-                pools: radiswap_pools,
-                adapter_package: radiswap_adapter_package,
-                adapter: radiswap_adapter.try_into().unwrap(),
+            ociswap: DexEntities {
+                package: ociswap_v2_pool_package,
+                pools: ociswap_v2_pools,
+                adapter_package: ociswap_adapter_package,
+                adapter: ociswap_adapter.try_into().unwrap(),
             },
         })
     }

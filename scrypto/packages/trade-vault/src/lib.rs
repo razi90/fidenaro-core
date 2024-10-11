@@ -4,35 +4,6 @@ use scrypto::prelude::*;
 type PoolAdapter = PoolAdapterInterfaceScryptoStub;
 type OracleAdapter = OracleAdapterInterfaceScryptoStub;
 
-#[derive(Debug, ScryptoSbor, PartialEq)]
-pub enum Action {
-    Buy,
-    Sell,
-    Deposit,
-    Withdrawal,
-}
-
-#[derive(Debug, ScryptoSbor)]
-pub struct Trade {
-    pub epoch: Epoch,
-    pub timestamp: Instant,
-    pub trade_action: Action,
-    pub from: ResourceAddress,
-    pub from_amount: Decimal,
-    pub to: ResourceAddress,
-    pub to_amount: Decimal,
-    pub price: Decimal,
-}
-
-#[derive(Debug, ScryptoSbor)]
-pub struct Transaction {
-    pub action: Action,
-    pub epoch: Epoch,
-    pub timestamp: Instant,
-    pub amount: Decimal,
-    pub user_id: String,
-}
-
 #[derive(Debug, ScryptoSbor)]
 pub struct UserPosition {
     pub share_amount: Decimal,
@@ -45,8 +16,6 @@ struct TradeEvent {
     from_amount: Decimal,
     to: ResourceAddress,
     to_amount: Decimal,
-    from_token_price_in_xrd: Decimal,
-    to_token_price_in_xrd: Decimal,
 }
 
 #[blueprint]
@@ -54,7 +23,7 @@ struct TradeEvent {
 mod trade_vault {
 
     extern_blueprint! {
-        "package_sim1pkuj90ee40aujtm7p7jpzlr30jymfu5mgzkaf36t626my7ftuhjmnx",
+        "package_sim1pkyls09c258rasrvaee89dnapp2male6v6lmh7en5ynmtnavqdsvk9",
         Fidenaro {
             fn register_vault(&mut self, vault_address: ComponentAddress, manager_badge_address: ResourceAddress, share_token_address: ResourceAddress);
             fn get_user_token_resource_address(&self) -> ResourceAddress;
@@ -66,7 +35,7 @@ mod trade_vault {
     }
 
     extern_blueprint! {
-        "package_sim1ph4d3z4gguc59m530tuwdx8xv0t5lvdr4m38msgpkwryhfv5v4ql0t",
+        "package_sim1pkc0e8f9yhlvpv38s2ymrplu7q366y3k8zc53zf2srlm7qm64fk043",
         TradeEngine {
             fn open_position(&mut self, from_token: Bucket, to_token_address: ResourceAddress, to_token_amount: Decimal) -> Bucket;
         }
@@ -97,9 +66,6 @@ mod trade_vault {
         total_share_tokens: Decimal,
         trader_fee_vaults: KeyValueStore<ResourceAddress, Vault>,
         fidenaro: Global<Fidenaro>,
-        trades: Vec<Trade>,
-        deposits: Vec<Transaction>,
-        withdrawals: Vec<Transaction>,
         user_positions: KeyValueStore<String, UserPosition>,
         trade_engine: Global<TradeEngine>,
     }
@@ -204,9 +170,6 @@ mod trade_vault {
                 share_token_manager,
                 trader_fee_vaults: KeyValueStore::new(),
                 fidenaro,
-                trades: Vec::new(),
-                deposits: Vec::new(),
-                withdrawals: Vec::new(),
                 user_positions: KeyValueStore::new(),
                 trade_engine,
             }
@@ -302,16 +265,6 @@ mod trade_vault {
                 );
             }
 
-            let deposit_transaction = Transaction {
-                action: Action::Deposit,
-                epoch: Runtime::current_epoch(),
-                timestamp: Clock::current_time(TimePrecision::Minute),
-                amount: deposit.amount(),
-                user_id: user_id.clone(),
-            };
-
-            self.deposits.push(deposit_transaction);
-
             let pool =
                 self.assets.entry(XRD).or_insert_with(|| Vault::new(XRD));
 
@@ -357,11 +310,11 @@ mod trade_vault {
             // Calculate the total asset value and the withdrawal value for the user
             let total_user_asset_value =
                 self.calculate_total_user_asset_value(user_vault_equity);
-            let withdrawal_value = total_user_asset_value
+            let _withdrawal_value = total_user_asset_value
                 * user_withdrawal_proportional_to_his_equity;
 
             info!("Total user asset value: {:?}", total_user_asset_value);
-            info!("Withdrawal user asset value: {:?}", withdrawal_value);
+            info!("Withdrawal user asset value: {:?}", _withdrawal_value);
 
             // Withdraw assets
             let mut withdrawn_assets = self
@@ -401,9 +354,6 @@ mod trade_vault {
                 user_withdrawal_proportional_to_his_equity,
             );
 
-            // Record the withdrawal transaction
-            self.record_withdrawal_transaction(&user_id, withdrawal_value);
-
             // Burn the share tokens
             self.burn_share_tokens(share_tokens);
 
@@ -441,7 +391,15 @@ mod trade_vault {
             let mut pool_adapter =
                 self.fidenaro.get_pool_adapter(pool_address).unwrap();
 
-            let to_tokens = pool_adapter.swap(pool_address, from_token);
+            let (to_tokens, remaining_tokens) =
+                pool_adapter.swap(pool_address, from_token);
+
+            // deposit remaining tokens back after the swap
+            self.assets
+                .get_mut(&from_token_address)
+                .unwrap()
+                .put(remaining_tokens);
+
             let to_token_address = to_tokens.resource_address();
             let to_token_amount = to_tokens.amount();
 
@@ -453,41 +411,12 @@ mod trade_vault {
             // deposit tokens into vault
             pool.put(to_tokens.into());
 
-            // log transaction and trade data
-            let trade_action = if from_token_address == XRD {
-                Action::Buy
-            } else {
-                Action::Sell
-            };
-
-            let price = if trade_action == Action::Buy {
-                self.fidenaro
-                    .get_oracle_adapter()
-                    .unwrap()
-                    .get_price(to_token_address, XRD)
-                    .0
-            } else {
-                self.fidenaro
-                    .get_oracle_adapter()
-                    .unwrap()
-                    .get_price(from_token_address, XRD)
-                    .0
-            };
-
-            info!("Swapped at the price of {}", price);
-
-            let trade = Trade {
-                epoch: Runtime::current_epoch(),
-                timestamp: Clock::current_time(TimePrecision::Minute),
-                trade_action,
+            Runtime::emit_event(TradeEvent {
                 from: from_token_address,
                 from_amount: from_token_amount,
                 to: to_token_address,
                 to_amount: to_token_amount,
-                price,
-            };
-
-            self.trades.push(trade);
+            });
         }
 
         pub fn open_position(
@@ -577,8 +506,8 @@ mod trade_vault {
                 from_amount: from_token_amount,
                 to: to_token_address,
                 to_amount: to_token_amount,
-                from_token_price_in_xrd,
-                to_token_price_in_xrd,
+                // from_token_price_in_xrd,
+                // to_token_price_in_xrd,
             });
         }
 
@@ -770,22 +699,6 @@ mod trade_vault {
             if remove_entry {
                 self.user_positions.remove(&user_id);
             }
-        }
-
-        fn record_withdrawal_transaction(
-            &mut self,
-            user_id: &String,
-            withdrawal_asset_value: Decimal,
-        ) {
-            let withdrawal_transaction = Transaction {
-                action: Action::Withdrawal,
-                epoch: Runtime::current_epoch(),
-                timestamp: Clock::current_time(TimePrecision::Minute),
-                amount: withdrawal_asset_value,
-                user_id: user_id.clone(),
-            };
-
-            self.withdrawals.push(withdrawal_transaction);
         }
 
         fn burn_share_tokens(&mut self, share_tokens: Bucket) {
