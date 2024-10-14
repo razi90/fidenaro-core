@@ -62,7 +62,7 @@ impl ScryptoSimulatorEnv {
         let _protocol_owner_rule = rule!(require(protocol_owner_badge));
 
         // Compile and publish packages
-        let [fidenaro_package, user_factory_package, simple_oracle_package, ociswap_adapter_package, ociswap_v2_pool_package, ociswap_v2_registry_package, trade_engine_package] =
+        let [fidenaro_package, user_factory_package, simple_oracle_package, ociswap_adapter_package, ociswap_v2_pool_package, ociswap_v2_registry_package] =
             Self::PACKAGE_NAMES.map(|package_name| {
                 ledger_simulator.compile_and_publish(package_name)
             });
@@ -71,14 +71,6 @@ impl ScryptoSimulatorEnv {
         std::env::set_var(
             "FIDENARO_PACKAGE_ADDRESS",
             fidenaro_package
-                .display(&AddressBech32Encoder::for_simulator())
-                .to_string(),
-        );
-
-        // Convert the trade engine package address to the Bech32 representation "package_sim1..." to use it to replace it in the blueprint of the trade vault
-        std::env::set_var(
-            "TRADE_ENGINE_PACKAGE_ADDRESS",
-            trade_engine_package
                 .display(&AddressBech32Encoder::for_simulator())
                 .to_string(),
         );
@@ -177,26 +169,6 @@ impl ScryptoSimulatorEnv {
 
             component_address
         });
-
-        // Initialize trade engine
-        let trade_engine = ledger_simulator
-            .execute_manifest(
-                ManifestBuilder::new()
-                    .lock_fee_from_faucet()
-                    .call_function(
-                        trade_engine_package,
-                        "TradeEngine",
-                        "instantiate",
-                        (),
-                    )
-                    .build(),
-                vec![],
-            )
-            .expect_commit_success()
-            .new_component_addresses()
-            .first()
-            .copied()
-            .unwrap();
 
         // Initialize a simple oracle
         let simple_oracle = ledger_simulator
@@ -448,7 +420,6 @@ impl ScryptoSimulatorEnv {
                                 "Test Vault",
                                 fidenaro,
                                 "Vault short description",
-                                trade_engine,
                             )
                         },
                     )

@@ -16,9 +16,6 @@ fidenaro = { path = "../packages/fidenaro", features = ["test"] }
 user-factory = { path = "../packages/user-factory", features = ["test"] }
 trade-vault = { path = "../packages/trade-vault", features = ["test"] }
 simple-oracle = { path = "../packages/simple-oracle", features = ["test"] }
-trade-engine = { path = "../bootstrapping-helper/trade-engine", features = [
-    "test",
-] }
 ports-interface = { workspace = true }
 precision_pool = { workspace = true }
 ociswap-v2-adapter = { path = "../packages/ociswap-v2-adapter", features = [

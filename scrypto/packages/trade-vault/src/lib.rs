@@ -34,13 +34,6 @@ mod trade_vault {
         }
     }
 
-    extern_blueprint! {
-        "package_sim1pkc0e8f9yhlvpv38s2ymrplu7q366y3k8zc53zf2srlm7qm64fk043",
-        TradeEngine {
-            fn open_position(&mut self, from_token: Bucket, to_token_address: ResourceAddress, to_token_amount: Decimal) -> Bucket;
-        }
-    }
-
     enable_method_auth! {
         roles {
             fund_manager => updatable_by: [fund_manager, OWNER];
@@ -52,7 +45,6 @@ mod trade_vault {
 
             // Methods with admin access
             swap => restrict_to: [fund_manager, OWNER];
-            open_position => restrict_to: [fund_manager, OWNER];
             withdraw_collected_trader_fee => restrict_to: [fund_manager, OWNER];
         }
     }
@@ -67,7 +59,6 @@ mod trade_vault {
         trader_fee_vaults: KeyValueStore<ResourceAddress, Vault>,
         fidenaro: Global<Fidenaro>,
         user_positions: KeyValueStore<String, UserPosition>,
-        trade_engine: Global<TradeEngine>,
     }
 
     impl TradeVault {
@@ -76,7 +67,6 @@ mod trade_vault {
             vault_name: String,
             fidenaro: ComponentAddress,
             short_description: String,
-            trade_engine: ComponentAddress,
         ) -> (Global<TradeVault>, FungibleBucket) {
             let (address_reservation, component_address) =
                 Runtime::allocate_component_address(TradeVault::blueprint_id());
@@ -130,8 +120,6 @@ mod trade_vault {
                 share_token_manager.address(),
             );
 
-            let trade_engine: Global<TradeEngine> = trade_engine.into();
-
             let fund_metadata_config = metadata! {
                 roles {
                     metadata_locker => rule!(
@@ -171,7 +159,6 @@ mod trade_vault {
                 trader_fee_vaults: KeyValueStore::new(),
                 fidenaro,
                 user_positions: KeyValueStore::new(),
-                trade_engine,
             }
             .instantiate()
             .prepare_to_globalize(OwnerRole::None)
@@ -416,98 +403,6 @@ mod trade_vault {
                 from_amount: from_token_amount,
                 to: to_token_address,
                 to_amount: to_token_amount,
-            });
-        }
-
-        pub fn open_position(
-            &mut self,
-            from_token_address: ResourceAddress,
-            to_token_address: ResourceAddress,
-            from_token_amount: Decimal,
-        ) {
-            assert!(self.assets.contains_key(&from_token_address), "This asset cannot be swapped as it is not part of the allowed pool list!");
-
-            // Withdraw tokens from vault
-            let from_vault = self.assets.get_mut(&from_token_address).unwrap();
-            let mut from_token = from_vault.take(from_token_amount);
-
-            // Take Fidenaro fee
-            let fee_rate = self.fidenaro.get_fee_rate();
-            let fee_amount = from_token.amount() * fee_rate;
-            info!("Calculated fee amount: {}", fee_amount);
-            let fee = from_token.take_advanced(
-                fee_amount,
-                WithdrawStrategy::Rounded(RoundingMode::ToZero),
-            );
-            self.fidenaro.deposit_fee(fee);
-            info!("Fee amount of {} was deposited to Fidenaro.", fee_amount);
-
-            // Set prices in XRD, defaulting to 1 if the asset is XRD
-            let from_token_price_in_xrd = if from_token_address == XRD {
-                Decimal::one()
-            } else {
-                self.fidenaro
-                    .get_oracle_adapter()
-                    .unwrap()
-                    .get_price(from_token_address, XRD)
-                    .0
-            };
-
-            let to_token_price_in_xrd = if to_token_address == XRD {
-                Decimal::one()
-            } else {
-                self.fidenaro
-                    .get_oracle_adapter()
-                    .unwrap()
-                    .get_price(to_token_address, XRD)
-                    .0
-            };
-
-            // Log the prices in XRD
-            info!("Price of from_token in XRD: {}", from_token_price_in_xrd);
-            info!("Price of to_token in XRD: {}", to_token_price_in_xrd);
-
-            // Calculate price ratio based on the oracle's price in XRD
-            let price_ratio = from_token_price_in_xrd / to_token_price_in_xrd;
-
-            info!("Current price ratio {}.", price_ratio);
-
-            // Calculate the amount of to_token based on from_token_amount
-            let to_token_divisibility =
-                ResourceManager::from_address(to_token_address)
-                    .resource_type()
-                    .divisibility()
-                    .unwrap();
-
-            let to_token_amount = ((from_token_amount - fee_amount)
-                * price_ratio)
-                .checked_round(to_token_divisibility, RoundingMode::ToZero)
-                .unwrap();
-
-            info!("Amount to buy {}.", to_token_amount);
-
-            // Swap tokens
-            let to_tokens = self.trade_engine.open_position(
-                from_token,
-                to_token_address,
-                to_token_amount,
-            );
-
-            // Deposit tokens into vault
-            let pool = self
-                .assets
-                .entry(to_tokens.resource_address())
-                .or_insert_with(|| Vault::new(to_tokens.resource_address()));
-
-            pool.put(to_tokens.into());
-
-            Runtime::emit_event(TradeEvent {
-                from: from_token_address,
-                from_amount: from_token_amount,
-                to: to_token_address,
-                to_amount: to_token_amount,
-                // from_token_price_in_xrd,
-                // to_token_price_in_xrd,
             });
         }
 

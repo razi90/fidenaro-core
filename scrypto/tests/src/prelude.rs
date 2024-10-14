@@ -33,7 +33,6 @@ pub use ::ociswap_v2_adapter::adapter_test::*;
 // pub use ::precision_pool::pool::precision_pool::*;
 pub use ::precision_pool::pool::precision_pool_test::*;
 pub use ::simple_oracle::simple_oracle_test::*;
-pub use ::trade_engine::trade_engine_test::*;
 pub use ::trade_vault::trade_vault_test::*;
 pub use ::user_factory::user_factory_test::*;
 

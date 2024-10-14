@@ -4,7 +4,7 @@ import { defaultHighlightedLinkButtonStyle } from "../../Button/DefaultHighlight
 import { gatewayApi, rdt } from "../../../libs/radix-dapp-toolkit/rdt";
 import { useQuery } from "@tanstack/react-query";
 // import { fetchConnectedWallet } from "../../../libs/wallet/WalletDataService";
-import { FIDENARO_COMPONENT_ADDRESS, TRADE_ENGINE_COMPONENT_ADDRESS, TRADE_VAULT_PACKAGE_ADDRESS, USER_NFT_RESOURCE_ADDRESS } from "../../../libs/fidenaro/Config";
+import { FIDENARO_COMPONENT_ADDRESS, TRADE_VAULT_PACKAGE_ADDRESS, USER_NFT_RESOURCE_ADDRESS } from "../../../libs/fidenaro/Config";
 import { SetStateAction, useState } from "react";
 import { useSnackbar } from "notistack";
 import { User } from "../../../libs/entities/User";
@@ -132,8 +132,7 @@ const CreateVaultDialog: React.FC<CreateVaultDialogProps> = ({ isOpen, setIsOpen
                         proof(proofId),
                         str(vaultName),
                         address(FIDENARO_COMPONENT_ADDRESS),
-                        str(vaultDescription),
-                        address(TRADE_ENGINE_COMPONENT_ADDRESS)
+                        str(vaultDescription)
                     ]
 
                 )
