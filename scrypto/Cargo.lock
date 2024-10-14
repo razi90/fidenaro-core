@@ -1860,7 +1860,6 @@ dependencies = [
  "scrypto 1.2.0 (git+https://github.com/radixdlt/radixdlt-scrypto)",
  "scrypto-test",
  "simple-oracle",
- "trade-engine",
  "trade-vault",
  "user-factory",
 ]
@@ -1926,14 +1925,6 @@ dependencies = [
  "serde_spanned",
  "toml_datetime",
  "winnow",
-]
-
-[[package]]
-name = "trade-engine"
-version = "0.1.0"
-dependencies = [
- "scrypto 1.2.0 (git+https://github.com/radixdlt/radixdlt-scrypto)",
- "scrypto-test",
 ]
 
 [[package]]

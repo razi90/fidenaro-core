@@ -1,5 +1,4 @@
 import { addressToAsset, Asset } from "../entities/Asset";
-import { TRADE_ENGINE_COMPONENT_ADDRESS } from "../fidenaro/Config";
 import { gatewayApi } from "../radix-dapp-toolkit/rdt";
 
 export interface Transaction {
@@ -31,7 +30,7 @@ export const fetchTradeHistory = async (filter: TradeEventFilter): Promise<Trade
         return []
     }
 
-    filter.entityIds.push(TRADE_ENGINE_COMPONENT_ADDRESS)
+    filter.entityIds.push("TODO: Change to swap")
 
     const transactionData = await gatewayApi.stream.innerClient.streamTransactions(
         {

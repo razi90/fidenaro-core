@@ -27,7 +27,6 @@ import { useEffect, useRef, useState } from "react";
 import { fetchUserInfo } from "../../../libs/user/UserDataService";
 import { User } from "../../../libs/entities/User";
 
-import ConfirmButton from "../../Button/Dialog/ConfirmButton.tsx/ConfirmButton";
 import CancelButton from "../../Button/Dialog/CancelButton.tsx/CancelButton";
 import { Vault } from "../../../libs/entities/Vault";
 import { Asset, Bitcoin, Ethereum, Hug, Radix, USDollar, addressToAsset } from "../../../libs/entities/Asset";
@@ -202,6 +201,8 @@ const TradeDialog: React.FC<TradeDialogProps> = ({ isOpen, setIsOpen, vault, onC
             enqueueSnackbar('Cannot trade the same asset.', { variant: 'error' });
             return;
         }
+
+        // TODO: Change to swap
 
         // Build manifest to open a position
         let transactionManifest = new ManifestBuilder()
