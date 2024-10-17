@@ -84,7 +84,7 @@ fn can_swap() -> Result<(), RuntimeError> {
     });
 
     assert_eq!(xrd_amount, dec!(50));
-    assert_eq!(btc_amount, dec!(48.01499095)); // we expect less than 50 BTC because of slippage
+    assert_eq!(btc_amount, dec!(48.01495442)); // we expect less than 50 BTC because of slippage
 
     Ok(())
 }
@@ -162,6 +162,64 @@ fn can_withdraw() -> Result<(), RuntimeError> {
 }
 
 #[test]
+fn can_withdraw_multiple_followers() -> Result<(), RuntimeError> {
+    // Arrange
+    let Environment {
+        environment: ref mut env,
+        mut protocol,
+        ..
+    } = ScryptoUnitTestEnv::new()?;
+
+    // Deposit with the first follower
+    let first_follower_proof = protocol.follower.0.create_proof_of_all(env)?;
+    let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
+
+    let first_follower_share_tokens = protocol.trade_vault.deposit(
+        first_follower_proof.clone(env).unwrap(),
+        bucket,
+        env,
+    )?;
+
+    // Create a new follower
+    let second_follower_token = protocol.user_factory.create_new_user(
+        "new_follower".to_string(),
+        "bio".to_string(),
+        "http://follower-pfp.com".to_string(),
+        "twitter".to_string(),
+        "telegram".to_string(),
+        "discord".to_string(),
+        env,
+    )?;
+
+    // Deposit with the second follower
+    let second_follower_proof =
+        second_follower_token.0.create_proof_of_all(env)?;
+    let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
+
+    let _ = protocol.trade_vault.deposit(
+        second_follower_proof.clone(env).unwrap(),
+        bucket,
+        env,
+    )?;
+
+    // Act
+    // Withdraw all assets from the first user
+    let withdrawal = protocol
+        .trade_vault
+        .withdraw(
+            first_follower_proof.clone(env).unwrap(),
+            first_follower_share_tokens,
+            env,
+        )
+        .expect("Withdrawl successful.");
+
+    // Assert
+    assert_eq!(withdrawal.first().unwrap().amount(env).unwrap(), dec!(100));
+
+    Ok(())
+}
+
+#[test]
 fn fidenaro_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
     // Arrange
     let Environment {
@@ -229,7 +287,7 @@ fn trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
     let Environment {
         environment: ref mut env,
         mut protocol,
-        ociswap,
+        mut ociswap,
         resources,
     } = ScryptoUnitTestEnv::new()?;
 
@@ -251,10 +309,13 @@ fn trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
         )
         .expect("Swap succeeded.");
 
-    protocol
-        .oracle
-        .set_price(resources.bitcoin, XRD, dec!(10), env)
-        .expect("Changed BTC price.");
+    // Perform a big swap to manipulate the price
+    let _ = ociswap.pools.bitcoin.swap(
+        ResourceManager(XRD)
+            .mint_fungible(dec!(100_000_000), env)
+            .unwrap(),
+        env,
+    )?;
 
     protocol
         .trade_vault
@@ -277,14 +338,14 @@ fn trader_can_collect_and_withdraw_fees() -> Result<(), RuntimeError> {
 
     assert_eq!(
         fee_xrd.amount(env).unwrap(),
-        dec!(4.05687053597431577),
-        "Correct amount of XRD withdrawn."
+        dec!(1.46649182591743929),
+        "Correct amount of fee in XRD withdrawn."
     );
 
     assert_eq!(
         fee_btc.amount(env).unwrap(),
-        dec!(3.89581204),
-        "Correct amount of BTC withdrawn."
+        dec!(1.40827183),
+        "Correct amount of fee in BTC withdrawn."
     );
 
     Ok(())
@@ -296,7 +357,7 @@ fn trader_no_fee_when_no_profit() -> Result<(), RuntimeError> {
     let Environment {
         environment: ref mut env,
         mut protocol,
-        ociswap,
+        mut ociswap,
         resources,
     } = ScryptoUnitTestEnv::new()?;
 
@@ -318,10 +379,13 @@ fn trader_no_fee_when_no_profit() -> Result<(), RuntimeError> {
         )
         .expect("Swap succeeded.");
 
-    protocol
-        .oracle
-        .set_price(resources.bitcoin, XRD, dec!(0.5), env)
-        .expect("Changed BTC price.");
+    // Perform a big swap to manipulate the price
+    let _ = ociswap.pools.bitcoin.swap(
+        ResourceManager(resources.bitcoin)
+            .mint_fungible(dec!(100_000_000), env)
+            .unwrap(),
+        env,
+    )?;
 
     protocol
         .trade_vault
@@ -346,52 +410,84 @@ fn trader_no_fee_when_no_profit() -> Result<(), RuntimeError> {
     Ok(())
 }
 
-// TODO: Update test to use swap
-// #[test]
-// fn open_position_with_small_amount() -> Result<(), RuntimeError> {
-//     // Arrange
-//     let Environment {
-//         environment: ref mut env,
-//         mut protocol,
-//         ociswap: _,
-//         resources,
-//     } = ScryptoUnitTestEnv::new()?;
+#[test]
+fn swap_with_small_amount() -> Result<(), RuntimeError> {
+    // Arrange
+    let Environment {
+        environment: ref mut env,
+        mut protocol,
+        ociswap,
+        resources,
+    } = ScryptoUnitTestEnv::new()?;
 
-//     let proof = protocol.trader.0.create_proof_of_all(env)?;
-//     let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
-//     let _ = protocol.trade_vault.deposit(proof, bucket, env)?;
+    let proof = protocol.trader.0.create_proof_of_all(env)?;
+    let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
+    let _ = protocol.trade_vault.deposit(proof, bucket, env)?;
 
-//     // Set price of BTC in XRD
-//     protocol.oracle.set_price(
-//         resources.bitcoin,
-//         XRD,
-//         dec!(2555865.7370043527),
-//         env,
-//     )?;
+    // Act
+    protocol
+        .trade_vault
+        .swap(
+            XRD,
+            dec!(10),
+            ociswap.pools.bitcoin.try_into().unwrap(),
+            env,
+        )
+        .expect("Swap succeeded.");
 
-//     // Act
-//     let _ = protocol
-//         .trade_vault
-//         .open_position(XRD, resources.bitcoin, dec!(10), env)
-//         .expect("Swap from XRD to BTC");
+    protocol
+        .trade_vault
+        .swap(
+            resources.bitcoin,
+            dec!(0.00000009),
+            ociswap.pools.bitcoin.try_into().unwrap(),
+            env,
+        )
+        .expect("Swap succeeded.");
 
-//     let _ = protocol
-//         .trade_vault
-//         .open_position(resources.bitcoin, XRD, dec!(0.00000387), env)
-//         .expect("Swap from BTC to XRD");
+    // Assert
+    let [xrd_amount, btc_amount] = [XRD, resources.bitcoin].map(|resource| {
+        env.with_component_state::<TradeVaultState, _, _, _>(
+            protocol.trade_vault,
+            |state, env| state.assets.get(&resource).unwrap().amount(env),
+        )
+        .unwrap()
+        .unwrap()
+    });
 
-//     // Assert
-//     let [xrd_amount, btc_amount] = [XRD, resources.bitcoin].map(|resource| {
-//         env.with_component_state::<TradeVaultState, _, _, _>(
-//             protocol.trade_vault,
-//             |state, env| state.assets.get(&resource).unwrap().amount(env),
-//         )
-//         .unwrap()
-//         .unwrap()
-//     });
+    assert_eq!(xrd_amount, dec!(90.000000070000005273));
+    assert_eq!(btc_amount, dec!(9.60299954));
 
-//     assert_eq!(xrd_amount, dec!(99.792288398184776499));
-//     assert_eq!(btc_amount, dec!(0));
+    Ok(())
+}
 
-//     Ok(())
-// }
+#[test]
+fn abort_when_received_amount_rounded_to_zero() -> Result<(), RuntimeError> {
+    // Arrange
+    let Environment {
+        environment: ref mut env,
+        mut protocol,
+        ociswap,
+        ..
+    } = ScryptoUnitTestEnv::new()?;
+
+    let proof = protocol.trader.0.create_proof_of_all(env)?;
+    let bucket = ResourceManager(XRD).mint_fungible(dec!(100), env)?;
+    let _ = protocol.trade_vault.deposit(proof, bucket, env)?;
+
+    // Act
+    let result = protocol.trade_vault.swap(
+        XRD,
+        dec!(0.00000000001),
+        ociswap.pools.bitcoin.try_into().unwrap(),
+        env,
+    );
+
+    // Assert
+    assert!(
+        result.is_err(),
+        "Trade shall fail when BTC amount is rounded to 0."
+    );
+
+    Ok(())
+}

@@ -17,6 +17,8 @@
 
 #![allow(clippy::arithmetic_side_effects)]
 
+use simple_oracle::Pair;
+
 use crate::prelude::*;
 
 pub type ScryptoUnitTestEnv = Environment<ScryptoUnitTestEnvironmentSpecifier>;
@@ -73,7 +75,7 @@ impl ScryptoUnitTestEnv {
             .map(|address| rule!(require(address)))?;
 
         // Publishing the various packages to the testing environment
-        let [fidenaro_package, user_factory_package, simple_oracle_package, ociswap_adapter_package, ociswap_v2_pool_package, ociswap_v2_registry_package] =
+        let [fidenaro_package, user_factory_package, trade_vault_package, simple_oracle_package, ociswap_adapter_package, ociswap_v2_pool_package, ociswap_v2_registry_package] =
             Self::PACKAGE_NAMES.map(|name| {
                 PackageFactory::compile_and_publish(
                     name,
@@ -82,22 +84,6 @@ impl ScryptoUnitTestEnv {
                 )
                 .unwrap()
             });
-
-        // Convert the fidenaro package address to the Bech32 representation "package_sim1..." to use it to replace it in the blueprint of the trade vault
-        std::env::set_var(
-            "FIDENARO_PACKAGE_ADDRESS",
-            fidenaro_package
-                .display(&AddressBech32Encoder::for_simulator())
-                .to_string(),
-        );
-
-        // Compile and publish the trade vault blueprint
-        let trade_vault_package = PackageFactory::compile_and_publish(
-            "../packages/trade-vault",
-            &mut env,
-            CompileProfile::FastWithTraceLogs,
-        )
-        .unwrap();
 
         // Creating the various resources and their associated pools.
         let resource_addresses =
@@ -117,6 +103,16 @@ impl ScryptoUnitTestEnv {
                 .mint_initial_supply(dec!(0), &mut env)
                 .and_then(|bucket| bucket.resource_address(&mut env))
             })?;
+
+        // Instantiate a simple oracle
+        let mut simple_oracle = SimpleOracle::instantiate(
+            protocol_manager_rule.clone(),
+            Default::default(),
+            OwnerRole::None,
+            None,
+            simple_oracle_package,
+            &mut env,
+        )?;
 
         // Initialize Ociswap pools
         let registry = RegistryInterfaceScryptoTestStub::instantiate(
@@ -151,32 +147,26 @@ impl ScryptoUnitTestEnv {
                         &mut env,
                     )?;
 
-                let resource_x = ResourceManager(resource_x)
+                let bucket_x = ResourceManager(resource_x)
                     .mint_fungible(dec!(100_000_000), &mut env)?;
-                let resource_y = ResourceManager(resource_y)
+                let bucket_y = ResourceManager(resource_y)
                     .mint_fungible(dec!(100_000_000), &mut env)?;
 
                 let _ = ociswap_pool.add_liquidity(
-                    -10_000, 10_000, resource_x, resource_y, &mut env,
+                    -10_000, 10_000, bucket_x, bucket_y, &mut env,
+                )?;
+
+                simple_oracle.insert_pool(
+                    Pair {
+                        base: resource_x,
+                        quote: resource_y,
+                    },
+                    ociswap_pool.try_into().unwrap(),
+                    &mut env,
                 )?;
 
                 Ok::<_, RuntimeError>(ociswap_pool)
             })?;
-
-        // Instantiate a simple oracle
-        let mut simple_oracle = SimpleOracle::instantiate(
-            protocol_manager_rule.clone(),
-            Default::default(),
-            OwnerRole::None,
-            None,
-            simple_oracle_package,
-            &mut env,
-        )?;
-
-        // Submitting some dummy prices to the oracle to get things going.
-        resource_addresses.try_map(|resource_address| {
-            simple_oracle.set_price(*resource_address, XRD, dec!(1), &mut env)
-        })?;
 
         // Instantiate Fidenaro
         let (mut fidenaro, _) = Fidenaro::instantiate(

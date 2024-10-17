@@ -12,8 +12,6 @@ scrypto-interface = { workspace = true }
 ports-interface = { workspace = true }
 common = { workspace = true }
 
-humantime = { version = "2.1.0" }
-
 [features]
 default = []
 test = []
