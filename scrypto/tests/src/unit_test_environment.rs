@@ -17,8 +17,6 @@
 
 #![allow(clippy::arithmetic_side_effects)]
 
-use simple_oracle::Pair;
-
 use crate::prelude::*;
 
 pub type ScryptoUnitTestEnv = Environment<ScryptoUnitTestEnvironmentSpecifier>;
@@ -157,10 +155,8 @@ impl ScryptoUnitTestEnv {
                 )?;
 
                 simple_oracle.insert_pool(
-                    Pair {
-                        base: resource_x,
-                        quote: resource_y,
-                    },
+                    resource_x,
+                    resource_y,
                     ociswap_pool.try_into().unwrap(),
                     &mut env,
                 )?;

@@ -97,17 +97,20 @@ mod simple_oracle {
 
         pub fn insert_pool(
             &mut self,
-            pair: Pair,
+            base: ResourceAddress,
+            quote: ResourceAddress,
             pool_address: ComponentAddress,
         ) {
-            self.pools.insert(pair, pool_address);
+            self.pools.insert(Pair { base, quote }, pool_address);
         }
 
         pub fn update_pool(
             &mut self,
-            pair: Pair,
+            base: ResourceAddress,
+            quote: ResourceAddress,
             pool_address: ComponentAddress,
         ) {
+            let pair = Pair { base, quote };
             let entry = self.pools.get_mut(&pair);
             if let Some(mut old_pool_address) = entry {
                 info!(
