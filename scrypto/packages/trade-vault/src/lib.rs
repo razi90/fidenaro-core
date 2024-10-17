@@ -22,18 +22,6 @@ struct TradeEvent {
 #[events(TradeEvent)]
 mod trade_vault {
 
-    extern_blueprint! {
-        "package_sim1pkyls09c258rasrvaee89dnapp2male6v6lmh7en5ynmtnavqdsvk9",
-        Fidenaro {
-            fn register_vault(&mut self, vault_address: ComponentAddress, manager_badge_address: ResourceAddress, share_token_address: ResourceAddress);
-            fn get_user_token_resource_address(&self) -> ResourceAddress;
-            fn get_pool_adapter(&self, pool_address: ComponentAddress) -> Option<PoolAdapter>;
-            fn get_oracle_adapter(&self) -> Option<OracleAdapter>;
-            fn get_fee_rate(&self) -> Decimal;
-            fn deposit_fee(&mut self, fee: Bucket);
-        }
-    }
-
     enable_method_auth! {
         roles {
             fund_manager => updatable_by: [fund_manager, OWNER];
@@ -57,7 +45,7 @@ mod trade_vault {
         share_token_manager: ResourceManager,
         total_share_tokens: Decimal,
         trader_fee_vaults: KeyValueStore<ResourceAddress, Vault>,
-        fidenaro: Global<Fidenaro>,
+        fidenaro: Global<AnyComponent>,
         user_positions: KeyValueStore<String, UserPosition>,
     }
 
@@ -103,22 +91,27 @@ mod trade_vault {
                 })
                 .create_with_no_initial_supply();
 
-            let mut fidenaro: Global<Fidenaro> = fidenaro.into();
+            let fidenaro: Global<AnyComponent> = fidenaro.into();
 
             // Get user ID
             let checked_proof = user_token_proof
-                .check(fidenaro.get_user_token_resource_address());
+                .check(fidenaro.call("get_user_token_resource_address", &()));
+
             let manager_user_id = checked_proof
                 .as_non_fungible()
                 .non_fungible_local_id()
                 .to_string();
 
             // Register vault
-            fidenaro.register_vault(
-                component_address,
-                fund_manager_badge.resource_address(),
-                share_token_manager.address(),
-            );
+            fidenaro
+                .call::<(ComponentAddress, ResourceAddress, ResourceAddress), ()>(
+                    "register_vault",
+                    &(
+                        component_address,
+                        fund_manager_badge.resource_address(),
+                        share_token_manager.address(),
+                    ),
+                );
 
             let fund_metadata_config = metadata! {
                 roles {
@@ -203,9 +196,12 @@ mod trade_vault {
             // calculate value of other assets based on their current price
             for (asset_address, vault) in self.assets.iter() {
                 if asset_address != &XRD {
-                    let (price, _) = self
+                    let price = self
                         .fidenaro
-                        .get_oracle_adapter()
+                        .call::<(), Option<OracleAdapter>>(
+                            "get_oracle_adapter",
+                            &(),
+                        )
                         .unwrap()
                         .get_price(*asset_address, XRD);
                     info!("Price: {}", price);
@@ -286,7 +282,7 @@ mod trade_vault {
 
             info!("User equity in percent: {:?}", user_vault_equity * 100);
             info!(
-                "User withdrawal proportional to his equity in percent: {:?}",
+                "User withdrawal proportional to total equity in percent: {:?}",
                 user_withdrawal_proportional_to_total_equity * 100
             );
             info!(
@@ -306,15 +302,6 @@ mod trade_vault {
             // Withdraw assets
             let mut withdrawn_assets = self
                 .withdraw_assets(user_withdrawal_proportional_to_total_equity);
-
-            info!(
-                "Total XRD withdrawal: {:?}",
-                withdrawn_assets.first().unwrap().amount()
-            );
-            info!(
-                "Total BTC withdrawal: {:?}",
-                withdrawn_assets.last().unwrap().amount()
-            );
 
             // Calculate profit on the amount which is withdrawn and deposit traders fee if positive
             let (profit_on_withdrawal, profit_proportional_to_withdrawal) =
@@ -367,16 +354,25 @@ mod trade_vault {
             let mut from_token = from_vault.take(from_token_amount);
 
             // Take fidenaro fee
-            let fee_rate = self.fidenaro.get_fee_rate();
+            let fee_rate =
+                self.fidenaro.call::<(), Decimal>("get_fee_rate", &());
             let fee_amount = from_token.amount() * fee_rate;
-            let fee = from_token.take(fee_amount);
-            self.fidenaro.deposit_fee(fee);
+            let fee = from_token.take_advanced(
+                fee_amount,
+                WithdrawStrategy::Rounded(RoundingMode::ToZero),
+            );
+            self.fidenaro.call::<(Bucket,), ()>("deposit_fee", &(fee,));
 
             info!("Fee amount of {} was deposited to Fidenaro.", fee_amount);
 
             // swap tokens
-            let mut pool_adapter =
-                self.fidenaro.get_pool_adapter(pool_address).unwrap();
+            let mut pool_adapter = self
+                .fidenaro
+                .call::<(ComponentAddress,), Option<PoolAdapter>>(
+                    "get_pool_adapter",
+                    &(pool_address,),
+                )
+                .unwrap();
 
             let (to_tokens, remaining_tokens) =
                 pool_adapter.swap(pool_address, from_token);
@@ -389,6 +385,13 @@ mod trade_vault {
 
             let to_token_address = to_tokens.resource_address();
             let to_token_amount = to_tokens.amount();
+
+            info!(
+                "Amount of tokens received from swap: {:?}.",
+                to_token_amount
+            );
+
+            assert!(to_token_amount > Decimal::zero(), "The amount of received tokens will be rounded to 0 if this swap is performed. Abort.");
 
             let pool = self
                 .assets
@@ -422,8 +425,9 @@ mod trade_vault {
             &self,
             user_token_proof: Proof,
         ) -> CheckedProof {
-            user_token_proof
-                .check(self.fidenaro.get_user_token_resource_address())
+            user_token_proof.check(
+                self.fidenaro.call("get_user_token_resource_address", &()),
+            )
         }
 
         fn validate_share_tokens(&self, share_tokens: &Bucket) {
@@ -458,7 +462,7 @@ mod trade_vault {
             let user_vault_equity_in_percent =
                 total_user_share_token_amount / self.total_share_tokens;
             let user_withdrawal_proportional_to_total_equity =
-                share_tokens.amount() / total_user_share_token_amount;
+                share_tokens.amount() / self.total_share_tokens;
             let user_withdrawal_proportional_to_his_equity =
                 share_tokens.amount() / total_user_share_token_amount;
             (
@@ -475,17 +479,32 @@ mod trade_vault {
             let mut total_user_asset_value = Decimal::zero();
 
             if let Some(xrd_vault) = self.assets.get(&XRD) {
-                total_user_asset_value += xrd_vault.amount();
+                total_user_asset_value =
+                    user_vault_equity_in_percent * xrd_vault.amount();
             }
 
             for (asset_address, vault) in &self.assets {
                 if asset_address != &XRD {
-                    let (price, _) = self
+                    // Sort the asset pair to maintain consistency in pricing
+                    let (resource_x, resource_y) = if XRD < *asset_address {
+                        (XRD, *asset_address)
+                    } else {
+                        (*asset_address, XRD)
+                    };
+
+                    // Fetch the oracle adapter and get the price using the sorted resources
+                    let price = self
                         .fidenaro
-                        .get_oracle_adapter()
+                        .call::<(), Option<OracleAdapter>>(
+                            "get_oracle_adapter",
+                            &(),
+                        )
                         .unwrap()
-                        .get_price(*asset_address, XRD);
+                        .get_price(resource_x, resource_y);
+
                     info!("Price: {}", price);
+
+                    // Update total user asset value calculation
                     total_user_asset_value +=
                         user_vault_equity_in_percent * vault.amount() * price;
                 }

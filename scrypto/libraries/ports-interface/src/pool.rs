@@ -16,7 +16,6 @@
 // under the License.
 
 //! Defines the interface of the adapters used to communicate with pools.
-use common::prelude::*;
 use scrypto::prelude::*;
 use scrypto_interface::*;
 
@@ -31,9 +30,6 @@ define_interface! {
     ] {
         /// Swap one asset into another
         fn swap(&mut self, pool_address: ComponentAddress, input_bucket: Bucket) -> (Bucket, Bucket);
-
-        /// Returns the price of the pair of assets in the pool.
-        fn price(&mut self, pool_address: ComponentAddress) -> Price;
 
         /// The addresses of the pool's resources.
         fn resource_addresses(

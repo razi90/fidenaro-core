@@ -54,6 +54,6 @@ define_interface! {
             &self,
             base: ResourceAddress,
             quote: ResourceAddress,
-        ) -> (Decimal, Instant);
+        ) -> Decimal;
     }
 }

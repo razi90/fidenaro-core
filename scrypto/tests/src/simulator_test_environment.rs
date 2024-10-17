@@ -62,22 +62,10 @@ impl ScryptoSimulatorEnv {
         let _protocol_owner_rule = rule!(require(protocol_owner_badge));
 
         // Compile and publish packages
-        let [fidenaro_package, user_factory_package, simple_oracle_package, ociswap_adapter_package, ociswap_v2_pool_package, ociswap_v2_registry_package] =
+        let [fidenaro_package, user_factory_package, trade_vault_package, simple_oracle_package, ociswap_adapter_package, ociswap_v2_pool_package, ociswap_v2_registry_package] =
             Self::PACKAGE_NAMES.map(|package_name| {
                 ledger_simulator.compile_and_publish(package_name)
             });
-
-        // Convert the fidenaro package address to the Bech32 representation "package_sim1..." to use it to replace it in the blueprint of the trade vault
-        std::env::set_var(
-            "FIDENARO_PACKAGE_ADDRESS",
-            fidenaro_package
-                .display(&AddressBech32Encoder::for_simulator())
-                .to_string(),
-        );
-
-        // Compile and publish the trade vault blueprint
-        let trade_vault_package =
-            ledger_simulator.compile_and_publish("../packages/trade-vault");
 
         // Create resources
         let resource_addresses =

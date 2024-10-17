@@ -18,7 +18,6 @@
 mod blueprint_interface;
 pub use blueprint_interface::*;
 
-use common::prelude::*;
 use ports_interface::prelude::*;
 use scrypto::prelude::*;
 use scrypto_interface::*;
@@ -92,21 +91,6 @@ pub mod adapter {
         ) -> (Bucket, Bucket) {
             let mut pool = pool!(pool_address);
             pool.swap(input_bucket)
-        }
-
-        fn price(&mut self, pool_address: ComponentAddress) -> Price {
-            let pool = pool!(pool_address);
-            let price_sqrt = pool.price_sqrt();
-            let price = price_sqrt
-                .checked_powi(2)
-                .and_then(|value| Decimal::try_from(value).ok())
-                .expect(OVERFLOW_ERROR);
-            let (resource_x, resource_y) = (pool.x_address(), pool.y_address());
-            Price {
-                base: resource_x,
-                quote: resource_y,
-                price,
-            }
         }
 
         fn resource_addresses(
