@@ -100,6 +100,31 @@ impl ScryptoSimulatorEnv {
             .copied()
             .unwrap();
 
+        // Initialize a simple oracle
+        let simple_oracle = ledger_simulator
+            .execute_manifest(
+                ManifestBuilder::new()
+                    .lock_fee_from_faucet()
+                    .call_function(
+                        simple_oracle_package,
+                        "SimpleOracle",
+                        "instantiate",
+                        (
+                            protocol_manager_rule.clone(),
+                            MetadataInit::default(),
+                            OwnerRole::None,
+                            None::<ManifestAddressReservation>,
+                        ),
+                    )
+                    .build(),
+                vec![],
+            )
+            .expect_commit_success()
+            .new_component_addresses()
+            .first()
+            .copied()
+            .unwrap();
+
         // Init Ociswap v2 precision pools
         let ociswap_v2_pools = resource_addresses.map(|resource_address| {
             let (resource_x, resource_y) = if XRD < *resource_address {
@@ -155,48 +180,21 @@ impl ScryptoSimulatorEnv {
                 .execute_manifest_without_auth(manifest)
                 .expect_commit_success();
 
-            component_address
-        });
-
-        // Initialize a simple oracle
-        let simple_oracle = ledger_simulator
-            .execute_manifest(
-                ManifestBuilder::new()
-                    .lock_fee_from_faucet()
-                    .call_function(
-                        simple_oracle_package,
-                        "SimpleOracle",
-                        "instantiate",
-                        (
-                            protocol_manager_rule.clone(),
-                            MetadataInit::default(),
-                            OwnerRole::None,
-                            None::<ManifestAddressReservation>,
-                        ),
-                    )
-                    .build(),
-                vec![],
-            )
-            .expect_commit_success()
-            .new_component_addresses()
-            .first()
-            .copied()
-            .unwrap();
-
-        // Submitting some dummy prices to the oracle to get things going.
-        resource_addresses.map(|resource_address| {
+            // Insert price pools into oracle
             ledger_simulator
                 .execute_manifest_without_auth(
                     ManifestBuilder::new()
                         .lock_fee_from_faucet()
                         .call_method(
                             simple_oracle,
-                            "set_price",
-                            (*resource_address, XRD, dec!(1)),
+                            "insert_pool",
+                            (resource_x, resource_y, component_address),
                         )
                         .build(),
                 )
                 .expect_commit_success();
+
+            component_address
         });
 
         // Initializing fidenaro with information
