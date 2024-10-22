@@ -182,12 +182,16 @@ fn can_withdraw_multiple_followers() -> Result<(), RuntimeError> {
 
     // Create a new follower
     let second_follower_token = protocol.user_factory.create_new_user(
-        "new_follower".to_string(),
-        "bio".to_string(),
-        "http://follower-pfp.com".to_string(),
-        "twitter".to_string(),
-        "telegram".to_string(),
-        "discord".to_string(),
+        user_factory::UserData {
+            user_name: "second_follower".to_string(),
+            bio: "bio".to_string(),
+            pfp_url: radix_engine_interface::prelude::UncheckedUrl(
+                "http://trader-pfp.com".to_string(),
+            ),
+            twitter: "twitter".to_string(),
+            telegram: "telegram".to_string(),
+            discord: "discord".to_string(),
+        },
         env,
     )?;
 

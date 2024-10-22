@@ -1,0 +1,43 @@
+# disabled because of high runtime
+stages:
+  - build
+  - test
+  - lint
+
+variables:
+  CARGO_HOME: "/cache/cargo"
+
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - /cache/cargo
+    - scrypto/target
+
+default:
+  image: razicorleone/fidenaro:latest
+  before_script:
+    - git submodule init
+    - git submodule update
+    - cd scrypto
+
+build:
+  stage: build
+  script:
+    - cd tests
+    - cargo build --verbose
+
+run_tests_unit:
+  stage: test
+  script:
+    - cargo test --package tests --test unit --exact --show-output
+
+run_tests_simulator:
+  stage: test
+  script:
+    - cargo test --package tests --test simulator
+
+lint:
+  stage: lint
+  script:
+    - rustup component add clippy
+    - cargo clippy -- -D warnings
