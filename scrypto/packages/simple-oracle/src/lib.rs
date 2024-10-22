@@ -160,6 +160,9 @@ mod simple_oracle {
             };
 
             // Invert the price if base was XRD
+            // Allowing arithmetic_side_effects here because it is ensured by precision pools
+            // that price will never be zero
+            #[allow(clippy::arithmetic_side_effects)]
             if base == XRD {
                 Decimal::ONE / price
             } else {

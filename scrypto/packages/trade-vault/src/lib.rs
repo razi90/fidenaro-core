@@ -189,8 +189,14 @@ mod trade_vault {
             // calculate value of all assets
             let mut total_asset_value = Decimal::zero();
 
-            if self.assets.contains_key(&XRD) {
-                total_asset_value += self.assets.get(&XRD).unwrap().amount();
+            if let Some(asset) = self.assets.get(&XRD) {
+                if let Some(new_total) =
+                    total_asset_value.checked_add(asset.amount())
+                {
+                    total_asset_value = new_total;
+                } else {
+                    panic!("Value overflow during deposit. Abort.")
+                }
             }
 
             // calculate value of other assets based on their current price
@@ -205,7 +211,10 @@ mod trade_vault {
                         .unwrap()
                         .get_price(*asset_address, XRD);
                     info!("Price: {}", price);
-                    total_asset_value += vault.amount() * price;
+                    let asset_value =
+                        vault.amount().checked_mul(price).unwrap();
+                    total_asset_value =
+                        total_asset_value.checked_add(asset_value).unwrap();
                 }
             }
 
@@ -213,10 +222,15 @@ mod trade_vault {
             // calculate the ratio of deposit value to total value in vault
             let mut amount_to_mint = Decimal::zero();
             if !total_asset_value.is_zero() {
-                let ratio = deposit.amount() / total_asset_value;
+                let ratio =
+                    deposit.amount().checked_div(total_asset_value).unwrap();
                 info!("Deposit ratio is {}", ratio);
                 info!("Total shares amount is {}", self.total_share_tokens);
-                amount_to_mint += self.total_share_tokens * ratio;
+                amount_to_mint = amount_to_mint
+                    .checked_add(
+                        self.total_share_tokens.checked_mul(ratio).unwrap(),
+                    )
+                    .unwrap();
             } else {
                 amount_to_mint = deposit.amount();
             }
@@ -225,7 +239,10 @@ mod trade_vault {
 
             let resource_manager = self.share_token_manager;
             let share_tokens = resource_manager.mint(amount_to_mint);
-            self.total_share_tokens += share_tokens.amount();
+            self.total_share_tokens = self
+                .total_share_tokens
+                .checked_add(share_tokens.amount())
+                .unwrap();
 
             info!(
                 "Minted {} share tokens after a deposit amount of {}",
@@ -235,8 +252,14 @@ mod trade_vault {
 
             let entry = self.user_positions.get_mut(&user_id);
             if let Some(mut user_position) = entry {
-                user_position.share_amount += share_tokens.amount();
-                user_position.total_deposit += deposit.amount();
+                user_position.share_amount = user_position
+                    .share_amount
+                    .checked_add(share_tokens.amount())
+                    .unwrap();
+                user_position.total_deposit = user_position
+                    .total_deposit
+                    .checked_add(deposit.amount())
+                    .unwrap();
             } else {
                 drop(entry);
                 self.user_positions.insert(
@@ -294,7 +317,8 @@ mod trade_vault {
             let total_user_asset_value =
                 self.calculate_total_user_asset_value(user_vault_equity);
             let _withdrawal_value = total_user_asset_value
-                * user_withdrawal_proportional_to_his_equity;
+                .checked_mul(user_withdrawal_proportional_to_his_equity)
+                .unwrap();
 
             info!("Total user asset value: {:?}", total_user_asset_value);
             info!("Withdrawal user asset value: {:?}", _withdrawal_value);
@@ -356,7 +380,7 @@ mod trade_vault {
             // Take fidenaro fee
             let fee_rate =
                 self.fidenaro.call::<(), Decimal>("get_fee_rate", &());
-            let fee_amount = from_token.amount() * fee_rate;
+            let fee_amount = from_token.amount().checked_mul(fee_rate).unwrap();
             let fee = from_token.take_advanced(
                 fee_amount,
                 WithdrawStrategy::Rounded(RoundingMode::ToZero),
@@ -399,7 +423,7 @@ mod trade_vault {
                 .or_insert_with(|| Vault::new(to_tokens.resource_address()));
 
             // deposit tokens into vault
-            pool.put(to_tokens.into());
+            pool.put(to_tokens);
 
             Runtime::emit_event(TradeEvent {
                 from: from_token_address,
@@ -459,12 +483,17 @@ mod trade_vault {
         ) -> (Decimal, Decimal, Decimal) {
             let total_user_share_token_amount =
                 self.user_positions.get(user_id).unwrap().share_amount;
-            let user_vault_equity_in_percent =
-                total_user_share_token_amount / self.total_share_tokens;
-            let user_withdrawal_proportional_to_total_equity =
-                share_tokens.amount() / self.total_share_tokens;
-            let user_withdrawal_proportional_to_his_equity =
-                share_tokens.amount() / total_user_share_token_amount;
+            let user_vault_equity_in_percent = total_user_share_token_amount
+                .checked_div(self.total_share_tokens)
+                .unwrap();
+            let user_withdrawal_proportional_to_total_equity = share_tokens
+                .amount()
+                .checked_div(self.total_share_tokens)
+                .unwrap();
+            let user_withdrawal_proportional_to_his_equity = share_tokens
+                .amount()
+                .checked_div(total_user_share_token_amount)
+                .unwrap();
             (
                 user_vault_equity_in_percent,
                 user_withdrawal_proportional_to_total_equity,
@@ -479,8 +508,9 @@ mod trade_vault {
             let mut total_user_asset_value = Decimal::zero();
 
             if let Some(xrd_vault) = self.assets.get(&XRD) {
-                total_user_asset_value =
-                    user_vault_equity_in_percent * xrd_vault.amount();
+                total_user_asset_value = user_vault_equity_in_percent
+                    .checked_mul(xrd_vault.amount())
+                    .unwrap();
             }
 
             for (asset_address, vault) in &self.assets {
@@ -505,8 +535,22 @@ mod trade_vault {
                     info!("Price: {}", price);
 
                     // Update total user asset value calculation
-                    total_user_asset_value +=
-                        user_vault_equity_in_percent * vault.amount() * price;
+                    if let Some(equity_value) = user_vault_equity_in_percent
+                        .checked_mul(vault.amount())
+                        .and_then(|result| result.checked_mul(price))
+                    {
+                        if let Some(new_total) =
+                            total_user_asset_value.checked_add(equity_value)
+                        {
+                            total_user_asset_value = new_total;
+                        } else {
+                            panic!("Overflow occurred while adding equity value to total asset value");
+                        }
+                    } else {
+                        panic!(
+                            "Overflow occurred while calculating equity value",
+                        );
+                    }
                 }
             }
 
@@ -520,14 +564,16 @@ mod trade_vault {
             user_withdrawal_proportion: Decimal,
         ) -> (Decimal, Decimal) {
             let user_position = self.user_positions.get(user_id).unwrap();
-            let profit = total_user_asset_value - user_position.total_deposit;
+            let profit = total_user_asset_value
+                .checked_sub(user_position.total_deposit)
+                .unwrap();
             let profit_on_withdrawal = if profit.is_positive() {
-                user_withdrawal_proportion * profit
+                user_withdrawal_proportion.checked_mul(profit).unwrap()
             } else {
                 dec!(0)
             };
             let profit_proportional_to_withdrawal =
-                profit / total_user_asset_value;
+                profit.checked_sub(total_user_asset_value).unwrap();
 
             (profit_on_withdrawal, profit_proportional_to_withdrawal)
         }
@@ -546,8 +592,10 @@ mod trade_vault {
                     tokens.push(vault.take_all());
                 } else {
                     info!("Withdraw assets partially");
-                    let amount_to_withdraw =
-                        vault.amount() * user_withdrawal_proportion;
+                    let amount_to_withdraw = vault
+                        .amount()
+                        .checked_mul(user_withdrawal_proportion)
+                        .unwrap();
                     tokens.push(vault.take_advanced(
                         amount_to_withdraw,
                         WithdrawStrategy::Rounded(RoundingMode::ToZero),
@@ -564,9 +612,12 @@ mod trade_vault {
             profit_proportional_to_withdrawal: Decimal,
         ) {
             for bucket in assets {
-                let amount_to_take_off = bucket.amount()
-                    * profit_proportional_to_withdrawal
-                    * dec!(0.1);
+                let amount_to_take_off = bucket
+                    .amount()
+                    .checked_mul(profit_proportional_to_withdrawal)
+                    .unwrap()
+                    .checked_mul(dec!(0.1))
+                    .unwrap();
                 let trader_fee = bucket.take_advanced(
                     amount_to_take_off,
                     WithdrawStrategy::Rounded(
@@ -601,22 +652,52 @@ mod trade_vault {
             if let Some(mut user_position) =
                 self.user_positions.get_mut(user_id)
             {
-                user_position.share_amount -= share_tokens.amount();
-                let new_total_deposit = user_position.total_deposit
-                    * (1 - user_withdrawal_proportion);
-                user_position.total_deposit = new_total_deposit;
+                // Safely subtract `share_tokens.amount()` from `user_position.share_amount`
+                if let Some(new_share_amount) = user_position
+                    .share_amount
+                    .checked_sub(share_tokens.amount())
+                {
+                    user_position.share_amount = new_share_amount;
+                } else {
+                    panic!("Users withdrawn share amount is higher than his total position. Abort.");
+                }
+
+                if user_withdrawal_proportion < Decimal::zero()
+                    || user_withdrawal_proportion > Decimal::one()
+                {
+                    panic!("Invalid withdrawal proportion. Must be between 0.0 and 1.0.");
+                }
+
+                // Calculate the new total deposit
+                if let Some(new_total_deposit) =
+                    user_position.total_deposit.checked_mul(
+                        Decimal::one()
+                            .checked_sub(user_withdrawal_proportion)
+                            .unwrap(),
+                    )
+                {
+                    user_position.total_deposit = new_total_deposit;
+                } else {
+                    panic!("Overflow occurred while calculating the new total deposit");
+                }
 
                 if user_position.share_amount.is_zero() {
                     remove_entry = true;
                 }
             }
             if remove_entry {
-                self.user_positions.remove(&user_id);
+                self.user_positions.remove(user_id);
             }
         }
 
         fn burn_share_tokens(&mut self, share_tokens: Bucket) {
-            self.total_share_tokens -= share_tokens.amount();
+            if let Some(new_total) =
+                self.total_share_tokens.checked_sub(share_tokens.amount())
+            {
+                self.total_share_tokens = new_total;
+            } else {
+                panic!("Amount of share tokens to burn is higher than the total existing share tokens.")
+            };
             self.share_token_manager.burn(share_tokens);
         }
     }

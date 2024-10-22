@@ -1,7 +1,7 @@
 use scrypto::prelude::*;
 
-#[derive(ScryptoSbor, NonFungibleData)]
-pub struct User {
+#[derive(ScryptoSbor, NonFungibleData, ManifestSbor)]
+pub struct UserData {
     #[mutable]
     pub user_name: String,
     #[mutable]
@@ -28,7 +28,7 @@ mod user_factory {
             let (address_reservation, component_address) =
                 Runtime::allocate_component_address(UserFactory::blueprint_id());
 
-            let user_token_manager = ResourceBuilder::new_integer_non_fungible::<User>(
+            let user_token_manager = ResourceBuilder::new_integer_non_fungible::<UserData>(
                 OwnerRole::None,
             )
             .metadata(metadata!(
@@ -64,27 +64,18 @@ mod user_factory {
 
         pub fn create_new_user(
             &mut self,
-            user_name: String,
-            bio: String,
-            pfp_url: String,
-            twitter: String,
-            telegram: String,
-            discord: String,
+            user_data: UserData,
         ) -> NonFungibleBucket {
-            let new_user = User {
-                user_name,
-                bio,
-                pfp_url: Url::of(pfp_url),
-                twitter,
-                telegram,
-                discord,
-            };
             let user_token = self.user_token_manager.mint_non_fungible(
                 &NonFungibleLocalId::Integer(self.user_count.into()),
-                new_user,
+                user_data,
             );
 
-            self.user_count += 1;
+            if let Some(new_count) = self.user_count.checked_add(1) {
+                self.user_count = new_count;
+            } else {
+                panic!("Reached max limit of users.")
+            }
 
             user_token.as_non_fungible()
         }

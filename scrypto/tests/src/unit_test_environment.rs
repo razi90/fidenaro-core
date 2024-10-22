@@ -17,6 +17,8 @@
 
 #![allow(clippy::arithmetic_side_effects)]
 
+use user_factory::UserData;
+
 use crate::prelude::*;
 
 pub type ScryptoUnitTestEnv = Environment<ScryptoUnitTestEnvironmentSpecifier>;
@@ -203,21 +205,29 @@ impl ScryptoUnitTestEnv {
             UserFactory::instantiate(user_factory_package, &mut env)?;
 
         let trader_user_token = user_factory.create_new_user(
-            "trader".to_string(),
-            "bio".to_string(),
-            "http://trader-pfp.com".to_string(),
-            "twitter".to_string(),
-            "telegram".to_string(),
-            "discord".to_string(),
+            UserData {
+                user_name: "trader".to_string(),
+                bio: "bio".to_string(),
+                pfp_url: radix_engine_interface::prelude::UncheckedUrl(
+                    "http://trader-pfp.com".to_string(),
+                ),
+                twitter: "twitter".to_string(),
+                telegram: "telegram".to_string(),
+                discord: "discord".to_string(),
+            },
             &mut env,
         )?;
         let follower_user_token = user_factory.create_new_user(
-            "follower".to_string(),
-            "bio".to_string(),
-            "http://follower-pfp.com".to_string(),
-            "twitter".to_string(),
-            "telegram".to_string(),
-            "discord".to_string(),
+            UserData {
+                user_name: "follower".to_string(),
+                bio: "bio".to_string(),
+                pfp_url: radix_engine_interface::prelude::UncheckedUrl(
+                    "http://follower-pfp.com".to_string(),
+                ),
+                twitter: "twitter".to_string(),
+                telegram: "telegram".to_string(),
+                discord: "discord".to_string(),
+            },
             &mut env,
         )?;
 
@@ -240,7 +250,7 @@ impl ScryptoUnitTestEnv {
         let share_token_manager = env
             .with_component_state::<TradeVaultState, _, _, _>(
                 trade_vault,
-                |substate, _| substate.share_token_manager.clone(),
+                |substate, _| substate.share_token_manager,
             )?;
 
         let trade_vault_share_token = share_token_manager.address();
@@ -268,7 +278,7 @@ impl ScryptoUnitTestEnv {
                 package: ociswap_v2_pool_package,
                 pools: ociswap_v2_pools,
                 adapter_package: ociswap_adapter_package,
-                adapter: ociswap_adapter.try_into().unwrap(),
+                adapter: ociswap_adapter,
             },
         })
     }

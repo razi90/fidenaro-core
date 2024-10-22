@@ -117,7 +117,7 @@ mod fidenaro {
             .with_address(address_reservation)
             .globalize();
 
-            return (component, admin_badge);
+            (component, admin_badge)
         }
 
         pub fn register_vault(
@@ -133,7 +133,7 @@ mod fidenaro {
         }
 
         pub fn get_user_token_resource_address(&self) -> ResourceAddress {
-            self.user_token_address.unwrap().clone()
+            self.user_token_address.unwrap()
         }
 
         pub fn get_fee_rate(&self) -> Decimal {

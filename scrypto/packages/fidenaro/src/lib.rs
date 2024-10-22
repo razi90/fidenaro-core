@@ -17,8 +17,8 @@
 
 #![allow(clippy::too_many_arguments)]
 
-mod errors;
-mod fidenaro;
+pub mod errors;
+pub mod fidenaro;
 
 pub use errors::*;
 pub use fidenaro::*;

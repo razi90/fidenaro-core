@@ -267,7 +267,6 @@ impl ScryptoSimulatorEnv {
                                 adapter: ociswap_adapter,
                                 allowed_pools: ociswap_v2_pools
                                     .iter()
-                                    .map(|pool| pool.try_into().unwrap())
                                     .collect(),
                             },
                         ),
@@ -329,7 +328,10 @@ impl ScryptoSimulatorEnv {
         ]
         .map(|(account, user_type)| {
             let bio = user_type.clone() + "Bio";
-            let pfp = format!("http://{}-pfp.com", user_type);
+            let pfp = radix_engine_interface::prelude::UncheckedUrl(format!(
+                "http://{}-pfp.com",
+                user_type
+            ));
             let twitter = user_type.clone() + "Twitter";
             let telegram = user_type.clone() + "Telegram";
             let discord = user_type.clone() + "Discord";
@@ -341,7 +343,14 @@ impl ScryptoSimulatorEnv {
                         .call_method(
                             user_factory,
                             "create_new_user",
-                            (user_type, bio, pfp, twitter, telegram, discord),
+                            (user_factory::UserData {
+                                user_name: user_type,
+                                bio,
+                                pfp_url: pfp,
+                                twitter,
+                                telegram,
+                                discord,
+                            },),
                         )
                         .try_deposit_entire_worktop_or_abort(account, None)
                         .build(),
